@@ -8,7 +8,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.ReadOnlyDAO;
 
-public class ModificationPatternPrint {
+public class MPPrinter {
 
 	public static void main(String[] args) {
 

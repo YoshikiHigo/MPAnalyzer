@@ -13,7 +13,7 @@ import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
-public class TargetRevisionExtraction {
+public class TargetRevisionExtractor {
 
 	public static void main(String[] args) throws SVNException, IOException {
 

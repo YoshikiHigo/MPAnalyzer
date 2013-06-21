@@ -8,7 +8,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.ReadOnlyDAO;
 
-public class ModificationPatternExtraction {
+public class MPExtractor {
 
 	public static void main(String[] args) {
 
