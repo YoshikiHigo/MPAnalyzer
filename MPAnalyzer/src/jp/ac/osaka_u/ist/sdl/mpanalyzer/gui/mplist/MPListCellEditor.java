@@ -40,7 +40,7 @@ public class MPListCellEditor extends AbstractCellEditor implements
 			final Object value, final boolean isSelected, final int row,
 			final int column) {
 
-		if (11 == column) {
+		if (12 == column) {
 			this.value = this.comboBoxes[row];
 			return (JComboBox) this.value;
 		} else {
