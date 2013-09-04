@@ -18,6 +18,10 @@ public class Config {
 	public static String getDATABASENAME() {
 		return getConfig("DATABASENAME");
 	}
+	
+	public static String getCSV(){
+		return getConfig("CSV");
+	}
 
 	public static String getLanguage() {
 		return getConfig("LANGUAGE");
