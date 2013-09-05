@@ -885,6 +885,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		if (0 < node.arguments().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
+		this.tokens.add(new Token(")", TokenType.PAREN, line));
 
 		return false;
 	}
