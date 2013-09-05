@@ -144,7 +144,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("new", TokenType.PRESERVED, line));
+		this.tokens.add(new Token("new ", TokenType.PRESERVED, line));
 		node.getType().getElementType().accept(this);
 		if (0 == node.dimensions().size()) {
 			for (int i = 0; i < node.getType().getDimensions(); i++) {
@@ -311,7 +311,8 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("new", TokenType.PRESERVED, line));
+		this.tokens.add(new Token("new ", TokenType.PRESERVED, line));
+
 		node.getType().accept(this);
 		this.tokens.add(new Token("(", TokenType.PAREN, line));
 		for (final Object argument : node.arguments()) {
@@ -353,7 +354,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final ConstructorInvocation node) {
 
 		final int line = this.getStartLineNumber(node);
-
+		
 		this.tokens.add(new Token("(", TokenType.PAREN, line));
 		for (final Object argument : node.arguments()) {
 			((ASTNode) argument).accept(this);
@@ -649,36 +650,36 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-//		for (final Object modififer : node.modifiers()) {
-//			((ASTNode) modififer).accept(this);
-//		}
-//		if (null != node.getReturnType2()) {
-//			node.getReturnType2().accept(this);
-//		} else {
-//			this.tokens.add(new Token("void", TokenType.PRESERVED, line));
-//		}
-//		node.getName().accept(this);
-//		this.tokens.add(new Token("(", TokenType.PAREN, line));
-//		for (final Object parameter : node.parameters()) {
-//			((ASTNode) parameter).accept(this);
-//			this.tokens.add(new Token(",", TokenType.COMMA, line));
-//		}
-//		if (0 < node.parameters().size()) {
-//			this.tokens.remove(this.tokens.size() - 1);
-//		}
-//		this.tokens.add(new Token(")", TokenType.PAREN, line));
-//		if (0 < node.thrownExceptions().size()) {
-//			this.tokens.add(new Token("throws", TokenType.PRESERVED, line));
-//			for (final Object exception : node.thrownExceptions()) {
-//				((ASTNode) exception).accept(this);
-//				this.tokens.add(new Token(",", TokenType.COMMA, line));
-//			}
-//			this.tokens.remove(this.tokens.size() - 1);
-//		}
+		// for (final Object modififer : node.modifiers()) {
+		// ((ASTNode) modififer).accept(this);
+		// }
+		// if (null != node.getReturnType2()) {
+		// node.getReturnType2().accept(this);
+		// } else {
+		// this.tokens.add(new Token("void", TokenType.PRESERVED, line));
+		// }
+		// node.getName().accept(this);
+		// this.tokens.add(new Token("(", TokenType.PAREN, line));
+		// for (final Object parameter : node.parameters()) {
+		// ((ASTNode) parameter).accept(this);
+		// this.tokens.add(new Token(",", TokenType.COMMA, line));
+		// }
+		// if (0 < node.parameters().size()) {
+		// this.tokens.remove(this.tokens.size() - 1);
+		// }
+		// this.tokens.add(new Token(")", TokenType.PAREN, line));
+		// if (0 < node.thrownExceptions().size()) {
+		// this.tokens.add(new Token("throws", TokenType.PRESERVED, line));
+		// for (final Object exception : node.thrownExceptions()) {
+		// ((ASTNode) exception).accept(this);
+		// this.tokens.add(new Token(",", TokenType.COMMA, line));
+		// }
+		// this.tokens.remove(this.tokens.size() - 1);
+		// }
 		if (null != node.getBody()) {
 			node.getBody().accept(this);
 		} else {
-//			this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+			// this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
 		}
 
 		return false;
@@ -838,21 +839,21 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 	@Override
 	public boolean visit(final SuperConstructorInvocation node) {
-		
+
 		final int line = this.getStartLineNumber(node);
-		
+
 		this.tokens.add(new Token("super", TokenType.PRESERVED, line));
 		this.tokens.add(new Token("(", TokenType.PAREN, line));
-		for(final Object argument : node.arguments()){
-			((ASTNode)argument).accept(this);
+		for (final Object argument : node.arguments()) {
+			((ASTNode) argument).accept(this);
 			this.tokens.add(new Token(",", TokenType.COMMA, line));
 		}
-		if( 0 < node.arguments().size()){
+		if (0 < node.arguments().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
 		this.tokens.add(new Token(")", TokenType.PAREN, line));
 		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
-		
+
 		return false;
 	}
 
