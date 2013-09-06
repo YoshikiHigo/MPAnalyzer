@@ -80,6 +80,7 @@ import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeLiteral;
@@ -144,7 +145,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("new ", TokenType.PRESERVED, line));
+		this.tokens.add(new Token("new", TokenType.PRESERVED, line));
 		node.getType().getElementType().accept(this);
 		if (0 == node.dimensions().size()) {
 			for (int i = 0; i < node.getType().getDimensions(); i++) {
@@ -311,7 +312,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("new ", TokenType.PRESERVED, line));
+		this.tokens.add(new Token("new", TokenType.PRESERVED, line));
 
 		node.getType().accept(this);
 		this.tokens.add(new Token("(", TokenType.PAREN, line));
@@ -354,7 +355,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final ConstructorInvocation node) {
 
 		final int line = this.getStartLineNumber(node);
-		
+
 		this.tokens.add(new Token("(", TokenType.PAREN, line));
 		for (final Object argument : node.arguments()) {
 			((ASTNode) argument).accept(this);
@@ -734,6 +735,19 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 	@Override
 	public boolean visit(final ParameterizedType node) {
+
+		final int line = this.getStartLineNumber(node);
+
+		node.getType().accept(this);
+
+		this.tokens.add(new Token("<", TokenType.ANGLE, line));
+		for (final Object argument : node.typeArguments()) {
+			((ASTNode) argument).accept(this);
+			this.tokens.add(new Token(",", TokenType.COMMA, line));
+		}
+		this.tokens.remove(this.tokens.size() - 1);
+		this.tokens.add(new Token(">", TokenType.ANGLE, line));
+
 		return false;
 	}
 
@@ -1104,7 +1118,21 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 	@Override
 	public boolean visit(final WildcardType node) {
-		return super.visit(node);
+
+		final int line = this.getStartLineNumber(node);
+
+		this.tokens.add(new Token("?", TokenType.WILDCARD, line));
+
+		final Type boundType = node.getBound();
+		if (null != boundType) {
+			if (node.isUpperBound()) {
+				this.tokens
+						.add(new Token("extends", TokenType.PRESERVED, line));
+			}
+			boundType.accept(this);
+		}
+
+		return false;
 	}
 
 }
