@@ -24,9 +24,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.DetectionWindow;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.PatternWindow;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.PatternWindow;
 
 public class MPList extends JTable implements Observer {
 
@@ -60,8 +61,14 @@ public class MPList extends JTable implements Observer {
 			final int modifier = e.getModifiers();
 			if ((modifier & MouseEvent.BUTTON1_MASK) != 0) {
 				if (e.getClickCount() == 2) {
-					final PatternWindow window = new PatternWindow();
-					window.setVisible(true);
+					
+					if (e.isShiftDown()) {
+						final DetectionWindow window = new DetectionWindow();
+						window.setVisible(true);
+					} else {
+						final PatternWindow window = new PatternWindow();
+						window.setVisible(true);
+					}
 				}
 			} else if ((modifier & MouseEvent.BUTTON3_MASK) != 0) {
 
@@ -96,7 +103,6 @@ public class MPList extends JTable implements Observer {
 				}
 			}
 		}
-
 	}
 
 	static final int COLUMN_LENGTH_SUPPORT = 110;
@@ -178,7 +184,8 @@ public class MPList extends JTable implements Observer {
 				.setPreferredWidth(COLUMN_LENGTH_CONFIDENCE);
 		this.getColumnModel().getColumn(10)
 				.setPreferredWidth(COLUMN_LENGTH_START);
-		this.getColumnModel().getColumn(11).setPreferredWidth(COLUMN_LENGTH_END);
+		this.getColumnModel().getColumn(11)
+				.setPreferredWidth(COLUMN_LENGTH_END);
 		if (10 <= model.getColumnCount()) {
 			this.getColumnModel().getColumn(12)
 					.setCellEditor(new MPListCellEditor(comboBoxes));
