@@ -121,27 +121,27 @@ public class StringUtility {
 	public static List<Statement> splitToStatements(final String text) {
 		final List<Statement> statements = new ArrayList<Statement>();
 		final String[] lines = text.split(System.getProperty("line.separator"));
-		for(final String line : lines){
+		for (final String line : lines) {
 			final List<Token> tokens = new ArrayList<Token>();
 			tokens.add(new Token(line, TokenType.STATEMENT, 0));
 			final Statement statement = new Statement(tokens);
 			statements.add(statement);
 		}
-		
-//		final List<Statement> statements = new ArrayList<Statement>();
-//		int startIndex = 0;
-//		int endIndex = 0;
-//		for (int index = 0; index < text.length(); index++) {
-//			if (';' == text.charAt(index) || '{' == text.charAt(index)
-//					|| '}' == text.charAt(index)) {
-//				endIndex = index + 1;
-//				final String subText = text.substring(startIndex, endIndex);
-//				final List<Token> tokens = new ArrayList<Token>();
-//				tokens.add(new Token(subText, TokenType.STATEMENT, 0));
-//				final Statement statement = new Statement(tokens);
-//				statements.add(statement);
-//			}
-//		}
+
+		// final List<Statement> statements = new ArrayList<Statement>();
+		// int startIndex = 0;
+		// int endIndex = 0;
+		// for (int index = 0; index < text.length(); index++) {
+		// if (';' == text.charAt(index) || '{' == text.charAt(index)
+		// || '}' == text.charAt(index)) {
+		// endIndex = index + 1;
+		// final String subText = text.substring(startIndex, endIndex);
+		// final List<Token> tokens = new ArrayList<Token>();
+		// tokens.add(new Token(subText, TokenType.STATEMENT, 0));
+		// final Statement statement = new Statement(tokens);
+		// statements.add(statement);
+		// }
+		// }
 		return statements;
 	}
 

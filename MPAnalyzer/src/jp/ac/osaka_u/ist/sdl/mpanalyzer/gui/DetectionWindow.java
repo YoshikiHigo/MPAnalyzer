@@ -4,13 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -20,22 +13,12 @@ import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.dtree.DTree;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mcode.MCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist.RList;
-
-import org.tmatesoft.svn.core.SVNDepth;
-import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNURL;
-import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
-import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
-import org.tmatesoft.svn.core.wc.SVNClientManager;
-import org.tmatesoft.svn.core.wc.SVNDiffClient;
-import org.tmatesoft.svn.core.wc.SVNDiffStatus;
-import org.tmatesoft.svn.core.wc.SVNRevision;
-import org.tmatesoft.svn.core.wc.SVNStatusType;
-import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 public class DetectionWindow extends JFrame {
 
@@ -84,8 +67,15 @@ public class DetectionWindow extends JFrame {
 		topPane.add(topMainPanl, BorderLayout.CENTER);
 		topPane.add(searchButton, BorderLayout.EAST);
 
-		final JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		final DTree dTree = new DTree();
+
+		final JSplitPane bottomPane = new JSplitPane(
+				JSplitPane.HORIZONTAL_SPLIT);
+		bottomPane.add(dTree, JSplitPane.LEFT);
+
+		final JSplitPane mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		mainPane.add(topPane, JSplitPane.TOP);
+		mainPane.add(bottomPane, JSplitPane.BOTTOM);
 
 		this.getContentPane().add(mainPane);
 
@@ -94,65 +84,12 @@ public class DetectionWindow extends JFrame {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 
-				final Map<String, String> pathContentMap = new HashMap<String, String>();
-
-				try {
-					final SVNURL url = SVNURL.fromFile(new File(
-							PATH_TO_REPOSITORY));
-					FSRepositoryFactory.setup();
-					final SVNWCClient wcClient = SVNClientManager.newInstance()
-							.getWCClient();
-					final SVNDiffClient diffClient = SVNClientManager
-							.newInstance().getDiffClient();
-
-					final List<String> files = new ArrayList<String>();
-
-					// 変更されたJavaファイルのリストを得る
-					diffClient.doDiffStatus(url, SVNRevision.create(0), url,
-							SVNRevision.create(rList.getSelectedRevision()),
-							SVNDepth.INFINITY, true,
-							new ISVNDiffStatusHandler() {
-
-								@Override
-								public void handleDiffStatus(
-										final SVNDiffStatus diffStatus) {
-									final String path = diffStatus.getPath();
-									final SVNStatusType type = diffStatus
-											.getModificationType();
-									if (path.endsWith(".java")
-											&& path.startsWith(TARGET)
-											&& type.equals(SVNStatusType.STATUS_MODIFIED)) {
-										files.add(path);
-									}
-								}
-							});
-
-					for (final String path : files) {
-						final SVNURL fileurl = SVNURL.fromFile(new File(
-								PATH_TO_REPOSITORY
-										+ System.getProperty("file.separator")
-										+ path));
-
-						final StringBuilder text = new StringBuilder();
-						wcClient.doGetFileContents(
-								fileurl,
-								SVNRevision.create(rList.getSelectedRevision()),
-								SVNRevision.create(rList.getSelectedRevision()),
-								false, new OutputStream() {
-									@Override
-									public void write(int b) throws IOException {
-										text.append((char) b);
-									}
-								});
-
-						pathContentMap.put(path, text.toString());
-					}
-
-				} catch (final SVNException exception) {
-					exception.printStackTrace();
-				}
+				final long revision = rList.getSelectedRevision();
+				final CodeFragment codeFragment = beforeButton.isSelected() ? pattern
+						.getModifications().get(0).before : pattern
+						.getModifications().get(0).after;
+				dTree.update(revision, codeFragment);
 			}
-
 		});
 	}
 }

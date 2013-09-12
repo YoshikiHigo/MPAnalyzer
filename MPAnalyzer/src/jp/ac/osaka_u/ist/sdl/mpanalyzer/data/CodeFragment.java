@@ -1,5 +1,6 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
@@ -75,5 +76,13 @@ public class CodeFragment {
 					.get(this.statements.get(this.statements.size() - 1).tokens
 							.size() - 1).line;
 		}
+	}
+
+	public List<Token> getTokens() {
+		final List<Token> tokens = new ArrayList<Token>();
+		for (final Statement statement : this.statements) {
+			tokens.addAll(statement.tokens);
+		}
+		return tokens;
 	}
 }

@@ -2,6 +2,9 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist;
 
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 
 import javax.swing.ButtonGroup;
@@ -20,10 +23,12 @@ public class RList extends JPanel {
 	final public JScrollPane scrollPane;
 
 	final ButtonGroup group;
+	final Map<JRadioButton, Revision> buttonRevisionMap;
 
 	public RList() {
 		super();
 		this.group = new ButtonGroup();
+		this.buttonRevisionMap = new HashMap<JRadioButton, Revision>();
 		try {
 			final SortedSet<Revision> revisions = ReadOnlyDAO.getInstance()
 					.getRevisions();
@@ -38,6 +43,7 @@ public class RList extends JPanel {
 						false);
 				this.group.add(button);
 				this.add(button, 0);
+				this.buttonRevisionMap.put(button, revision);
 			}
 		} catch (final Exception e) {
 			this.add(new JLabel("Error happened in getting revisions."));
@@ -54,7 +60,22 @@ public class RList extends JPanel {
 	}
 
 	public final long getSelectedRevision() {
-		return Long.parseLong((String) this.group.getSelection()
-				.getSelectedObjects()[0]);
+
+		for (final Entry<JRadioButton, Revision> entry : this.buttonRevisionMap
+				.entrySet()) {
+			if (entry.getKey().isSelected()) {
+				return entry.getValue().number;
+			}
+		}
+		return 0;
+
+		// Object[] selectedObjects = this.group.getSelection()
+		// .getSelectedObjects();
+		// if (null != selectedObjects) {
+		// return Long.parseLong((String) selectedObjects[0]);
+		// } else {
+		// return 0;
+		// }
+
 	}
 }
