@@ -24,17 +24,20 @@ import javax.swing.tree.TreeSelectionModel;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.progress.ProgressDialog;
 
+import org.tmatesoft.svn.core.ISVNDirEntryHandler;
 import org.tmatesoft.svn.core.SVNDepth;
+import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.wc17.SVNRemoteStatusEditor17.FileInfo;
-import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
-import org.tmatesoft.svn.core.wc.SVNDiffClient;
-import org.tmatesoft.svn.core.wc.SVNDiffStatus;
+import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
@@ -65,11 +68,13 @@ public class DTree extends JTree {
 			.getPATH_TO_REPOSITORY();
 	static final private String TARGET = Config.getTARGET();
 
-	private final JScrollPane scrollPane;
+	public final JScrollPane scrollPane;
 
 	private final FileNode rootNode;
 
 	private final DTreeSelectionEventHandler directoryTreeSelectionEventHandler;
+
+	private ProgressDialog progressDialog;
 
 	public DTree() {
 
@@ -97,6 +102,12 @@ public class DTree extends JTree {
 
 		this.directoryTreeSelectionEventHandler = new DTreeSelectionEventHandler();
 		this.addTreeSelectionListener(this.directoryTreeSelectionEventHandler);
+
+		this.progressDialog = null;
+	}
+
+	public void setProgressDialog(final ProgressDialog progressDialog) {
+		this.progressDialog = progressDialog;
 	}
 
 	public void update(final long revision, final CodeFragment codeFragment) {
@@ -107,6 +118,10 @@ public class DTree extends JTree {
 		this.setCellRenderer(new FileNodeRenderer());
 		this.expandTreeNode(this.rootNode);
 		this.setRootVisible(false);
+
+		if (this.progressDialog.isVisible()) {
+			this.progressDialog.dispose();
+		}
 
 		this.repaint();
 	}
@@ -164,29 +179,59 @@ public class DTree extends JTree {
 		try {
 			final SVNURL url = SVNURL.fromFile(new File(PATH_TO_REPOSITORY));
 			FSRepositoryFactory.setup();
+			final SVNLogClient logClient = SVNClientManager.newInstance()
+					.getLogClient();
 			final SVNWCClient wcClient = SVNClientManager.newInstance()
 					.getWCClient();
-			final SVNDiffClient diffClient = SVNClientManager.newInstance()
-					.getDiffClient();
+
+			this.progressDialog.note.setText("preparing a file list ...");
+			this.progressDialog.repaint();
 
 			final SortedSet<String> files = new TreeSet<String>();
 
-			diffClient.doDiffStatus(url, SVNRevision.create(0), url,
-					SVNRevision.create(revision), SVNDepth.INFINITY, true,
-					new ISVNDiffStatusHandler() {
+			logClient.doList(url, SVNRevision.create(revision),
+					SVNRevision.create(revision), true, SVNDepth.INFINITY,
+					SVNDirEntry.DIRENT_ALL, new ISVNDirEntryHandler() {
 
 						@Override
-						public void handleDiffStatus(
-								final SVNDiffStatus diffStatus) {
-							final String path = diffStatus.getPath();
-							if (path.endsWith(".java")
-									&& path.startsWith(TARGET)) {
-								files.add(path);
+						public void handleDirEntry(final SVNDirEntry entry)
+								throws SVNException {
+
+							if (progressDialog.canceled.isCanceled()) {
+								return;
+							}
+
+							if (entry.getKind() == SVNNodeKind.FILE) {
+								final String path = entry.getRelativePath();
+								if (path.startsWith(TARGET)
+										&& path.endsWith(".java")) {
+
+									progressDialog.note
+											.setText("preparing files ... "
+													+ path);
+									progressDialog.repaint();
+
+									System.out.println(path);
+									files.add(path);
+								}
 							}
 						}
 					});
 
+			this.progressDialog.progressBar.setMaximum(files.size());
+
+			int progress = 1;
 			for (final String path : files) {
+
+				if (progressDialog.canceled.isCanceled()) {
+					return new ArrayList<FileData>();
+				}
+
+				this.progressDialog.progressBar.setValue(progress++);
+				this.progressDialog.note.setText("detecting patterns ... "
+						+ path);
+				this.progressDialog.repaint();
+
 				final SVNURL fileurl = SVNURL.fromFile(new File(
 						PATH_TO_REPOSITORY
 								+ System.getProperty("file.separator") + path));
@@ -203,8 +248,11 @@ public class DTree extends JTree {
 						});
 
 				final List<Token> tokens = Token.getTokens(text.toString());
-				final int count = this.getCount(tokens,
-						codeFragment.getTokens());
+				final List<Statement> statements = Statement
+						.getStatements(tokens);
+				final int count = this.getCount(statements,
+						codeFragment.statements);
+
 				final String[] separatedPath = path.split("/");
 				final FileData fileData = new FileData(separatedPath, count);
 				data.add(fileData);
@@ -217,19 +265,22 @@ public class DTree extends JTree {
 		return data;
 	}
 
-	private int getCount(final List<Token> tokens, final List<Token> pattern) {
+	private int getCount(final List<Statement> statements,
+			final List<Statement> pattern) {
 
 		int count = 0;
-
 		int pIndex = 0;
-		for (int index = 0; index < tokens.size(); index++) {
+		for (int index = 0; index < statements.size(); index++) {
 
-			if (tokens.get(index).equals(pattern.get(pIndex))) {
+			if (statements.get(index).hash == pattern.get(pIndex).hash) {
 				pIndex++;
 				if (pIndex == pattern.size()) {
+					count++;
 					pIndex = 0;
 				}
-			} else {
+			} 
+			
+			else {
 				pIndex = 0;
 			}
 		}

@@ -27,16 +27,6 @@ public class Statement {
 			}
 		}
 
-		// for (final Token token : tokens) {
-		// tokensForaStatement.add(token);
-		// if (token.name.equals("{") || token.name.equals("}")
-		// || token.name.equals(";")) {
-		// final Statement statement = new Statement(tokensForaStatement);
-		// statements.add(statement);
-		// tokensForaStatement = new ArrayList<Token>();
-		// }
-		// }
-
 		return statements;
 	}
 

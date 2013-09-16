@@ -1,7 +1,9 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,6 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
@@ -18,6 +22,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.dtree.DTree;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mcode.MCode;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.progress.ProgressDialog;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist.RList;
 
 public class DetectionWindow extends JFrame {
@@ -28,6 +33,9 @@ public class DetectionWindow extends JFrame {
 
 	public DetectionWindow() {
 		super("Detection Window - MPAnalyzer");
+
+		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		this.setSize(new Dimension(d.width - 5, d.height - 27));
 
 		final RList rList = new RList();
 
@@ -71,7 +79,7 @@ public class DetectionWindow extends JFrame {
 
 		final JSplitPane bottomPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT);
-		bottomPane.add(dTree, JSplitPane.LEFT);
+		bottomPane.add(dTree.scrollPane, JSplitPane.LEFT);
 
 		final JSplitPane mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		mainPane.add(topPane, JSplitPane.TOP);
@@ -79,16 +87,46 @@ public class DetectionWindow extends JFrame {
 
 		this.getContentPane().add(mainPane);
 
+		mainPane.setDividerLocation(d.height / 2);
+
 		searchButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 
-				final long revision = rList.getSelectedRevision();
-				final CodeFragment codeFragment = beforeButton.isSelected() ? pattern
-						.getModifications().get(0).before : pattern
-						.getModifications().get(0).after;
-				dTree.update(revision, codeFragment);
+				searchButton.setEnabled(false);
+
+				final ProgressDialog progressDialog = new ProgressDialog(
+						DetectionWindow.this);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						progressDialog.setVisible(true);
+					}
+				});
+
+				final SwingWorker<Object, Object> task = new SwingWorker<Object, Object>() {
+
+					@Override
+					protected Object doInBackground() throws Exception {
+						final long revision = rList.getSelectedRevision();
+						final CodeFragment codeFragment = beforeButton
+								.isSelected() ? pattern.getModifications().get(
+								0).before
+								: pattern.getModifications().get(0).after;
+						dTree.setProgressDialog(progressDialog);
+						dTree.update(revision, codeFragment);
+						return null;
+					}
+
+					@Override
+					protected void done() {
+						super.done();
+						searchButton.setEnabled(true);
+					}
+
+				};
+				task.execute();
 			}
 		});
 	}

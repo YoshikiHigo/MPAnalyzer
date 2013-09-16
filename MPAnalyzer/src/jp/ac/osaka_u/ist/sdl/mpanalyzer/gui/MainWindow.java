@@ -9,6 +9,8 @@ import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.graph.PCGraph;
@@ -19,8 +21,16 @@ public class MainWindow extends JFrame {
 
 	public static void main(String[] args) {
 
-		final MainWindow main = new MainWindow();
-		main.setVisible(true);
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (final Exception e) {
+		}
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				new MainWindow();
+			}
+		});
 	}
 
 	public MainWindow() {
@@ -87,6 +97,8 @@ public class MainWindow extends JFrame {
 		topPane.setDividerLocation(d.width / 2);
 		bottomPane.setDividerLocation(d.width / 2);
 		mainPane.setDividerLocation(d.height / 2);
+
+		this.setVisible(true);
 	}
 
 	class MainWindowListener implements WindowListener {
