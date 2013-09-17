@@ -16,7 +16,7 @@ public final class FileNode extends DefaultMutableTreeNode {
 		super(name);
 
 		this.name = name;
-		this.cloneNumber = 0;
+		this.cloneNumber = cloneNumber;
 	}
 
 	FileNode add(final FileNode newFileNode, int cloneNumber) {
@@ -67,13 +67,9 @@ public final class FileNode extends DefaultMutableTreeNode {
 
 		final StringBuilder text = new StringBuilder();
 		text.append(this.name);
-
-		if (0 == this.cloneNumber) {
-			text.append(" (");
-			text.append(this.cloneNumber);
-			text.append(")");
-		}
-
+		text.append(" (");
+		text.append(this.cloneNumber);
+		text.append(")");
 		return text.toString();
 	}
 

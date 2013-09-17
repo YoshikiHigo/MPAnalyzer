@@ -24,7 +24,7 @@ class FileNodeRenderer extends JLabel implements TreeCellRenderer {
 
 			if (0 == node.getCloneNumber()) {
 
-				setText(node.toString());
+				setText(node.getName());
 
 				if (selected) {
 					this.setBackground(Color.blue);
@@ -34,7 +34,9 @@ class FileNodeRenderer extends JLabel implements TreeCellRenderer {
 					this.setForeground(Color.black);
 				}
 
-			} else {
+			} 
+			
+			else {
 
 				setText(node.toString());
 
@@ -49,7 +51,9 @@ class FileNodeRenderer extends JLabel implements TreeCellRenderer {
 
 			this.setIcon(UIManager.getIcon("Tree.leafIcon"));
 
-		} else {
+		} 
+		
+		else {
 
 			if (expanded) {
 
@@ -65,11 +69,13 @@ class FileNodeRenderer extends JLabel implements TreeCellRenderer {
 
 				this.setIcon(UIManager.getIcon("Tree.openIcon"));
 
-			} else {
+			} 
+			
+			else {
 
 				if (0 == node.getCloneNumber()) {
 
-					setText(node.toString());
+					setText(node.getName());
 
 					if (selected) {
 						this.setBackground(Color.blue);
@@ -79,7 +85,9 @@ class FileNodeRenderer extends JLabel implements TreeCellRenderer {
 						this.setForeground(Color.black);
 					}
 
-				} else {
+				} 
+				
+				else {
 
 					setText(node.toString());
 

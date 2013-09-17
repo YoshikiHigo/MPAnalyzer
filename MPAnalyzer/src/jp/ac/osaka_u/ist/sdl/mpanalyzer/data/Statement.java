@@ -44,6 +44,7 @@ public class Statement {
 			text.append(token.name);
 			text.append(" ");
 		}
+		text.deleteCharAt(text.length() - 1);
 		return text.toString();
 	}
 
