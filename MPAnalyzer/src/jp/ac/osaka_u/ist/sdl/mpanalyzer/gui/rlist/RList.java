@@ -2,10 +2,12 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist;
 
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
@@ -30,8 +32,21 @@ public class RList extends JPanel {
 		this.group = new ButtonGroup();
 		this.buttonRevisionMap = new HashMap<JRadioButton, Revision>();
 		try {
-			final SortedSet<Revision> revisions = ReadOnlyDAO.getInstance()
-					.getRevisions();
+			final SortedSet<Revision> revisions = new TreeSet<Revision>(
+					new Comparator<Revision>() {
+						@Override
+						public int compare(final Revision r1, final Revision r2) {
+							if (r1.number < r2.number) {
+								return 1;
+							} else if (r1.number > r2.number) {
+								return -1;
+							} else {
+								return 0;
+							}
+						}
+					});
+
+			revisions.addAll(ReadOnlyDAO.getInstance().getRevisions());
 			this.setLayout(new GridLayout(revisions.size(), 1));
 			for (final Revision revision : revisions) {
 				final StringBuilder text = new StringBuilder();
@@ -40,9 +55,9 @@ public class RList extends JPanel {
 				text.append(revision.date);
 				text.append(")");
 				final JRadioButton button = new JRadioButton(text.toString(),
-						false);
+						true);
 				this.group.add(button);
-				this.add(button, 0);
+				this.add(button);
 				this.buttonRevisionMap.put(button, revision);
 			}
 		} catch (final Exception e) {

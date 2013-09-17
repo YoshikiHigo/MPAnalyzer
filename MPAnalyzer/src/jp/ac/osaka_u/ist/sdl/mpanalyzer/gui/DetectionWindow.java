@@ -42,7 +42,7 @@ public class DetectionWindow extends JFrame {
 		final JRadioButton beforeButton = new JRadioButton(
 				"Before modification", false);
 		final JRadioButton afterButton = new JRadioButton("After modification",
-				false);
+				true);
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(beforeButton);
 		buttonGroup.add(afterButton);

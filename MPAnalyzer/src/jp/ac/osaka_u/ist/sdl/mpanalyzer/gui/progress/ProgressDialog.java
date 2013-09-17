@@ -51,6 +51,6 @@ public class ProgressDialog extends JDialog {
 
 		});
 
-		this.setBounds(64, 64, 756, 256);
+		this.setBounds(64, 64, 756, 128);
 	}
 }

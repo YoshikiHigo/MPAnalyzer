@@ -211,7 +211,6 @@ public class DTree extends JTree {
 													+ path);
 									progressDialog.repaint();
 
-									System.out.println(path);
 									files.add(path);
 								}
 							}
@@ -278,8 +277,8 @@ public class DTree extends JTree {
 					count++;
 					pIndex = 0;
 				}
-			} 
-			
+			}
+
 			else {
 				pIndex = 0;
 			}
