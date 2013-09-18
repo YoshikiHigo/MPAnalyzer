@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -26,6 +28,8 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.progress.ProgressDialog;
 
 import org.tmatesoft.svn.core.ISVNDirEntryHandler;
@@ -41,7 +45,7 @@ import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-public class DTree extends JTree {
+public class DTree extends JTree implements Observer {
 
 	class DTreeSelectionEventHandler implements TreeSelectionListener {
 		public void valueChanged(TreeSelectionEvent e) {
@@ -54,13 +58,23 @@ public class DTree extends JTree {
 					final FileNode fileNode = (FileNode) selectionPath[i]
 							.getLastPathComponent();
 					if (fileNode.isLeaf()) {
-						selectedFiles.add((FileInfo) fileNode.getUserObject());
+						final Object[] objects = fileNode.getUserObjectPath();
+						final String path = this.concatenate(objects);
+						ObservedFiles.getInstance(FLABEL.SELECTED).set(path,
+								DTree.this);
 					}
 				}
 			}
+		}
 
-			// SelectedEntities.<FileInfo> getInstance(FILES).setAll(
-			// selectedFiles, DirectoryTree.this);
+		private String concatenate(final Object[] objects) {
+			final StringBuilder text = new StringBuilder();
+			for (int index = 1; index < objects.length; index++) {
+				text.append(objects[index].toString());
+				text.append("/");
+			}
+			text.deleteCharAt(text.length() - 1);
+			return text.toString();
 		}
 	}
 
@@ -201,6 +215,14 @@ public class DTree extends JTree {
 								return;
 							}
 
+							progressDialog.progressBar
+									.setMaximum(progressDialog.progressBar
+											.getMaximum() + 1);
+							progressDialog.progressBar
+									.setValue(progressDialog.progressBar
+											.getValue() + 1);
+							progressDialog.repaint();
+
 							if (entry.getKind() == SVNNodeKind.FILE) {
 								final String path = entry.getRelativePath();
 								if (path.startsWith(TARGET)
@@ -218,6 +240,7 @@ public class DTree extends JTree {
 					});
 
 			this.progressDialog.progressBar.setMaximum(files.size());
+			this.progressDialog.progressBar.setValue(0);
 
 			int progress = 1;
 			for (final String path : files) {
@@ -285,6 +308,10 @@ public class DTree extends JTree {
 		}
 
 		return count;
+	}
+
+	@Override
+	public void update(final Observable o, final Object arg) {
 	}
 
 	class FileData {

@@ -5,7 +5,7 @@ import java.util.List;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 
-public class CodeFragment {
+public class CodeFragment implements Comparable<CodeFragment> {
 
 	public final List<Statement> statements;
 	public final String text;
@@ -58,6 +58,11 @@ public class CodeFragment {
 	@Override
 	public String toString() {
 		return this.text;
+	}
+
+	@Override
+	public int compareTo(final CodeFragment o) {
+		return this.text.compareTo(o.text);
 	}
 
 	public int getStartLine() {

@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -19,13 +21,17 @@ import javax.swing.SwingWorker;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedRevisions.RLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.dcode.DCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.dtree.DTree;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mcode.MCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.progress.ProgressDialog;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist.RList;
 
-public class DetectionWindow extends JFrame {
+public class DetectionWindow extends JFrame implements Observer {
 
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
@@ -77,9 +83,15 @@ public class DetectionWindow extends JFrame {
 
 		final DTree dTree = new DTree();
 
+		final DCode dCode = new DCode();
+		ObservedCodeFragments.getInstance(CFLABEL.SELECTED).addObserver(dCode);
+		ObservedFiles.getInstance(FLABEL.SELECTED).addObserver(dCode);
+		ObservedRevisions.getInstance(RLABEL.SELECTED).addObserver(dCode);
+
 		final JSplitPane bottomPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT);
 		bottomPane.add(dTree.scrollPane, JSplitPane.LEFT);
+		bottomPane.add(dCode.scrollPane, JSplitPane.RIGHT);
 
 		final JSplitPane mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		mainPane.add(topPane, JSplitPane.TOP);
@@ -88,6 +100,11 @@ public class DetectionWindow extends JFrame {
 		this.getContentPane().add(mainPane);
 
 		mainPane.setDividerLocation(d.height / 2);
+		bottomPane.setDividerLocation(d.width / 2);
+
+		ObservedCodeFragments.getInstance(CFLABEL.SELECTED).addObserver(this);
+		ObservedFiles.getInstance(FLABEL.SELECTED).addObserver(this);
+		ObservedRevisions.getInstance(RLABEL.SELECTED).addObserver(this);
 
 		searchButton.addActionListener(new ActionListener() {
 
@@ -95,6 +112,16 @@ public class DetectionWindow extends JFrame {
 			public void actionPerformed(final ActionEvent e) {
 
 				searchButton.setEnabled(false);
+
+				final long revision = rList.getSelectedRevision();
+				final CodeFragment codefragment = beforeButton.isSelected() ? pattern
+						.getModifications().get(0).before : pattern
+						.getModifications().get(0).after;
+
+				ObservedRevisions.getInstance(RLABEL.SELECTED).set(revision,
+						DetectionWindow.this);
+				ObservedCodeFragments.getInstance(CFLABEL.SELECTED).set(
+						codefragment, DetectionWindow.this);
 
 				final ProgressDialog progressDialog = new ProgressDialog(
 						DetectionWindow.this);
@@ -109,13 +136,8 @@ public class DetectionWindow extends JFrame {
 
 					@Override
 					protected Object doInBackground() throws Exception {
-						final long revision = rList.getSelectedRevision();
-						final CodeFragment codeFragment = beforeButton
-								.isSelected() ? pattern.getModifications().get(
-								0).before
-								: pattern.getModifications().get(0).after;
 						dTree.setProgressDialog(progressDialog);
-						dTree.update(revision, codeFragment);
+						dTree.update(revision, codefragment);
 						return null;
 					}
 
@@ -129,5 +151,9 @@ public class DetectionWindow extends JFrame {
 				task.execute();
 			}
 		});
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
 	}
 }

@@ -24,7 +24,7 @@ public class ProgressDialog extends JDialog {
 
 		this.getContentPane().setLayout(new BorderLayout());
 
-		this.progressBar = new JProgressBar(0, 100);
+		this.progressBar = new JProgressBar(0, 10000);
 		this.progressBar.setStringPainted(true);
 		this.progressBar.setString(null);
 
