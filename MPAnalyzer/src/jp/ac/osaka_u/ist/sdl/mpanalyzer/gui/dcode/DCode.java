@@ -22,6 +22,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedRevisions;
@@ -132,7 +133,7 @@ public class DCode extends JTextArea implements Observer {
 
 		else if (o instanceof ObservedCodeFragments) {
 			final ObservedCodeFragments observedCodeFragments = (ObservedCodeFragments) o;
-			if (observedCodeFragments.label.equals(FLABEL.SELECTED)) {
+			if (observedCodeFragments.label.equals(CFLABEL.SELECTED)) {
 				if (observedCodeFragments.isSet()) {
 					this.codefragment = observedCodeFragments.get().first();
 				}
@@ -146,18 +147,16 @@ public class DCode extends JTextArea implements Observer {
 		final SortedSet<Integer> lines = new TreeSet<Integer>();
 		final SortedSet<Integer> candidates = new TreeSet<Integer>();
 
-		int count = 0;
 		int pIndex = 0;
 		for (int index = 0; index < statements.size(); index++) {
 
 			final Statement statement = statements.get(index);
 			if (statement.hash == pattern.get(pIndex).hash) {
 				pIndex++;
-				candidates.add(statement.tokens.get(0).line);
+				candidates.add(statement.tokens.get(0).line - 1);
 				candidates
-						.add(statement.tokens.get(statement.tokens.size() - 1).line);
+						.add(statement.tokens.get(statement.tokens.size() - 1).line - 1);
 				if (pIndex == pattern.size()) {
-					count++;
 					pIndex = 0;
 					lines.addAll(candidates);
 					candidates.clear();
