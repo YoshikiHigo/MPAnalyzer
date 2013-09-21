@@ -40,5 +40,9 @@ public class PatternWindow extends JFrame {
 		mainPane.add(codePane, JSplitPane.RIGHT);
 
 		this.getContentPane().add(mainPane, BorderLayout.CENTER);
+
+		this.setVisible(true);
+
+		codePane.setDividerLocation(codePane.getWidth() / 2);
 	}
 }

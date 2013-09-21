@@ -2,9 +2,13 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.dcode;
 
 import java.awt.Color;
 import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
@@ -16,6 +20,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
@@ -45,6 +52,7 @@ public class DCode extends JTextArea implements Observer {
 
 	private Long revision;
 	private CodeFragment codefragment;
+	private List<Statement> statements;
 
 	public DCode() {
 
@@ -52,11 +60,13 @@ public class DCode extends JTextArea implements Observer {
 
 		this.revision = null;
 		this.codefragment = null;
+		this.statements = new ArrayList<Statement>();
 
 		final Insets margin = new Insets(5, 50, 5, 5);
 		this.setMargin(margin);
 		this.setUI(new DCodeUI(new HashSet<Integer>(), this, margin));
 		this.setText("");
+		this.setEditable(false);
 
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setViewportView(this);
@@ -65,8 +75,46 @@ public class DCode extends JTextArea implements Observer {
 		this.scrollPane
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
+		this.setTitle(null);
+
+		this.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				final int button = e.getButton();
+				final int clickCount = e.getClickCount();
+
+				switch (button) {
+				case MouseEvent.BUTTON1:
+					switch (clickCount) {
+					case 1:
+						break;
+					case 2:
+						DCode.this.display();
+						break;
+					default:
+					}
+					break;
+				case MouseEvent.BUTTON2:
+					break;
+				case MouseEvent.BUTTON3:
+					break;
+				default:
+				}
+			}
+		});
+	}
+
+	private void setTitle(final String path) {
+		final StringBuilder title = new StringBuilder();
+		title.append("Source Code View");
+		if (null != path) {
+			title.append(" (");
+			title.append(path);
+			title.append(")");
+		}
 		this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"Source Code View"));
+				title.toString()));
 	}
 
 	@Override
@@ -104,16 +152,16 @@ public class DCode extends JTextArea implements Observer {
 
 						final List<Token> tokens = Token.getTokens(text
 								.toString());
-						final List<Statement> statements = Statement
-								.getStatements(tokens);
+						DCode.this.statements = Statement.getStatements(tokens);
 						final SortedSet<Integer> highlightedLines = this
-								.getPositions(statements,
+								.getHighlightedLines(DCode.this.statements,
 										this.codefragment.statements);
 
 						final Insets margin = new Insets(5, 50, 5, 5);
 						this.setMargin(margin);
 						this.setUI(new DCodeUI(highlightedLines, this, margin));
 						this.setText(text.toString());
+						this.setTitle(path);
 
 					} catch (final Exception e) {
 						e.printStackTrace();
@@ -141,8 +189,8 @@ public class DCode extends JTextArea implements Observer {
 		}
 	}
 
-	private SortedSet<Integer> getPositions(final List<Statement> statements,
-			final List<Statement> pattern) {
+	private SortedSet<Integer> getHighlightedLines(
+			final List<Statement> statements, final List<Statement> pattern) {
 
 		final SortedSet<Integer> lines = new TreeSet<Integer>();
 		final SortedSet<Integer> candidates = new TreeSet<Integer>();
@@ -170,5 +218,78 @@ public class DCode extends JTextArea implements Observer {
 		}
 
 		return lines;
+	}
+
+	private SortedSet<Integer> getPatternLines(
+			final List<Statement> statements, final List<Statement> pattern) {
+
+		final SortedSet<Integer> lines = new TreeSet<Integer>();
+		int patternLine = 0;
+
+		int pIndex = 0;
+		for (int index = 0; index < statements.size(); index++) {
+
+			final Statement statement = statements.get(index);
+			if (statement.hash == pattern.get(pIndex).hash) {
+				if (0 == pIndex) {
+					patternLine = statement.tokens.get(0).line - 1;
+				}
+				pIndex++;
+				if (pIndex == pattern.size()) {
+					pIndex = 0;
+					lines.add(patternLine);
+					patternLine = 0;
+				}
+			}
+
+			else {
+				pIndex = 0;
+				patternLine = 0;
+			}
+		}
+
+		return lines;
+	}
+
+	private void display() {
+
+		final Document doc = this.getDocument();
+		final Element root = doc.getDefaultRootElement();
+
+		final SortedSet<Integer> patternLines = this.getPatternLines(
+				this.statements, this.codefragment.statements);
+		if (patternLines.isEmpty()) {
+			return;
+		}
+
+		final int currentCaretPosition = this.getCaretPosition();
+
+		try {
+
+			int nextOffset = 0;
+			for (final Integer line : patternLines) {
+				final Element element = root.getElement(Math.max(1, line - 2));
+				if (currentCaretPosition < element.getStartOffset()) {
+					nextOffset = element.getStartOffset();
+					break;
+				}
+			}
+			if (0 == nextOffset) {
+				final Element element = root.getElement(Math.max(1,
+						patternLines.first() - 2));
+				nextOffset = element.getStartOffset();
+			}
+
+			final Rectangle rect = this.modelToView(nextOffset);
+			final Rectangle vr = this.scrollPane.getViewport().getViewRect();
+
+			if ((null != rect) && (null != vr)) {
+				rect.setSize(10, vr.height);
+				this.scrollRectToVisible(rect);
+				this.setCaretPosition(nextOffset);
+			}
+		} catch (BadLocationException e) {
+			System.err.println(e.getMessage());
+		}
 	}
 }

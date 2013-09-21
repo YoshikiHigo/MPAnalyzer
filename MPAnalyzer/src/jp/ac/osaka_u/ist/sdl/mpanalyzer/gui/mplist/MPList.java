@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -61,13 +62,21 @@ public class MPList extends JTable implements Observer {
 			final int modifier = e.getModifiers();
 			if ((modifier & MouseEvent.BUTTON1_MASK) != 0) {
 				if (e.getClickCount() == 2) {
-					
+
 					if (e.isShiftDown()) {
-						final DetectionWindow window = new DetectionWindow();
-						window.setVisible(true);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								new DetectionWindow();
+							}
+						});
 					} else {
-						final PatternWindow window = new PatternWindow();
-						window.setVisible(true);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								new PatternWindow();
+							}
+						});
 					}
 				}
 			} else if ((modifier & MouseEvent.BUTTON3_MASK) != 0) {

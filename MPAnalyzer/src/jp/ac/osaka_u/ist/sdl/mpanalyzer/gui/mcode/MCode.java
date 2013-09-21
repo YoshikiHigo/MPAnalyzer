@@ -47,6 +47,7 @@ public class MCode extends JTextArea implements Observer {
 		this.setMargin(margin);
 		this.setUI(new MCodeUI(code, new HashSet<Integer>(), this, margin));
 		this.setText("");
+		this.setEditable(false);
 
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setViewportView(this);

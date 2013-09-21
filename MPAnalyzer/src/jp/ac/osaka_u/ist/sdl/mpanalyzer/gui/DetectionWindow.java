@@ -18,7 +18,6 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
@@ -32,10 +31,6 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.progress.ProgressDialog;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist.RList;
 
 public class DetectionWindow extends JFrame implements Observer {
-
-	static final private String PATH_TO_REPOSITORY = Config
-			.getPATH_TO_REPOSITORY();
-	static final private String TARGET = Config.getTARGET();
 
 	public DetectionWindow() {
 		super("Detection Window - MPAnalyzer");
@@ -99,12 +94,14 @@ public class DetectionWindow extends JFrame implements Observer {
 
 		this.getContentPane().add(mainPane);
 
-		mainPane.setDividerLocation(d.height / 2);
-		bottomPane.setDividerLocation(d.width / 2);
-
 		ObservedCodeFragments.getInstance(CFLABEL.SELECTED).addObserver(this);
 		ObservedFiles.getInstance(FLABEL.SELECTED).addObserver(this);
 		ObservedRevisions.getInstance(RLABEL.SELECTED).addObserver(this);
+
+		this.setVisible(true);
+
+		mainPane.setDividerLocation(d.height / 3);
+		bottomPane.setDividerLocation(d.width / 3);
 
 		searchButton.addActionListener(new ActionListener() {
 

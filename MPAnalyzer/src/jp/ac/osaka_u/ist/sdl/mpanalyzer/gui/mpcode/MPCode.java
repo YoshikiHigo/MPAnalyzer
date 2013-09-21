@@ -30,6 +30,7 @@ public class MPCode extends JTextArea implements Observer {
 		this.setMargin(margin);
 		this.setUI(new MPCodeUI(this, margin));
 		this.setText("");
+		this.setEditable(false);
 
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setViewportView(this);

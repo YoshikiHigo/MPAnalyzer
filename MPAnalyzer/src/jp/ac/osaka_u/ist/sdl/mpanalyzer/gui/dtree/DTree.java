@@ -63,6 +63,11 @@ public class DTree extends JTree implements Observer {
 						ObservedFiles.getInstance(FLABEL.SELECTED).set(path,
 								DTree.this);
 					}
+
+					else {
+						ObservedFiles.getInstance(FLABEL.SELECTED).clear(
+								DTree.this);
+					}
 				}
 			}
 		}
