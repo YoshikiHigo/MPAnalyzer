@@ -329,6 +329,12 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 			node.getExpression().accept(this);
 		}
 
+		final AnonymousClassDeclaration anonymousClassDeclaration = node
+				.getAnonymousClassDeclaration();
+		if (null != anonymousClassDeclaration) {
+			anonymousClassDeclaration.accept(this);
+		}
+
 		return false;
 	}
 
