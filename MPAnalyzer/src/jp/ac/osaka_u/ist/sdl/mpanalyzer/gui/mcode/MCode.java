@@ -2,19 +2,28 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mcode;
 
 import java.awt.Color;
 import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.LCS;
@@ -36,6 +45,7 @@ public class MCode extends JTextArea implements Observer {
 
 	static public final int TAB_SIZE = 4;
 
+	public final List<Modification> modifications;
 	public final JScrollPane scrollPane;
 	public final CODE code;
 
@@ -71,6 +81,34 @@ public class MCode extends JTextArea implements Observer {
 		}
 
 		this.code = code;
+		this.modifications = new ArrayList<Modification>();
+
+		this.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				final int button = e.getButton();
+				final int clickCount = e.getClickCount();
+
+				switch (button) {
+				case MouseEvent.BUTTON1:
+					switch (clickCount) {
+					case 1:
+						break;
+					case 2:
+						MCode.this.display();
+						break;
+					default:
+					}
+					break;
+				case MouseEvent.BUTTON2:
+					break;
+				case MouseEvent.BUTTON3:
+					break;
+				default:
+				}
+			}
+		});
 	}
 
 	@Override
@@ -98,7 +136,6 @@ public class MCode extends JTextArea implements Observer {
 						final SVNWCClient wcClient = SVNClientManager
 								.newInstance().getWCClient();
 
-						// 変更前ファイルの中身を取得
 						final StringBuilder beforeText = new StringBuilder();
 						wcClient.doGetFileContents(url,
 								SVNRevision.create(revision - 1l),
@@ -110,7 +147,6 @@ public class MCode extends JTextArea implements Observer {
 									}
 								});
 
-						// 変更前ファイルの中身を取得
 						final StringBuilder afterText = new StringBuilder();
 						wcClient.doGetFileContents(url,
 								SVNRevision.create(revision),
@@ -132,13 +168,20 @@ public class MCode extends JTextArea implements Observer {
 						final List<Statement> afterStatements = Statement
 								.getStatements(afterTokens);
 
+						this.modifications.clear();
 						final List<Modification> modifications = LCS
 								.getModifications(beforeStatements,
 										afterStatements, filepath,
 										modification.revision);
+						for (final Modification m : modifications) {
+							if (m.isSamePattern(modification)) {
+								this.modifications.add(m);
+							}
+						}
 
 						final Set<Integer> lines = new HashSet<Integer>();
 						for (final Modification m : modifications) {
+
 							final CodeFragment cf;
 							switch (this.code) {
 							case BEFORE:
@@ -179,6 +222,73 @@ public class MCode extends JTextArea implements Observer {
 					}
 				}
 			}
+		}
+	}
+
+	private SortedSet<Integer> getModificationLines() {
+
+		final SortedSet<Integer> lines = new TreeSet<Integer>();
+
+		for (final Modification m : this.modifications) {
+			final CodeFragment c;
+			switch (this.code) {
+			case BEFORE:
+				c = m.before;
+				break;
+			case AFTER:
+				c = m.after;
+				break;
+			default:
+				c = null;
+				assert false : "here shouldn't be reached!";
+				System.exit(0);
+			}
+			if (!c.statements.isEmpty()) {
+				lines.add(c.statements.get(0).tokens.get(0).line - 1);
+			}
+		}
+
+		return lines;
+	}
+
+	private void display() {
+
+		final Document doc = this.getDocument();
+		final Element root = doc.getDefaultRootElement();
+
+		final SortedSet<Integer> lines = this.getModificationLines();
+		if (lines.isEmpty()) {
+			return;
+		}
+
+		final int currentCaretPosition = this.getCaretPosition();
+
+		try {
+
+			int nextOffset = 0;
+			for (final Integer line : lines) {
+				final Element element = root.getElement(Math.max(1, line - 2));
+				if (currentCaretPosition < element.getStartOffset()) {
+					nextOffset = element.getStartOffset();
+					break;
+				}
+			}
+			if (0 == nextOffset) {
+				final Element element = root.getElement(Math.max(1,
+						lines.first() - 2));
+				nextOffset = element.getStartOffset();
+			}
+
+			final Rectangle rect = this.modelToView(nextOffset);
+			final Rectangle vr = this.scrollPane.getViewport().getViewRect();
+
+			if ((null != rect) && (null != vr)) {
+				rect.setSize(10, vr.height);
+				this.scrollRectToVisible(rect);
+				this.setCaretPosition(nextOffset);
+			}
+		} catch (BadLocationException e) {
+			System.err.println(e.getMessage());
 		}
 	}
 }

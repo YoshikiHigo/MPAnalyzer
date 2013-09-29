@@ -113,6 +113,7 @@ public class Modification implements Comparable<Modification> {
 		this.changeType = changeType;
 	}
 
+	@Override
 	public int compareTo(final Modification o) {
 
 		final int revisionComparisonResult = this.revision
@@ -128,4 +129,7 @@ public class Modification implements Comparable<Modification> {
 		return new Integer(this.id).compareTo(o.id);
 	}
 
+	public boolean isSamePattern(final Modification m) {
+		return this.before.equals(m.before) && this.after.equals(m.after);
+	}
 }
