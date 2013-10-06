@@ -10,7 +10,6 @@ public class MPMaker {
 
 			final long startTime = System.nanoTime();
 
-			System.out.println("making modification patterns ...");
 			final MPDAO dao = new MPDAO();
 			dao.makeModificationPatterns();
 			dao.close();

@@ -23,18 +23,27 @@ public class MPDAO extends DAO {
 		while (result1.next()) {
 			hashs.add(result1.getInt(1));
 		}
-
+		
 		final StringBuilder text2 = new StringBuilder();
 		text2.append("insert into pattern (beforeHash, afterHash, type, support, confidence) ");
 		text2.append("select A.beforeHash, A.afterHash, A.type, A.a, CAST(A.a AS REAL)/(select count(*) from modification where beforeHash=?) ");
 		text2.append("from (select beforeHash, afterHash, type, count(afterHash) a from modification where beforeHash=? group by afterHash) A");
 		final PreparedStatement pStatement = this.connector
 				.prepareStatement(text2.toString());
+		
+		System.out.print("making modification pattern. ");
+		int number = 1;
 		for(final Integer beforeHash : hashs){
+			if(0 == number % 500){
+				System.out.print(number);
+			}else if(0 == number % 100){
+				System.out.print(".");
+			}
 			pStatement.setInt(1, beforeHash);
 			pStatement.setInt(2, beforeHash);
 			pStatement.executeUpdate();
 		}
+		System.out.println(" done.");
 
 		// final Statement statement = this.connector.createStatement();
 		// final StringBuilder insert = new StringBuilder();
