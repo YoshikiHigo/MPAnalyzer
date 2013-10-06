@@ -31,14 +31,12 @@ public class ModificationWritingThread extends Thread {
 					dao.addModifications(modifications);
 					modifications.clear();
 				}
-				//Thread.sleep(100);
+				// Thread.sleep(100);
 			}
 
 			this.queue.drainTo(modifications);
 			dao.addModifications(modifications);
-
-			System.out.println("deriving modification patterns ...");
-			dao.makeModificationPatterns();
+			dao.flush();
 
 			dao.close();
 

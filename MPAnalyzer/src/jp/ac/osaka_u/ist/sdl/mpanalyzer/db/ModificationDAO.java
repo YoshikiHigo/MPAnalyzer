@@ -1,7 +1,6 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.db;
 
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.Collection;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
@@ -14,7 +13,7 @@ public class ModificationDAO extends DAO {
 	private int numberOfModificationPS;
 
 	public ModificationDAO() throws Exception {
-		super(false, true, true, true, false);
+		super(false, true, true, false, false);
 
 		this.codefragmentPS = this.connector
 				.prepareStatement("insert into codefragment values (?, ?)");
@@ -23,33 +22,6 @@ public class ModificationDAO extends DAO {
 
 		this.numberOfCodefragmentPS = 0;
 		this.numberOfModificationPS = 0;
-	}
-
-	public void makeModificationPatterns() throws Exception {
-
-		if (0 < this.numberOfCodefragmentPS) {
-			this.codefragmentPS.executeBatch();
-			this.numberOfCodefragmentPS = 0;
-		}
-
-		if (0 < this.numberOfModificationPS) {
-			this.modificationPS.executeBatch();
-			this.numberOfModificationPS = 0;
-		}
-
-		final Statement statement = this.connector.createStatement();
-		final StringBuilder insert = new StringBuilder();
-		insert.append("insert into pattern");
-		insert.append(" (beforeHash, afterHash, type, support, confidence) ");
-		insert.append("select A.beforeHash, A.afterHash, A.type, A.a, CAST(A.a AS REAL)/CAST(B.b AS REAL)");
-		insert.append("from (select beforeHash, afterHash, type, count(afterHash) a ");
-		insert.append("from modification group by beforeHash, afterHash) A, ");
-		insert.append("(select beforeHash, count(beforeHash) b ");
-		insert.append("from modification group by beforeHash) B ");
-		insert.append("where A.beforeHash = B.beforeHash");
-		statement.executeUpdate(insert.toString());
-
-		statement.close();
 	}
 
 	public void addModification(final Modification modification)
