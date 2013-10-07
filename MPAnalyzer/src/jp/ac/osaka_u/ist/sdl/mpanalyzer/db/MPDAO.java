@@ -31,7 +31,7 @@ public class MPDAO extends DAO {
 		final PreparedStatement pStatement = this.connector
 				.prepareStatement(text2.toString());
 		
-		System.out.print("making modification pattern. ");
+		System.out.print("making modification pattern ");
 		int number = 1;
 		for(final Integer beforeHash : hashs){
 			if(0 == number % 500){
@@ -42,6 +42,7 @@ public class MPDAO extends DAO {
 			pStatement.setInt(1, beforeHash);
 			pStatement.setInt(2, beforeHash);
 			pStatement.executeUpdate();
+			number++;
 		}
 		System.out.println(" done.");
 
