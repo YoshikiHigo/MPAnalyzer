@@ -206,10 +206,10 @@ public class PCGraph extends JPanel implements Observer {
 				} else if (pattern.getLAM() > PCGraph.this.maxLAM
 						* this.yRate[6]) {
 					outPatterns.add(pattern);
-				} else if (pattern.getRevisions().first().number > PCGraph.this.maxRevision.number
+				} else if ((pattern.getRevisions().first().number - PCGraph.this.minRevision.number) > (PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
 						* this.yRate[7]) {
 					outPatterns.add(pattern);
-				} else if (pattern.getRevisions().last().number > PCGraph.this.maxRevision.number
+				} else if ((pattern.getRevisions().last().number - PCGraph.this.minRevision.number) > (PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
 						* this.yRate[8]) {
 					outPatterns.add(pattern);
 				}
@@ -233,11 +233,11 @@ public class PCGraph extends JPanel implements Observer {
 				} else if (PCGraph.this.maxLAM * this.yRate[11] > pattern
 						.getLAM()) {
 					outPatterns.add(pattern);
-				} else if (PCGraph.this.maxRevision.number * this.yRate[10] > pattern
-						.getRevisions().first().number) {
+				} else if ((PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
+						* this.yRate[10] > (pattern.getRevisions().first().number - PCGraph.this.minRevision.number)) {
 					outPatterns.add(pattern);
-				} else if (PCGraph.this.maxRevision.number * this.yRate[9] > pattern
-						.getRevisions().last().number) {
+				} else if ((PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
+						* this.yRate[9] > (pattern.getRevisions().last().number - PCGraph.this.minRevision.number)) {
 					outPatterns.add(pattern);
 				} else {
 					inPatterns.add(pattern);
@@ -505,16 +505,13 @@ public class PCGraph extends JPanel implements Observer {
 				* (((double) pattern.getLBM()) / ((double) this.maxLBM))));
 		y[6] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
 				* (((double) pattern.getLAM()) / ((double) this.maxLAM))));
-		y[7] = this
-				.getReversedY((int) (Y_MARGIN + this.getYSpace()
-						* (this.maxRevision.number - pattern.getRevisions()
-								.first().number)
-						/ (this.maxRevision.number - this.minRevision.number + 1)));
-		y[8] = this
-				.getReversedY((int) (Y_MARGIN + this.getYSpace()
-						* (this.maxRevision.number - pattern.getRevisions()
-								.first().number)
-						/ (this.maxRevision.number - this.minRevision.number + 1)));
+		y[7] = (int) (Y_MARGIN + this.getYSpace()
+				* (this.maxRevision.number - pattern.getRevisions().first().number)
+				/ (this.maxRevision.number - this.minRevision.number + 1));
+		y[8] = (int) (Y_MARGIN + this.getYSpace()
+				* (this.maxRevision.number - pattern.getRevisions().last().number)
+				/ (this.maxRevision.number - this.minRevision.number + 1));
+
 		// get x axis plot location
 		final int[] x = new int[AXIS_TITLE.length];
 		int data_space = (this.getWidth() - 2 * X_MARGIN)
