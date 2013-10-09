@@ -16,7 +16,7 @@ public abstract class DAO {
 	static public final String MODIFICATION_SCHEMA = "id integer primary key autoincrement, filepath string, beforeText string, beforeHash integer, afterText string, afterHash integer, revision integer, type integer";
 	static public final String PATTERN_SCHEMA = "id integer primary key autoincrement, beforeHash integer, afterHash integer, type integer, support integer, confidence real";
 	static public final String PROBLEM_SCHEMA = "filepath string, start int, end int, problempattern string, problemID int, presentCode string, proposedCode string";
-	static public final String CLONE_SCHEMA = "filepath string, start inteter, end integer, revision integer, setID";
+	static public final String CLONE_SCHEMA = "id integer primary key autoincrement, filepath string, start inteter, end integer, revision integer, setID integer, changed boolean";
 
 	DAO(final boolean createRevisionTable,
 			final boolean createCodeFragmentTable,
@@ -96,7 +96,7 @@ public abstract class DAO {
 					.executeUpdate("create index problemIDIndex on problem (problemID)");
 		}
 		if (createCloneTable) {
-			statement.executeUpdate("drop table if exists problem");
+			statement.executeUpdate("drop table if exists clone");
 			statement.executeUpdate("create table clone (" + CLONE_SCHEMA
 					+ ")");
 			statement.executeUpdate("create index setIDIndex on clone (setID)");

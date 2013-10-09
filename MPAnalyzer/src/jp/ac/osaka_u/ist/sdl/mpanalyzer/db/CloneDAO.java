@@ -17,7 +17,7 @@ public class CloneDAO extends DAO {
 		super(false, false, false, false, false, true);
 
 		this.clonePS = this.connector
-				.prepareStatement("insert into clone values (?, ?, ?, ?, ?)");
+				.prepareStatement("insert into clone (filepath, start, end, revision, setID, changed) values (?, ?, ?, ?, ?, ?)");
 		this.numberOfClonePS = 0;
 	}
 
@@ -33,6 +33,7 @@ public class CloneDAO extends DAO {
 								.getEndLine());
 				this.clonePS.setLong(4, clone.revision);
 				this.clonePS.setInt(5, SETID.intValue());
+				this.clonePS.setBoolean(6, false);
 				this.clonePS.addBatch();
 				this.numberOfClonePS++;
 			}
@@ -56,7 +57,6 @@ public class CloneDAO extends DAO {
 		try {
 
 			if (0 < this.numberOfClonePS) {
-				System.out.println("writing clone table ...");
 				this.clonePS.executeBatch();
 				this.numberOfClonePS = 0;
 			}

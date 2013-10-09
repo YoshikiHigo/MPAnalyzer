@@ -88,10 +88,10 @@ public class CDetector {
 		System.out.print("writing result to clone table ... ");
 		try {
 			final CloneDAO cloneDAO = new CloneDAO();
-			
 			for (final Set<Clone> cloneset : clones.values()) {
 				cloneDAO.addClone(cloneset);
 			}
+			cloneDAO.close();
 		} catch (final Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -105,7 +105,7 @@ public class CDetector {
 		System.out.println(TimingUtility.getExecutionTime(startTime, endTime));
 	}
 
-	private SortedSet<String> identifyFiles() {
+	protected SortedSet<String> identifyFiles() {
 
 		final SortedSet<String> files = new TreeSet<String>();
 
@@ -145,7 +145,7 @@ public class CDetector {
 		return files;
 	}
 
-	private ConcurrentMap<String, List<Statement>> getFileContent(
+	protected ConcurrentMap<String, List<Statement>> getFileContent(
 			final SortedSet<String> paths) {
 
 		final ConcurrentMap<String, List<Statement>> contents = new ConcurrentHashMap<String, List<Statement>>();
