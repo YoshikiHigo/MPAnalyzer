@@ -10,7 +10,7 @@ public class RevisionDAO extends DAO {
 	private int numberOfRevisionPS;
 
 	public RevisionDAO() throws Exception {
-		super(true, false, false, false, false);
+		super(true, false, false, false, false, false);
 
 		System.out.println("table \'revision\' was initialized.");
 

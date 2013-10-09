@@ -13,7 +13,7 @@ public class ModificationDAO extends DAO {
 	private int numberOfModificationPS;
 
 	public ModificationDAO() throws Exception {
-		super(false, true, true, false, false);
+		super(false, true, true, false, false, false);
 
 		this.codefragmentPS = this.connector
 				.prepareStatement("insert into codefragment values (?, ?)");

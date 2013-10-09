@@ -41,7 +41,7 @@ public class ReadOnlyDAO extends DAO {
 
 	private ReadOnlyDAO() throws Exception {
 
-		super(false, false, false, false, false);
+		super(false, false, false, false, false, false);
 
 		final StringBuilder patternSQL = new StringBuilder();
 		patternSQL

@@ -18,8 +18,8 @@ public class Config {
 	public static String getDATABASENAME() {
 		return getConfig("DATABASENAME");
 	}
-	
-	public static String getCSV(){
+
+	public static String getCSV() {
 		return getConfig("CSV");
 	}
 
@@ -37,10 +37,20 @@ public class Config {
 				.parseLong(startRevision);
 	}
 
-	public static long getEndtRevision() {
+	public static long getEndRevision() {
 		final String endRevision = getConfig("ENDREVISION");
 		return endRevision.equalsIgnoreCase("LATEST") ? Long.MAX_VALUE : Long
 				.parseLong(endRevision);
+	}
+
+	public static long getCloneDetectionRevision() {
+		final String cloneDetectionRevision = getConfig("CLONEDETECTIONREVISION");
+		return Long.parseLong(cloneDetectionRevision);
+	}
+
+	public static int getCloneThreshold() {
+		final String cloneThreshold = getConfig("CLONETHRESHOLD");
+		return Integer.parseInt(cloneThreshold);
 	}
 
 	public static String getPATH_TO_PATTERNSFILE() {

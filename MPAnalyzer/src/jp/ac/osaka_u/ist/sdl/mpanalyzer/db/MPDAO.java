@@ -9,7 +9,7 @@ import java.util.List;
 public class MPDAO extends DAO {
 
 	public MPDAO() throws Exception {
-		super(false, false, false, true, false);
+		super(false, false, false, true, false, false);
 	}
 
 	public void makeModificationPatterns() throws Exception {

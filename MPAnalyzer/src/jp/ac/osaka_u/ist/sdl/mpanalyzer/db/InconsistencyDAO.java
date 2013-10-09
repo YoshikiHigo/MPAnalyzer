@@ -8,7 +8,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Inconsistency;
 public class InconsistencyDAO extends DAO {
 
 	public InconsistencyDAO() throws Exception {
-		super(false, false, false, false, true);
+		super(false, false, false, false, true, false);
 
 	}
 

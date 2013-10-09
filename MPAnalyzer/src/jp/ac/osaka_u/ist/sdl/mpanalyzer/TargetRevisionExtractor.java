@@ -30,7 +30,7 @@ public class TargetRevisionExtractor {
 			final SVNRepository repository = FSRepositoryFactory.create(url);
 
 			final long startRevision = Config.getStartRevision();
-			final long endRevision = Config.getEndtRevision();
+			final long endRevision = Config.getEndRevision();
 
 			final RevisionDAO dao = new RevisionDAO();
 
