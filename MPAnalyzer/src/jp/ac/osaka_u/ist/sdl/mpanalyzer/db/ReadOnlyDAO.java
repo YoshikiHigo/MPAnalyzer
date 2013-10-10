@@ -4,17 +4,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.clone.Clone;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Inconsistency;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ModificationType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 
 public class ReadOnlyDAO extends DAO {
 
@@ -150,7 +153,7 @@ public class ReadOnlyDAO extends DAO {
 			final String pattern = result.getString(4);
 			final int patternID = result.getInt(5);
 			final String presentCode = result.getString(6);
-			final String suggestedCode= result.getString(7);
+			final String suggestedCode = result.getString(7);
 
 			final Inconsistency inconsistency = new Inconsistency(filepath,
 					startLine, endLine, pattern, patternID, presentCode,
@@ -178,5 +181,38 @@ public class ReadOnlyDAO extends DAO {
 		}
 
 		return revisions;
+	}
+
+	public Map<Integer, List<Clone>> getClones() throws Exception {
+
+		final Statement cloneStatement = this.connector.createStatement();
+		final ResultSet result = cloneStatement
+				.executeQuery("select id, filepath, start, end, revision, setID from clone");
+
+		final Map<Integer, List<Clone>> clones = new HashMap<Integer, List<Clone>>();
+		while (result.next()) {
+			final int id = result.getInt(1);
+			final String path = result.getString(2);
+			final int startLine = result.getInt(3);
+			final int endLine = result.getInt(4);
+			final long revision = result.getLong(5);
+			final int setID = result.getInt(6);
+
+			final Clone clone = new Clone(path, revision, startLine, endLine);
+			List<Clone> cloneset = clones.get(setID);
+			if (null == cloneset) {
+				cloneset = new ArrayList<Clone>();
+				clones.put(setID, cloneset);
+			}
+			cloneset.add(clone);
+		}
+
+		return clones;
+	}
+
+	@Override
+	public void close() throws Exception {
+		super.close();
+		SINGLETON = null;
 	}
 }

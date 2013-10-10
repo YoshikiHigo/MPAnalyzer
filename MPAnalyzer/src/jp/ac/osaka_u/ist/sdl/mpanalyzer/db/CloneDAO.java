@@ -41,7 +41,6 @@ public class CloneDAO extends DAO {
 			SETID.incrementAndGet();
 
 			if (2000 < this.numberOfClonePS) {
-				System.out.println("writing clone table ...");
 				this.clonePS.executeBatch();
 				this.numberOfClonePS = 0;
 			}

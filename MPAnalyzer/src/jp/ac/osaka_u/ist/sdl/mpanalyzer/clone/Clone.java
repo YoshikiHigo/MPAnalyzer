@@ -9,12 +9,25 @@ public class Clone {
 	final public String path;
 	final public long revision;
 	final public List<Statement> statements;
+	final public int startLine;
+	final public int endLine;
 
 	public Clone(final String path, final long revision,
 			final List<Statement> statements) {
 		this.path = path;
 		this.revision = revision;
 		this.statements = statements;
+		this.startLine = statements.get(0).getStartLine();
+		this.endLine = statements.get(statements.size() - 1).getEndLine();
+	}
+
+	public Clone(final String path, final long revision, final int startLine,
+			final int endLine) {
+		this.path = path;
+		this.revision = revision;
+		this.statements = null;
+		this.startLine = startLine;
+		this.endLine = endLine;
 	}
 
 	@Override
@@ -28,7 +41,8 @@ public class Clone {
 		if (o instanceof Clone) {
 			final Clone clone = (Clone) o;
 			return this.path.equals(clone.path)
-					&& this.statements.equals(clone.statements);
+					&& (this.startLine == clone.startLine)
+					&& (this.endLine == clone.endLine);
 		}
 
 		return false;
