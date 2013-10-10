@@ -87,7 +87,7 @@ public class CDetector {
 
 		System.out.print("writing result to clone table ... ");
 		try {
-			final CloneDAO cloneDAO = new CloneDAO();
+			final CloneDAO cloneDAO = new CloneDAO(true);
 			for (final Set<Clone> cloneset : clones.values()) {
 				cloneDAO.addClone(cloneset);
 			}
@@ -257,11 +257,11 @@ public class CDetector {
 		}
 	}
 
-	private int getNumberOfStatements(final List<Statement> statements) {
+	protected int getNumberOfStatements(final List<Statement> statements) {
 		return statements.size();
 	}
 
-	private int getNumberOfTokens(final List<Statement> statements) {
+	protected int getNumberOfTokens(final List<Statement> statements) {
 		int token = 0;
 		for (final Statement s : statements) {
 			token += s.tokens.size();

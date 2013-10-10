@@ -187,7 +187,7 @@ public class ReadOnlyDAO extends DAO {
 
 		final Statement cloneStatement = this.connector.createStatement();
 		final ResultSet result = cloneStatement
-				.executeQuery("select id, filepath, start, end, revision, setID from clone");
+				.executeQuery("select id, filepath, start, end, revision, setID, changed from clone");
 
 		final Map<Integer, List<Clone>> clones = new HashMap<Integer, List<Clone>>();
 		while (result.next()) {
@@ -197,8 +197,10 @@ public class ReadOnlyDAO extends DAO {
 			final int endLine = result.getInt(4);
 			final long revision = result.getLong(5);
 			final int setID = result.getInt(6);
+			final int changed = result.getInt(7);
 
-			final Clone clone = new Clone(path, revision, startLine, endLine);
+			final Clone clone = new Clone(path, revision, startLine, endLine,
+					changed);
 			List<Clone> cloneset = clones.get(setID);
 			if (null == cloneset) {
 				cloneset = new ArrayList<Clone>();

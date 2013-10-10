@@ -12,6 +12,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.TimingUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.CloneDAO;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.ReadOnlyDAO;
 
 public class CFilter extends CDetector {
@@ -19,7 +20,7 @@ public class CFilter extends CDetector {
 	public static void main(final String[] args) {
 
 		final long startTime = System.nanoTime();
-		
+
 		System.out.print("identifying source files ... ");
 		final CFilter filter = new CFilter();
 		final SortedSet<String> paths = filter.identifyFiles();
@@ -67,6 +68,15 @@ public class CFilter extends CDetector {
 			e.printStackTrace();
 			System.exit(0);
 		}
+
+		CloneDAO cloneDAO;
+		try {
+			cloneDAO = new CloneDAO(false);
+		} catch (final Exception e) {
+			cloneDAO = null;
+			e.printStackTrace();
+			System.exit(0);
+		}
 		for (final List<Clone> cloneset : clones.values()) {
 			for (final Clone clone : cloneset) {
 				int number = 0;
@@ -76,16 +86,13 @@ public class CFilter extends CDetector {
 					}
 				}
 				if (0 < number) {
-					System.out.print(clone.path);
-					System.out.print(" : ");
-					System.out.print(clone.startLine);
-					System.out.print(" --- ");	
-					System.out.println(clone.endLine);
+					cloneDAO.updateChanged(clone, number);
 				}
 			}
 		}
+		cloneDAO.close();
 		System.out.println("done.");
-		
+
 		final long endTime = System.nanoTime();
 		System.out.print("execution time: ");
 		System.out.println(TimingUtility.getExecutionTime(startTime, endTime));

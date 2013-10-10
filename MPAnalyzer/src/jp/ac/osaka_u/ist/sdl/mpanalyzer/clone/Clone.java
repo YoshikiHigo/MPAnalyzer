@@ -11,6 +11,7 @@ public class Clone {
 	final public List<Statement> statements;
 	final public int startLine;
 	final public int endLine;
+	final public int changed;
 
 	public Clone(final String path, final long revision,
 			final List<Statement> statements) {
@@ -19,6 +20,7 @@ public class Clone {
 		this.statements = statements;
 		this.startLine = statements.get(0).getStartLine();
 		this.endLine = statements.get(statements.size() - 1).getEndLine();
+		this.changed = 0;
 	}
 
 	public Clone(final String path, final long revision, final int startLine,
@@ -28,6 +30,17 @@ public class Clone {
 		this.statements = null;
 		this.startLine = startLine;
 		this.endLine = endLine;
+		this.changed = 0;
+	}
+
+	public Clone(final String path, final long revision, final int startLine,
+			final int endLine, final int changed) {
+		this.path = path;
+		this.revision = revision;
+		this.statements = null;
+		this.startLine = startLine;
+		this.endLine = endLine;
+		this.changed = changed;
 	}
 
 	@Override

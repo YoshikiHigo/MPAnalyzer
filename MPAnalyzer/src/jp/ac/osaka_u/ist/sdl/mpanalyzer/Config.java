@@ -52,6 +52,10 @@ public class Config {
 		final String cloneThreshold = getConfig("CLONETHRESHOLD");
 		return Integer.parseInt(cloneThreshold);
 	}
+	
+	public static String getCloneOutputFile(){
+		return getConfig("CLONEOUTPUTFILE");
+	}
 
 	public static String getPATH_TO_PATTERNSFILE() {
 		return getConfig("PATTERNS");
