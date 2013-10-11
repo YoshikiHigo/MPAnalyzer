@@ -16,7 +16,7 @@ public abstract class DAO {
 	static public final String MODIFICATION_SCHEMA = "id integer primary key autoincrement, filepath string, beforeText string, beforeHash integer, afterText string, afterHash integer, revision integer, type integer";
 	static public final String PATTERN_SCHEMA = "id integer primary key autoincrement, beforeHash integer, afterHash integer, type integer, support integer, confidence real";
 	static public final String PROBLEM_SCHEMA = "filepath string, start int, end int, problempattern string, problemID int, presentCode string, proposedCode string";
-	static public final String CLONE_SCHEMA = "id integer primary key autoincrement, filepath string, start inteter, end integer, revision integer, setID integer, changed boolean";
+	static public final String CLONE_SCHEMA = "id integer primary key autoincrement, filepath string, start inteter, end integer, revision integer, setID integer, groupID integer, changed boolean";
 
 	DAO(final boolean createRevisionTable,
 			final boolean createCodeFragmentTable,

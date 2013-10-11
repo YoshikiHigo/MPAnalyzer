@@ -49,13 +49,15 @@ public class OutputCloneInCCFinderFormat extends CDetector {
 					.entrySet()) {
 				final String path = entry.getKey();
 				final List<Statement> statements = entry.getValue();
+				final int loc = statements.get(statements.size() - 1)
+						.getEndLine();
 
 				writer.write("0.");
 				writer.write(ids.get(path).toString());
 				writer.write("\t");
-				writer.write(Integer.toString(statements.size()));
+				writer.write(Integer.toString(loc));
 				writer.write("\t");
-				writer.write(Integer.toString(statements.size()));
+				writer.write(Integer.toString(loc));
 				writer.write("\t");
 				writer.write(path);
 				writer.newLine();

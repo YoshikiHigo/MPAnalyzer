@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.TimingUtility;
@@ -92,6 +93,23 @@ public class CFilter extends CDetector {
 		}
 		cloneDAO.close();
 		System.out.println("done.");
+
+		System.out.print("merging clone sets ... ");
+		for (final Clone place : changedPlaces) {
+			final SortedSet<Integer> mergedSetIDs = new TreeSet<Integer>();
+			for (final Entry<Integer, List<Clone>> cloneset : clones.entrySet()) {
+				final int setID = cloneset.getKey();
+				for (final Clone clone : cloneset.getValue()) {
+					if (filter.isOverlapped(place, clone)) {
+						mergedSetIDs.add(setID);
+					}
+				}
+			}
+			if (1 < mergedSetIDs.size()) {
+				System.out.print(" MERGED! ");
+			}
+		}
+		System.out.println(": done.");
 
 		final long endTime = System.nanoTime();
 		System.out.print("execution time: ");
