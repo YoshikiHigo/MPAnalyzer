@@ -91,7 +91,6 @@ public class CFilter extends CDetector {
 				}
 			}
 		}
-		cloneDAO.close();
 		System.out.println("done.");
 
 		System.out.print("merging clone sets ... ");
@@ -106,9 +105,10 @@ public class CFilter extends CDetector {
 				}
 			}
 			if (1 < mergedSetIDs.size()) {
-				System.out.print(" MERGED! ");
+				cloneDAO.updateGroupID(mergedSetIDs.first(), mergedSetIDs);
 			}
 		}
+		cloneDAO.close();
 		System.out.println(": done.");
 
 		final long endTime = System.nanoTime();
