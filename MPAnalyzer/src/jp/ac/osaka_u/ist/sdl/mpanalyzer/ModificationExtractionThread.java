@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNURL;
@@ -26,9 +25,11 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 public class ModificationExtractionThread extends Thread {
 
-	static final private String PATH_TO_REPOSITORY = Config.getPATH_TO_REPOSITORY();
+	static final private String PATH_TO_REPOSITORY = Config
+			.getPATH_TO_REPOSITORY();
 	static final private String TARGET = Config.getTARGET();
-	
+	static final private String LANGUAGE = Config.getLanguage();
+
 	final public int id;
 	final public Revision[] revisions;
 	final private AtomicInteger index;
@@ -47,8 +48,6 @@ public class ModificationExtractionThread extends Thread {
 	public void run() {
 
 		try {
-
-
 
 			final SVNURL url = SVNURL.fromFile(new File(PATH_TO_REPOSITORY));
 			FSRepositoryFactory.setup();
@@ -129,20 +128,31 @@ public class ModificationExtractionThread extends Thread {
 								}
 							});
 
-					final List<Token> beforeTokens = Token.getTokens(beforeText
-							.toString());
-					final List<Token> afterTokens = Token.getTokens(afterText
-							.toString());
-
-					final List<Statement> beforeStatements = Statement
-							.getStatements(beforeTokens);
-					final List<Statement> afterStatements = Statement
-							.getStatements(afterTokens);
+					final List<Statement> beforeStatements = StringUtility
+							.splitToStatements(beforeText.toString(), LANGUAGE);
+					final List<Statement> afterStatements = StringUtility
+							.splitToStatements(afterText.toString(), LANGUAGE);
 
 					final List<Modification> modifications = LCS
 							.getModifications(beforeStatements,
 									afterStatements, path, afterRevision);
 					this.queue.addAll(modifications);
+
+					// final List<Token> beforeTokens =
+					// Token.getTokens(beforeText
+					// .toString());
+					// final List<Token> afterTokens = Token.getTokens(afterText
+					// .toString());
+					//
+					// final List<Statement> beforeStatements = Statement
+					// .getStatements(beforeTokens);
+					// final List<Statement> afterStatements = Statement
+					// .getStatements(afterTokens);
+					//
+					// final List<Modification> modifications = LCS
+					// .getModifications(beforeStatements,
+					// afterStatements, path, afterRevision);
+					// this.queue.addAll(modifications);
 				}
 			}
 

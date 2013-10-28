@@ -25,9 +25,9 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.progress.ProgressDialog;
@@ -86,6 +86,7 @@ public class DTree extends JTree implements Observer {
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
 	static final private String TARGET = Config.getTARGET();
+	static final private String LANGUAGE = Config.getLanguage();
 
 	public final JScrollPane scrollPane;
 
@@ -274,9 +275,8 @@ public class DTree extends JTree implements Observer {
 							}
 						});
 
-				final List<Token> tokens = Token.getTokens(text.toString());
-				final List<Statement> statements = Statement
-						.getStatements(tokens);
+				final List<Statement> statements = StringUtility
+						.splitToStatements(text.toString(), LANGUAGE);
 				final int count = this.getCount(statements,
 						codeFragment.statements);
 

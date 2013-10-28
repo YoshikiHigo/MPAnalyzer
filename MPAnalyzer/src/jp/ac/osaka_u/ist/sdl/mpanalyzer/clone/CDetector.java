@@ -15,7 +15,6 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.TimingUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.CloneDAO;
 
 import org.tmatesoft.svn.core.ISVNDirEntryHandler;
@@ -159,10 +158,15 @@ public class CDetector {
 							}
 						});
 
-				final List<Token> tokens = Token.getTokens(text.toString());
-				final List<Statement> statements = Statement
-						.getStatements(tokens);
+				final List<Statement> statements = StringUtility
+						.splitToStatements(text.toString(), LANGUAGE);
 				contents.put(path, statements);
+
+				// final List<SimpleToken> tokens =
+				// SimpleToken.getTokens(text.toString());
+				// final List<Statement> statements = Statement
+				// .getStatements(tokens);
+				// contents.put(path, statements);
 			}
 
 		} catch (Exception e) {

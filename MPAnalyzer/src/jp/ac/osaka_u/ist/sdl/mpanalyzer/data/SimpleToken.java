@@ -10,7 +10,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-public class Token {
+public class SimpleToken {
 
 	private static CompilationUnit createAST(final String text) {
 		final ASTParser parser = ASTParser.newParser(AST.JLS4);
@@ -18,9 +18,9 @@ public class Token {
 		return (CompilationUnit) parser.createAST(new NullProgressMonitor());
 	}
 
-	public static List<Token> getTokens(final String text) {
+	public static List<SimpleToken> getTokens(final String text) {
 		final CompilationUnit unit = createAST(text);
-		final List<Token> tokens = new ArrayList<Token>();
+		final List<SimpleToken> tokens = new ArrayList<SimpleToken>();
 		final C3ASTVisitor visitor = new C3ASTVisitor(tokens, unit);
 		unit.accept(visitor);
 		return tokens;
@@ -34,7 +34,7 @@ public class Token {
 	final public TokenType type;
 	final public int line;
 
-	public Token(final String name, final TokenType type, final int line) {
+	public SimpleToken(final String name, final TokenType type, final int line) {
 		this.name = name;
 		this.type = type;
 		this.line = line;

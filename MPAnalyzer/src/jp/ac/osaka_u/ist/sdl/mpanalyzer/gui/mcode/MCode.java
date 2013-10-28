@@ -27,10 +27,10 @@ import javax.swing.text.Element;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.LCS;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.CODE;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications.MLABEL;
@@ -42,6 +42,8 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 public class MCode extends JTextArea implements Observer {
+
+	private static final String LANGUAGE = Config.getLanguage();
 
 	static public final int TAB_SIZE = 4;
 
@@ -158,15 +160,12 @@ public class MCode extends JTextArea implements Observer {
 									}
 								});
 
-						final List<Token> beforeTokens = Token
-								.getTokens(beforeText.toString());
-						final List<Token> afterTokens = Token
-								.getTokens(afterText.toString());
-
-						final List<Statement> beforeStatements = Statement
-								.getStatements(beforeTokens);
-						final List<Statement> afterStatements = Statement
-								.getStatements(afterTokens);
+						final List<Statement> beforeStatements = StringUtility
+								.splitToStatements(beforeText.toString(),
+										LANGUAGE);
+						final List<Statement> afterStatements = StringUtility
+								.splitToStatements(afterText.toString(),
+										LANGUAGE);
 
 						this.modifications.clear();
 						final List<Modification> modifications = LCS

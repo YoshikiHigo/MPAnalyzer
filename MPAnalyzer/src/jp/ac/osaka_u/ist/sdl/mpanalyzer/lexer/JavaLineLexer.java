@@ -1,5 +1,7 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +85,33 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.WHILE;
 
 public class JavaLineLexer implements LineLexer {
 
-	public List<Token> lex(final String line) {
+	@Override
+	public List<Token> lexFile(final String text) {
+		try {
+			final BufferedReader reader = new BufferedReader(new StringReader(
+					text));
+			final JavaLineLexer lexer = new JavaLineLexer();
+			final List<Token> tokens = new ArrayList<Token>();
+			String line;
+			int lineNumber = 1;
+			while (null != (line = reader.readLine())) {
+				for (final Token t : lexer.lexLine(line)) {
+					t.line = lineNumber;
+					tokens.add(t);
+				}
+				lineNumber++;
+			}
+
+			return tokens;
+
+		} catch (final Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+			return null;
+		}
+	}
+
+	public List<Token> lexLine(final String line) {
 		final List<Token> tokenList = new ArrayList<Token>();
 		this.lex(new StringBuilder(line), tokenList);
 		return tokenList;

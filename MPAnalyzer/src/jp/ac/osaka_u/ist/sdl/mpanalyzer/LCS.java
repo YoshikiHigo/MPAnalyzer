@@ -8,11 +8,11 @@ import java.util.TreeSet;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ModificationType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.Token;
 
 public class LCS {
 
@@ -152,13 +152,13 @@ public class LCS {
 		}
 
 		final Cell[][] table = new Cell[tokens1.size()][tokens2.size()];
-		if (tokens1.get(0).type == tokens2.get(0).type) {
+		if (tokens1.get(0).value == tokens2.get(0).value) {
 			table[0][0] = new Cell(1, true, 0, 0, null);
 		} else {
 			table[0][0] = new Cell(0, false, 0, 0, null);
 		}
 		for (int x = 1; x < tokens1.size(); x++) {
-			if (tokens1.get(x).type == tokens2.get(0).type) {
+			if (tokens1.get(x).value == tokens2.get(0).value) {
 				table[x][0] = new Cell(1, true, x, 0, null);
 			} else {
 				table[x][0] = new Cell(table[x - 1][0].value, false, x, 0,
@@ -166,7 +166,7 @@ public class LCS {
 			}
 		}
 		for (int y = 1; y < tokens2.size(); y++) {
-			if (tokens1.get(0).type == tokens2.get(y).type) {
+			if (tokens1.get(0).value == tokens2.get(y).value) {
 				table[0][y] = new Cell(1, true, 0, y, null);
 			} else {
 				table[0][y] = new Cell(table[0][y - 1].value, false, 0, y,
@@ -178,7 +178,7 @@ public class LCS {
 				final Cell left = table[x - 1][y];
 				final Cell up = table[x][y - 1];
 				final Cell upleft = table[x - 1][y - 1];
-				if (tokens1.get(x).type == tokens2.get(y).type) {
+				if (tokens1.get(x).value == tokens2.get(y).value) {
 					table[x][y] = new Cell(upleft.value + 1, true, x, y, upleft);
 				} else {
 					table[x][y] = (left.value >= up.value) ? new Cell(

@@ -25,9 +25,9 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles;
@@ -45,6 +45,7 @@ public class DCode extends JTextArea implements Observer {
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
 	static final private String TARGET = Config.getTARGET();
+	static final private String LANGUAGE = Config.getLanguage();
 
 	static public final int TAB_SIZE = 4;
 
@@ -150,9 +151,8 @@ public class DCode extends JTextArea implements Observer {
 									}
 								});
 
-						final List<Token> tokens = Token.getTokens(text
-								.toString());
-						DCode.this.statements = Statement.getStatements(tokens);
+						DCode.this.statements = StringUtility
+								.splitToStatements(text.toString(), LANGUAGE);
 						final SortedSet<Integer> highlightedLines = this
 								.getHighlightedLines(DCode.this.statements,
 										this.codefragment.statements);

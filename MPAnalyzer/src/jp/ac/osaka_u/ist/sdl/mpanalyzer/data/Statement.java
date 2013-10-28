@@ -3,6 +3,8 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.Token;
+
 public class Statement {
 
 	public static List<Statement> getStatements(final List<Token> tokens) {
@@ -12,8 +14,8 @@ public class Statement {
 
 		for (final Token token : tokens) {
 
-			if (token.name.equals("{") || token.name.equals("}")
-					|| token.name.equals(";")) {
+			if (token.value.equals("{") || token.value.equals("}")
+					|| token.value.equals(";")) {
 
 				if (!tokensForaStatement.isEmpty()) {
 					final Statement statement = new Statement(
@@ -41,7 +43,7 @@ public class Statement {
 	public String toString() {
 		final StringBuilder text = new StringBuilder();
 		for (final Token token : this.tokens) {
-			text.append(token.name);
+			text.append(token.value);
 			text.append(" ");
 		}
 		text.deleteCharAt(text.length() - 1);

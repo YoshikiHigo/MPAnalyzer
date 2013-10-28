@@ -76,16 +76,20 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.VOLATILE;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.WHILE;
 
 public class CLineLexer implements LineLexer {
-	
+
 	@Override
-	public List<Token> lex(final String line){
+	public List<Token> lexFile(final String text) {
+		return null;
+	}
+
+	@Override
+	public List<Token> lexLine(final String line) {
 		final List<Token> tokens = new ArrayList<Token>();
 		this.lex(new StringBuilder(line), tokens);
 		return tokens;
 	}
 
-	private void lex(final StringBuilder text,
-			final List<Token> tokenList) {
+	private void lex(final StringBuilder text, final List<Token> tokenList) {
 
 		if (0 == text.length()) {
 			return;

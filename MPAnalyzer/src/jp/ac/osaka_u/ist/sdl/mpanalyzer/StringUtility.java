@@ -10,8 +10,12 @@ import java.util.Date;
 import java.util.List;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token.TokenType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.CLineLexer;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.JavaLineLexer;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.LineLexer;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.STATEMENT;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.Token;
+import yoshikihigo.commentremover.CommentRemover;
 
 public class StringUtility {
 
@@ -123,7 +127,7 @@ public class StringUtility {
 		final String[] lines = text.split(System.getProperty("line.separator"));
 		for (final String line : lines) {
 			final List<Token> tokens = new ArrayList<Token>();
-			tokens.add(new Token(line, TokenType.STATEMENT, 0));
+			tokens.add(new STATEMENT(line));
 			final Statement statement = new Statement(tokens);
 			statements.add(statement);
 		}
@@ -150,6 +154,29 @@ public class StringUtility {
 			return new String[0];
 		}
 		return text.split(System.getProperty("line.separator"));
+	}
+
+	public static List<Statement> splitToStatements(final String text,
+			final String language) {
+		final String[] args = new String[5];
+		args[0] = "-l";
+		args[1] = language;
+		args[2] = "-i";
+		args[3] = text.toString();
+		args[4] = "-q";
+		args[5] = "-a";
+		args[6] = "-d";
+		args[7] = "-e";
+		final CommentRemover remover = new CommentRemover();
+		remover.perform(args);
+		final String nonCommentText = remover.result;
+
+		final LineLexer lexer = language.equals("java") ? new JavaLineLexer()
+				: new CLineLexer();
+		final List<Token> tokens = lexer.lexFile(nonCommentText);
+		final List<Statement> statements = Statement.getStatements(tokens);
+
+		return statements;
 	}
 
 	public static int getLOC(final String text) {

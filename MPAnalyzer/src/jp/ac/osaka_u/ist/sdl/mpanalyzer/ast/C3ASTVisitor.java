@@ -2,8 +2,8 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.ast;
 
 import java.util.List;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Token.TokenType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.SimpleToken;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.SimpleToken.TokenType;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
@@ -95,10 +95,10 @@ import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
 
 public class C3ASTVisitor extends NaiveASTFlattener {
 
-	final private List<Token> tokens;
+	final private List<SimpleToken> tokens;
 	final private CompilationUnit unit;
 
-	public C3ASTVisitor(final List<Token> tokens, final CompilationUnit unit) {
+	public C3ASTVisitor(final List<SimpleToken> tokens, final CompilationUnit unit) {
 		this.tokens = tokens;
 		this.unit = unit;
 	}
@@ -133,9 +133,9 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getArray().accept(this);
-		this.tokens.add(new Token("[", TokenType.BRACKET, line));
+		this.tokens.add(new SimpleToken("[", TokenType.BRACKET, line));
 		node.getIndex().accept(this);
-		this.tokens.add(new Token("]", TokenType.BRACKET, line));
+		this.tokens.add(new SimpleToken("]", TokenType.BRACKET, line));
 
 		return false;
 	}
@@ -145,18 +145,18 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("new", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("new", TokenType.PRESERVED, line));
 		node.getType().getElementType().accept(this);
 		if (0 == node.dimensions().size()) {
 			for (int i = 0; i < node.getType().getDimensions(); i++) {
-				this.tokens.add(new Token("[", TokenType.BRACKET, line));
-				this.tokens.add(new Token("]", TokenType.BRACKET, line));
+				this.tokens.add(new SimpleToken("[", TokenType.BRACKET, line));
+				this.tokens.add(new SimpleToken("]", TokenType.BRACKET, line));
 			}
 		} else {
 			for (final Object element : node.dimensions()) {
-				this.tokens.add(new Token("[", TokenType.BRACKET, line));
+				this.tokens.add(new SimpleToken("[", TokenType.BRACKET, line));
 				((ASTNode) element).accept(this);
-				this.tokens.add(new Token("]", TokenType.BRACKET, line));
+				this.tokens.add(new SimpleToken("]", TokenType.BRACKET, line));
 			}
 		}
 
@@ -172,15 +172,15 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("{", TokenType.BRACE, line));
+		this.tokens.add(new SimpleToken("{", TokenType.BRACE, line));
 		for (final Object expression : node.expressions()) {
 			((ASTNode) expression).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		if (0 < node.expressions().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
-		this.tokens.add(new Token("}", TokenType.BRACE, line));
+		this.tokens.add(new SimpleToken("}", TokenType.BRACE, line));
 
 		return false;
 	}
@@ -192,8 +192,8 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		node.getElementType().accept(this);
 		for (int i = 0; i < node.getDimensions(); i++) {
-			this.tokens.add(new Token("[", TokenType.BRACKET, line));
-			this.tokens.add(new Token("]", TokenType.BRACKET, line));
+			this.tokens.add(new SimpleToken("[", TokenType.BRACKET, line));
+			this.tokens.add(new SimpleToken("]", TokenType.BRACKET, line));
 		}
 
 		return false;
@@ -204,13 +204,13 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("assert", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("assert", TokenType.PRESERVED, line));
 		node.getExpression().accept(this);
 		if (null != node.getMessage()) {
-			this.tokens.add(new Token(":", TokenType.COLON, line));
+			this.tokens.add(new SimpleToken(":", TokenType.COLON, line));
 			node.getMessage().accept(this);
 		}
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -221,7 +221,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getLeftHandSide().accept(this);
-		this.tokens.add(new Token("=", TokenType.OPERATOR, line));
+		this.tokens.add(new SimpleToken("=", TokenType.OPERATOR, line));
 		node.getRightHandSide().accept(this);
 
 		return false;
@@ -233,11 +233,11 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int startLine = this.getStartLineNumber(node);
 		final int endLine = this.getEndLineNumber(node);
 
-		this.tokens.add(new Token("{", TokenType.BRACE, startLine));
+		this.tokens.add(new SimpleToken("{", TokenType.BRACE, startLine));
 		for (final Object statement : node.statements()) {
 			((ASTNode) statement).accept(this);
 		}
-		this.tokens.add(new Token("}", TokenType.BRACE, endLine));
+		this.tokens.add(new SimpleToken("}", TokenType.BRACE, endLine));
 
 		return false;
 	}
@@ -251,7 +251,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final BooleanLiteral node) {
 
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(node.toString(), TokenType.LITERAL, line));
+		this.tokens.add(new SimpleToken(node.toString(), TokenType.LITERAL, line));
 
 		return false;
 	}
@@ -262,11 +262,11 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int startLine = this.getStartLineNumber(node);
 		final int endLine = this.getEndLineNumber(node);
 
-		this.tokens.add(new Token("break", TokenType.PRESERVED, startLine));
+		this.tokens.add(new SimpleToken("break", TokenType.PRESERVED, startLine));
 		if (null != node.getLabel()) {
 			node.getLabel().accept(this);
 		}
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, endLine));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, endLine));
 
 		return false;
 	}
@@ -276,9 +276,9 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		node.getType().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 		node.getExpression().accept(this);
 
 		return false;
@@ -289,10 +289,10 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("catch", TokenType.PRESERVED, line));
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("catch", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		node.getException().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 		node.getBody().accept(this);
 
 		return false;
@@ -302,7 +302,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final CharacterLiteral node) {
 
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(node.toString(), TokenType.LITERAL, line));
+		this.tokens.add(new SimpleToken(node.toString(), TokenType.LITERAL, line));
 
 		return false;
 	}
@@ -312,20 +312,20 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("new", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("new", TokenType.PRESERVED, line));
 
 		node.getType().accept(this);
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		for (final Object argument : node.arguments()) {
 			((ASTNode) argument).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		if (0 < node.arguments().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 		if (null != node.getExpression()) {
-			this.tokens.add(new Token(".", TokenType.PIRIOD, line));
+			this.tokens.add(new SimpleToken(".", TokenType.PIRIOD, line));
 			node.getExpression().accept(this);
 		}
 
@@ -349,9 +349,9 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getExpression().accept(this);
-		this.tokens.add(new Token("?", TokenType.HATENA, line));
+		this.tokens.add(new SimpleToken("?", TokenType.HATENA, line));
 		node.getThenExpression().accept(this);
-		this.tokens.add(new Token(":", TokenType.COLON, line));
+		this.tokens.add(new SimpleToken(":", TokenType.COLON, line));
 		node.getElseExpression().accept(this);
 
 		return false;
@@ -362,10 +362,10 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		for (final Object argument : node.arguments()) {
 			((ASTNode) argument).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		if (0 < node.arguments().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
@@ -379,11 +379,11 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("continue", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("continue", TokenType.PRESERVED, line));
 		if (null != node.getLabel()) {
 			node.getLabel().accept(this);
 		}
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -394,13 +394,13 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int startLine = this.getStartLineNumber(node);
 		final int endLine = this.getEndLineNumber(node);
 
-		this.tokens.add(new Token("do", TokenType.PRESERVED, startLine));
+		this.tokens.add(new SimpleToken("do", TokenType.PRESERVED, startLine));
 		node.getBody().accept(this);
-		this.tokens.add(new Token("while", TokenType.PRESERVED, endLine));
-		this.tokens.add(new Token("(", TokenType.PAREN, endLine));
+		this.tokens.add(new SimpleToken("while", TokenType.PRESERVED, endLine));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, endLine));
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, endLine));
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, endLine));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, endLine));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, endLine));
 
 		return false;
 	}
@@ -409,7 +409,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final EmptyStatement node) {
 
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -419,12 +419,12 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("for", TokenType.PRESERVED, line));
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("for", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		node.getParameter().accept(this);
-		this.tokens.add(new Token(":", TokenType.COLON, line));
+		this.tokens.add(new SimpleToken(":", TokenType.COLON, line));
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 		node.getBody().accept(this);
 
 		return false;
@@ -446,7 +446,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -457,7 +457,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(".", TokenType.PIRIOD, line));
+		this.tokens.add(new SimpleToken(".", TokenType.PIRIOD, line));
 		node.getName().accept(this);
 
 		return false;
@@ -474,10 +474,10 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		node.getType().accept(this);
 		for (final Object variable : node.fragments()) {
 			((ASTNode) variable).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		this.tokens.remove(this.tokens.size() - 1);
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -487,31 +487,31 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("for", TokenType.PRESERVED, line));
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("for", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		for (final Object initializer : node.initializers()) {
 			((ASTNode) initializer).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 
 		if (0 < node.initializers().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		if (null != node.getExpression()) {
 			node.getExpression().accept(this);
 		}
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		for (final Object initializer : node.updaters()) {
 			((ASTNode) initializer).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		if (0 < node.updaters().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 		node.getBody().accept(this);
 
 		return false;
@@ -522,17 +522,17 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int ifLine = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("if", TokenType.PRESERVED, ifLine));
-		this.tokens.add(new Token("(", TokenType.PAREN, ifLine));
+		this.tokens.add(new SimpleToken("if", TokenType.PRESERVED, ifLine));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, ifLine));
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, ifLine));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, ifLine));
 		if (null != node.getThenStatement()) {
 			node.getThenStatement().accept(this);
 		}
 		if (null != node.getElseStatement()) {
 			final int elseLine = this.getStartLineNumber(node
 					.getElseStatement());
-			this.tokens.add(new Token("else", TokenType.PRESERVED, elseLine));
+			this.tokens.add(new SimpleToken("else", TokenType.PRESERVED, elseLine));
 			node.getElseStatement().accept(this);
 		}
 
@@ -561,12 +561,12 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getLeftOperand().accept(this);
-		this.tokens.add(new Token(node.getOperator().toString(),
+		this.tokens.add(new SimpleToken(node.getOperator().toString(),
 				TokenType.OPERATOR, line));
 		node.getRightOperand().accept(this);
 
 		for (final Object operand : node.extendedOperands()) {
-			this.tokens.add(new Token(node.getOperator().toString(),
+			this.tokens.add(new SimpleToken(node.getOperator().toString(),
 					TokenType.OPERATOR, line));
 			((ASTNode) operand).accept(this);
 		}
@@ -585,7 +585,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getLeftOperand().accept(this);
-		this.tokens.add(new Token("instanceof", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("instanceof", TokenType.PRESERVED, line));
 		node.getRightOperand().accept(this);
 
 		return false;
@@ -602,7 +602,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getLabel().accept(this);
-		this.tokens.add(new Token(":", TokenType.COLON, line));
+		this.tokens.add(new SimpleToken(":", TokenType.COLON, line));
 		node.getBody().accept(this);
 
 		return false;
@@ -620,19 +620,19 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		if (null != node.getExpression()) {
 			node.getExpression().accept(this);
-			this.tokens.add(new Token(".", TokenType.PIRIOD, line));
+			this.tokens.add(new SimpleToken(".", TokenType.PIRIOD, line));
 		}
 		node.getName().accept(this);
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 
 		for (final Object argument : node.arguments()) {
 			((ASTNode) argument).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		if (0 < node.arguments().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 
 		return false;
 	}
@@ -705,7 +705,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	@Override
 	public boolean visit(final Modifier node) {
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(node.toString(), TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken(node.toString(), TokenType.PRESERVED, line));
 		return false;
 	}
 
@@ -717,14 +717,14 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	@Override
 	public boolean visit(final NullLiteral node) {
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(node.toString(), TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken(node.toString(), TokenType.PRESERVED, line));
 		return false;
 	}
 
 	@Override
 	public boolean visit(final NumberLiteral node) {
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(node.toString(), TokenType.LITERAL, line));
+		this.tokens.add(new SimpleToken(node.toString(), TokenType.LITERAL, line));
 		return false;
 	}
 
@@ -732,9 +732,9 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final PackageDeclaration node) {
 
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token("package", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("package", TokenType.PRESERVED, line));
 		node.getName().accept(this);
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -746,13 +746,13 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		node.getType().accept(this);
 
-		this.tokens.add(new Token("<", TokenType.ANGLE, line));
+		this.tokens.add(new SimpleToken("<", TokenType.ANGLE, line));
 		for (final Object argument : node.typeArguments()) {
 			((ASTNode) argument).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		this.tokens.remove(this.tokens.size() - 1);
-		this.tokens.add(new Token(">", TokenType.ANGLE, line));
+		this.tokens.add(new SimpleToken(">", TokenType.ANGLE, line));
 
 		return false;
 	}
@@ -762,9 +762,9 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 
 		return false;
 	}
@@ -775,7 +775,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getOperand().accept(this);
-		this.tokens.add(new Token(node.getOperator().toString(),
+		this.tokens.add(new SimpleToken(node.getOperator().toString(),
 				TokenType.OPERATOR, line));
 
 		return false;
@@ -786,7 +786,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token(node.getOperator().toString(),
+		this.tokens.add(new SimpleToken(node.getOperator().toString(),
 				TokenType.OPERATOR, line));
 		node.getOperand().accept(this);
 
@@ -797,7 +797,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final PrimitiveType node) {
 
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(node.toString(), TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken(node.toString(), TokenType.PRESERVED, line));
 
 		return false;
 	}
@@ -808,7 +808,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		node.getQualifier().accept(this);
-		this.tokens.add(new Token(".", TokenType.PIRIOD, line));
+		this.tokens.add(new SimpleToken(".", TokenType.PIRIOD, line));
 		node.getName().accept(this);
 
 		return false;
@@ -824,11 +824,11 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("return", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("return", TokenType.PRESERVED, line));
 		if (null != node.getExpression()) {
 			node.getExpression().accept(this);
 		}
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -837,7 +837,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final SimpleName node) {
 
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(node.getIdentifier(), TokenType.IDENTIFIER,
+		this.tokens.add(new SimpleToken(node.getIdentifier(), TokenType.IDENTIFIER,
 				line));
 		return false;
 	}
@@ -862,17 +862,17 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("super", TokenType.PRESERVED, line));
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("super", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		for (final Object argument : node.arguments()) {
 			((ASTNode) argument).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		if (0 < node.arguments().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -882,8 +882,8 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("super", TokenType.PRESERVED, line));
-		this.tokens.add(new Token(".", TokenType.PIRIOD, line));
+		this.tokens.add(new SimpleToken("super", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken(".", TokenType.PIRIOD, line));
 		node.getName().accept(this);
 
 		return false;
@@ -894,18 +894,18 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("super", TokenType.PRESERVED, line));
-		this.tokens.add(new Token(".", TokenType.PIRIOD, line));
+		this.tokens.add(new SimpleToken("super", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken(".", TokenType.PIRIOD, line));
 		node.getName().accept(this);
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		for (final Object argument : node.arguments()) {
 			((ASTNode) argument).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, line));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, line));
 		}
 		if (0 < node.arguments().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 
 		return false;
 	}
@@ -914,7 +914,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	public boolean visit(final StringLiteral node) {
 
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token(node.toString(), TokenType.LITERAL, line));
+		this.tokens.add(new SimpleToken(node.toString(), TokenType.LITERAL, line));
 
 		return false;
 	}
@@ -925,12 +925,12 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		final int line = this.getStartLineNumber(node);
 
 		if (null != node.getExpression()) {
-			this.tokens.add(new Token("case", TokenType.PRESERVED, line));
+			this.tokens.add(new SimpleToken("case", TokenType.PRESERVED, line));
 			node.getExpression().accept(this);
 		} else {
-			this.tokens.add(new Token("default", TokenType.PRESERVED, line));
+			this.tokens.add(new SimpleToken("default", TokenType.PRESERVED, line));
 		}
-		this.tokens.add(new Token(":", TokenType.COLON, line));
+		this.tokens.add(new SimpleToken(":", TokenType.COLON, line));
 
 		return false;
 	}
@@ -940,10 +940,10 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("switch", TokenType.PRESERVED, line));
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("switch", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 		for (final Object statement : node.statements()) {
 			((ASTNode) statement).accept(this);
 		}
@@ -956,10 +956,10 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("synchronized", TokenType.PRESERVED, line));
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("synchronized", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 		node.getBody().accept(this);
 
 		return false;
@@ -978,7 +978,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 	@Override
 	public boolean visit(final ThisExpression node) {
 		final int line = this.getStartLineNumber(node);
-		this.tokens.add(new Token("this", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("this", TokenType.PRESERVED, line));
 		return false;
 	}
 
@@ -987,9 +987,9 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("throw", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("throw", TokenType.PRESERVED, line));
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -999,7 +999,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("try", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("try", TokenType.PRESERVED, line));
 		node.getBody().accept(this);
 		for (final Object catchClause : node.catchClauses()) {
 			((ASTNode) catchClause).accept(this);
@@ -1021,33 +1021,33 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 			((ASTNode) modifier).accept(this);
 		}
 		if (node.isInterface()) {
-			this.tokens.add(new Token("interface", TokenType.PRESERVED,
+			this.tokens.add(new SimpleToken("interface", TokenType.PRESERVED,
 					startLine));
 		} else {
-			this.tokens.add(new Token("class", TokenType.PRESERVED, startLine));
+			this.tokens.add(new SimpleToken("class", TokenType.PRESERVED, startLine));
 		}
 		node.getName().accept(this);
 		if (null != node.getSuperclassType()) {
 			this.tokens
-					.add(new Token("extends", TokenType.PRESERVED, startLine));
+					.add(new SimpleToken("extends", TokenType.PRESERVED, startLine));
 			node.getSuperclassType().accept(this);
 		}
 		if (0 < node.superInterfaceTypes().size()) {
-			this.tokens.add(new Token("implements", TokenType.PRESERVED,
+			this.tokens.add(new SimpleToken("implements", TokenType.PRESERVED,
 					startLine));
 		}
 		for (final Object implementation : node.superInterfaceTypes()) {
 			((ASTNode) implementation).accept(this);
-			this.tokens.add(new Token(",", TokenType.COMMA, startLine));
+			this.tokens.add(new SimpleToken(",", TokenType.COMMA, startLine));
 		}
 		if (0 < node.superInterfaceTypes().size()) {
 			this.tokens.remove(this.tokens.size() - 1);
 		}
-		this.tokens.add(new Token("{", TokenType.BRACE, startLine));
+		this.tokens.add(new SimpleToken("{", TokenType.BRACE, startLine));
 		for (final Object declaration : node.bodyDeclarations()) {
 			((ASTNode) declaration).accept(this);
 		}
-		this.tokens.add(new Token("}", TokenType.BRACE, endLine));
+		this.tokens.add(new SimpleToken("}", TokenType.BRACE, endLine));
 
 		return false;
 	}
@@ -1084,7 +1084,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		node.getName().accept(this);
 		if (null != node.getInitializer()) {
-			this.tokens.add(new Token("=", TokenType.OPERATOR, line));
+			this.tokens.add(new SimpleToken("=", TokenType.OPERATOR, line));
 			node.getInitializer().accept(this);
 		}
 
@@ -1103,7 +1103,7 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 		for (final Object fragment : node.fragments()) {
 			((ASTNode) fragment).accept(this);
 		}
-		this.tokens.add(new Token(";", TokenType.SEMICOLON, line));
+		this.tokens.add(new SimpleToken(";", TokenType.SEMICOLON, line));
 
 		return false;
 	}
@@ -1113,10 +1113,10 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("while", TokenType.PRESERVED, line));
-		this.tokens.add(new Token("(", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken("while", TokenType.PRESERVED, line));
+		this.tokens.add(new SimpleToken("(", TokenType.PAREN, line));
 		node.getExpression().accept(this);
-		this.tokens.add(new Token(")", TokenType.PAREN, line));
+		this.tokens.add(new SimpleToken(")", TokenType.PAREN, line));
 		node.getBody().accept(this);
 
 		return false;
@@ -1127,13 +1127,13 @@ public class C3ASTVisitor extends NaiveASTFlattener {
 
 		final int line = this.getStartLineNumber(node);
 
-		this.tokens.add(new Token("?", TokenType.WILDCARD, line));
+		this.tokens.add(new SimpleToken("?", TokenType.WILDCARD, line));
 
 		final Type boundType = node.getBound();
 		if (null != boundType) {
 			if (node.isUpperBound()) {
 				this.tokens
-						.add(new Token("extends", TokenType.PRESERVED, line));
+						.add(new SimpleToken("extends", TokenType.PRESERVED, line));
 			}
 			boundType.accept(this);
 		}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.Token;
 
 public class CodeFragment implements Comparable<CodeFragment> {
 
