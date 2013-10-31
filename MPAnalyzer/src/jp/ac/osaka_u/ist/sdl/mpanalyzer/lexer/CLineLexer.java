@@ -1,5 +1,7 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +81,28 @@ public class CLineLexer implements LineLexer {
 
 	@Override
 	public List<Token> lexFile(final String text) {
-		return null;
+		try {
+			final BufferedReader reader = new BufferedReader(new StringReader(
+					text));
+			final CLineLexer lexer = new CLineLexer();
+			final List<Token> tokens = new ArrayList<Token>();
+			String line;
+			int lineNumber = 1;
+			while (null != (line = reader.readLine())) {
+				for (final Token t : lexer.lexLine(line)) {
+					t.line = lineNumber;
+					tokens.add(t);
+				}
+				lineNumber++;
+			}
+
+			return tokens;
+
+		} catch (final Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+			return null;
+		}
 	}
 
 	@Override

@@ -158,7 +158,7 @@ public class StringUtility {
 
 	public static List<Statement> splitToStatements(final String text,
 			final String language) {
-		final String[] args = new String[5];
+		final String[] args = new String[8];
 		args[0] = "-l";
 		args[1] = language;
 		args[2] = "-i";
@@ -171,7 +171,7 @@ public class StringUtility {
 		remover.perform(args);
 		final String nonCommentText = remover.result;
 
-		final LineLexer lexer = language.equals("java") ? new JavaLineLexer()
+		final LineLexer lexer = language.equalsIgnoreCase("java") ? new JavaLineLexer()
 				: new CLineLexer();
 		final List<Token> tokens = lexer.lexFile(nonCommentText);
 		final List<Statement> statements = Statement.getStatements(tokens);

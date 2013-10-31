@@ -77,7 +77,7 @@ public class ModificationExtractionThread extends Thread {
 
 				final List<String> modifiedFileList = new ArrayList<String>();
 
-				// 変更されたJavaファイルのリストを得る
+				// 変更されたソースファイルのリストを得る
 				diffClient.doDiffStatus(url,
 						SVNRevision.create(beforeRevision.number), url,
 						SVNRevision.create(afterRevision.number),
@@ -89,8 +89,15 @@ public class ModificationExtractionThread extends Thread {
 								final String path = diffStatus.getPath();
 								final SVNStatusType type = diffStatus
 										.getModificationType();
-								if (path.endsWith(".java")
+								if (LANGUAGE.equalsIgnoreCase("JAVA")
 										&& path.startsWith(TARGET)
+										&& StringUtility.isJavaFile(path)
+										&& type.equals(SVNStatusType.STATUS_MODIFIED)) {
+									modifiedFileList.add(path);
+									System.out.println(path);
+								} else if (LANGUAGE.equalsIgnoreCase("C")
+										&& path.startsWith(TARGET)
+										&& StringUtility.isCFile(path)
 										&& type.equals(SVNStatusType.STATUS_MODIFIED)) {
 									modifiedFileList.add(path);
 									System.out.println(path);
