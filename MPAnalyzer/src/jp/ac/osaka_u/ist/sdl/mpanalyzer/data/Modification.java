@@ -46,6 +46,18 @@ public class Modification implements Comparable<Modification> {
 	}
 
 	public static enum ChangeType {
+		TYPE1() {
+			@Override
+			public int getValue() {
+				return 1;
+			}
+
+			@Override
+			public String toString() {
+				return "TYPE1";
+			}
+		},
+
 		TYPE2() {
 			@Override
 			public int getValue() {
