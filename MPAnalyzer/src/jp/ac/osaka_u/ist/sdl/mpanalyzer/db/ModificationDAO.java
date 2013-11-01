@@ -47,13 +47,13 @@ public class ModificationDAO extends DAO {
 		this.modificationPS.addBatch();
 		this.numberOfModificationPS++;
 
-		if (20000 < this.numberOfCodefragmentPS) {
+		if (100 < this.numberOfCodefragmentPS) {
 			System.out.println("writing \'codefragment\' table ...");
 			this.codefragmentPS.executeBatch();
 			this.numberOfCodefragmentPS = 0;
 		}
 
-		if (20000 < this.numberOfModificationPS) {
+		if (100 < this.numberOfModificationPS) {
 			System.out.println("writing \'modification\' table ...");
 			this.modificationPS.executeBatch();
 			this.numberOfModificationPS = 0;

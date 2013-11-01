@@ -84,5 +84,7 @@
 	<classpathentry kind="lib" path="lib/org.eclipse.jdt.source-4.2.2/plugins/org.junit.source_3.8.2.v3_8_2_v20100427-1100.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jdt.source-4.2.2/plugins/org.junit.source_4.10.0.v4_10_0_v20120426-0900.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jdt.source-4.2.2/plugins/org.junit4_4.8.1.v20120523-1257.jar"/>
+	<classpathentry kind="lib" path="lib/commentremover/CR.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2/commons-cli-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
