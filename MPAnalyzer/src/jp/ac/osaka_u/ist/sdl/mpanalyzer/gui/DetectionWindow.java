@@ -81,7 +81,7 @@ public class DetectionWindow extends JFrame implements Observer {
 		final DCode dCode = new DCode();
 		ObservedCodeFragments.getInstance(CFLABEL.SELECTED).addObserver(dCode);
 		ObservedFiles.getInstance(FLABEL.SELECTED).addObserver(dCode);
-		ObservedRevisions.getInstance(RLABEL.SELECTED).addObserver(dCode);
+		ObservedRevisions.getInstance(RLABEL.DETECTION).addObserver(dCode);
 
 		final JSplitPane bottomPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT);
@@ -96,7 +96,7 @@ public class DetectionWindow extends JFrame implements Observer {
 
 		ObservedCodeFragments.getInstance(CFLABEL.SELECTED).addObserver(this);
 		ObservedFiles.getInstance(FLABEL.SELECTED).addObserver(this);
-		ObservedRevisions.getInstance(RLABEL.SELECTED).addObserver(this);
+		ObservedRevisions.getInstance(RLABEL.DETECTION).addObserver(this);
 
 		this.setVisible(true);
 
@@ -115,7 +115,7 @@ public class DetectionWindow extends JFrame implements Observer {
 						.getModifications().get(0).before : pattern
 						.getModifications().get(0).after;
 
-				ObservedRevisions.getInstance(RLABEL.SELECTED).set(revision,
+				ObservedRevisions.getInstance(RLABEL.DETECTION).set(revision,
 						DetectionWindow.this);
 				ObservedCodeFragments.getInstance(CFLABEL.SELECTED).set(
 						codefragment, DetectionWindow.this);

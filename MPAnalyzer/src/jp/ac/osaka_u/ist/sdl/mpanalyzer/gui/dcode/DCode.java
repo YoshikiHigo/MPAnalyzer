@@ -172,7 +172,7 @@ public class DCode extends JTextArea implements Observer {
 
 		else if (o instanceof ObservedRevisions) {
 			final ObservedRevisions observedRevisions = (ObservedRevisions) o;
-			if (observedRevisions.label.equals(RLABEL.SELECTED)) {
+			if (observedRevisions.label.equals(RLABEL.DETECTION)) {
 				if (observedRevisions.isSet()) {
 					this.revision = observedRevisions.get().first();
 				}

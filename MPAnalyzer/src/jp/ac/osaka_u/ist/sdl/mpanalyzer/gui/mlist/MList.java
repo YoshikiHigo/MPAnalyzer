@@ -77,7 +77,7 @@ public class MList extends JTable implements Observer {
 		this.scrollPane
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"Modification Pattern List"));
+				"Modifications in a Specified Pattern"));
 
 		this.selectionHandler = new MPSelectionHandler();
 		this.getSelectionModel()
