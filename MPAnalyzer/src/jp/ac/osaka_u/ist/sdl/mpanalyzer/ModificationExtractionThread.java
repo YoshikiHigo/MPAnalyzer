@@ -29,6 +29,7 @@ public class ModificationExtractionThread extends Thread {
 			.getPATH_TO_REPOSITORY();
 	static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
+	static final private int LARGEMODIFICATION = Config.getLargeModification();
 
 	final public int id;
 	final public Revision[] revisions;
@@ -140,25 +141,22 @@ public class ModificationExtractionThread extends Thread {
 					final List<Statement> afterStatements = StringUtility
 							.splitToStatements(afterText.toString(), LANGUAGE);
 
-					final List<Modification> modifications = LCS
+					LCS lcs = new LCS();
+					/* final List<Modification> modifications = */lcs
 							.getModifications(beforeStatements,
 									afterStatements, path, afterRevision);
-					this.queue.addAll(modifications);
-
-					// final List<Token> beforeTokens =
-					// Token.getTokens(beforeText
-					// .toString());
-					// final List<Token> afterTokens = Token.getTokens(afterText
-					// .toString());
-					//
-					// final List<Statement> beforeStatements = Statement
-					// .getStatements(beforeTokens);
-					// final List<Statement> afterStatements = Statement
-					// .getStatements(afterTokens);
-					//
-					// final List<Modification> modifications = LCS
-					// .getModifications(beforeStatements,
-					// afterStatements, path, afterRevision);
+					lcs = null;
+					// for (final Iterator<Modification> iterator =
+					// modifications
+					// .iterator(); iterator.hasNext();) {
+					// final Modification modification = iterator.next();
+					// if ((LARGEMODIFICATION < modification.before.statements
+					// .size())
+					// || (LARGEMODIFICATION < modification.after.statements
+					// .size())) {
+					// iterator.remove();
+					// }
+					// }
 					// this.queue.addAll(modifications);
 				}
 			}

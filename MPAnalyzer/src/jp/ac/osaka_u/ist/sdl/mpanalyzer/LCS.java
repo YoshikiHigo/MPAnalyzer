@@ -16,25 +16,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.Token;
 
 public class LCS {
 
-	static class Cell {
-
-		final public int value;
-		final public boolean match;
-		final public int x;
-		final public int y;
-		final public Cell base;
-
-		public Cell(final int value, final boolean match, final int x,
-				final int y, final Cell base) {
-			this.value = value;
-			this.match = match;
-			this.x = x;
-			this.y = y;
-			this.base = base;
-		}
-	}
-
-	static public List<Modification> getModifications(
+	public static List<Modification> getModifications(
 			final List<Statement> array1, final List<Statement> array2,
 			final String filepath, final Revision revision) {
 
@@ -42,7 +24,14 @@ public class LCS {
 			return new ArrayList<Modification>();
 		}
 
+		if (3500 < array1.size() || 3500 < array2.size()) {
+			System.out.println("large file!");
+			return new ArrayList<Modification>();
+		}
+
 		final Cell[][] table = new Cell[array1.size()][array2.size()];
+		System.out.println("table size: " + array1.size() + " x "
+				+ array2.size());
 		if (array1.get(0).hash == array2.get(0).hash) {
 			table[0][0] = new Cell(1, true, 0, 0, null);
 		} else {
@@ -135,7 +124,7 @@ public class LCS {
 		return modifications;
 	}
 
-	static private List<Token> getTokens(final List<Statement> statements) {
+	public static List<Token> getTokens(final List<Statement> statements) {
 		final List<Token> tokens = new ArrayList<Token>();
 		for (final Statement statement : statements) {
 			tokens.addAll(statement.tokens);
@@ -143,7 +132,7 @@ public class LCS {
 		return tokens;
 	}
 
-	static private ChangeType getType(final List<Token> tokens1,
+	public static ChangeType getType(final List<Token> tokens1,
 			final List<Token> tokens2) {
 
 		if (tokens1.isEmpty() || tokens2.isEmpty()
@@ -258,5 +247,23 @@ public class LCS {
 		}
 
 		return ChangeType.TYPE1;
+	}
+}
+
+class Cell {
+
+	final public int value;
+	final public boolean match;
+	final public int x;
+	final public int y;
+	final public Cell base;
+
+	public Cell(final int value, final boolean match, final int x, final int y,
+			final Cell base) {
+		this.value = value;
+		this.match = match;
+		this.x = x;
+		this.y = y;
+		this.base = base;
 	}
 }
