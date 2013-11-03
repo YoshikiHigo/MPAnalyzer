@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.clpanel.CLPanel;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.graph.PCGraph;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mpcode.MPCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mplist.MPList;
@@ -48,6 +49,11 @@ public class MainWindow extends JFrame {
 		ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).addObserver(
 				threshold);
 		this.getContentPane().add(threshold, BorderLayout.NORTH);
+
+		final CLPanel clPanel = new CLPanel();
+		ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).addObserver(
+				clPanel);
+		this.getContentPane().add(clPanel.scrollPane, BorderLayout.SOUTH);
 
 		final JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		final PCGraph graph = new PCGraph();
