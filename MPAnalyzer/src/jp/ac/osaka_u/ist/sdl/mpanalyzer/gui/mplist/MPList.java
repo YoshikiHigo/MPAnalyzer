@@ -33,6 +33,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.DetectionWindow;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.OverlookedWindow;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.PatternWindow;
 
 public class MPList extends JTable implements Observer {
@@ -149,7 +150,12 @@ public class MPList extends JTable implements Observer {
 			this.analyzeOverlookedItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							new OverlookedWindow();
+						}
+					});
 				}
 			});
 
