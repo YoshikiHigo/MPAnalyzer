@@ -3,7 +3,6 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.clpanel;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedMap;
@@ -23,7 +22,8 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL
 public class CLPanel extends JTextArea implements Observer {
 
 	public final JScrollPane scrollPane;
-	private SortedMap<Long, String> revisions;
+	private SortedMap<Long, String> messages;
+	private SortedMap<Long, String> dates;
 
 	public CLPanel() {
 		super("");
@@ -51,11 +51,14 @@ public class CLPanel extends JTextArea implements Observer {
 					if (e.getClickCount() == 2) {
 
 						final StringBuilder text = new StringBuilder();
-						for (final Entry<Long, String> entry : CLPanel.this.revisions
-								.entrySet()) {
-							text.append(entry.getKey());
+						for (final Long revision : CLPanel.this.messages
+								.keySet()) {
+							text.append(revision);
+							text.append(" (");
+							text.append(CLPanel.this.dates.get(revision));
+							text.append(")");
 							text.append(" :  ");
-							text.append(entry.getValue());
+							text.append(CLPanel.this.messages.get(revision));
 							text.append(System.getProperty("line.separator"));
 							text.append("------------------------------");
 							text.append(System.getProperty("line.separator"));
@@ -99,20 +102,27 @@ public class CLPanel extends JTextArea implements Observer {
 				if (observedModificationPatterns.isSet()) {
 					final ModificationPattern pattern = observedModificationPatterns
 							.get().first();
-					this.revisions = new TreeMap<Long, String>();
+					this.messages = new TreeMap<Long, String>();
+					this.dates = new TreeMap<Long, String>();
 					for (final Modification m : pattern.getModifications()) {
 						final long revision = m.revision.number;
+						final String date = m.revision.date;
 						final String message = m.revision.message;
-						if (!this.revisions.containsKey(revision)) {
-							this.revisions.put(revision, message);
+						if (!this.messages.containsKey(revision)) {
+							this.messages.put(revision, message);
+						}
+						if (!this.dates.containsKey(revision)) {
+							this.dates.put(revision, date);
 						}
 					}
 					final StringBuilder text = new StringBuilder();
-					for (final Entry<Long, String> entry : this.revisions
-							.entrySet()) {
-						text.append(entry.getKey());
+					for (final Long revision : this.messages.keySet()) {
+						text.append(revision);
+						text.append(" (");
+						text.append(this.dates.get(revision));
+						text.append(") ");
 						text.append(": ");
-						text.append(entry.getValue());
+						text.append(this.messages.get(revision));
 					}
 					this.setText(text.toString());
 				}
