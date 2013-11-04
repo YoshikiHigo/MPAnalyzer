@@ -144,7 +144,12 @@ public class ModificationExtractionThread extends Thread {
 					final List<Modification> modifications = LCS
 							.getModifications(beforeStatements,
 									afterStatements, path, afterRevision);
-					 this.queue.addAll(modifications);
+					for (final Modification m : modifications) {
+						if (m.isCondition()) {
+							this.queue.add(m);
+						}
+					}
+					// this.queue.addAll(modifications);
 				}
 			}
 

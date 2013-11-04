@@ -144,4 +144,22 @@ public class Modification implements Comparable<Modification> {
 	public boolean isSamePattern(final Modification m) {
 		return this.before.equals(m.before) && this.after.equals(m.after);
 	}
+
+	public boolean isCondition() {
+		for (final Statement s : this.before.statements) {
+			final String text = s.toString();
+			if (text.startsWith("if ") || text.startsWith("while ")
+					|| text.startsWith("for ")) {
+				return true;
+			}
+		}
+		for (final Statement s : this.after.statements) {
+			final String text = s.toString();
+			if (text.startsWith("if ") || text.startsWith("while ")
+					|| text.startsWith("for ")) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
