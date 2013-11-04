@@ -1,8 +1,10 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mplist;
 
 import java.awt.Color;
-import java.awt.event.MouseAdapter;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,6 +15,9 @@ import java.util.SortedSet;
 
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -32,8 +37,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.PatternWindow;
 
 public class MPList extends JTable implements Observer {
 
-	class MPSelectionHandler extends MouseAdapter implements
-			ListSelectionListener {
+	class MPSelectionHandler implements ListSelectionListener {
 
 		@Override
 		public void valueChanged(final ListSelectionEvent e) {
@@ -55,62 +59,111 @@ public class MPList extends JTable implements Observer {
 						pattern, MPList.this);
 			}
 		}
+	}
 
-		@Override
-		public void mouseClicked(final MouseEvent e) {
+	class MPListPopupMenu extends JPopupMenu {
 
-			final int modifier = e.getModifiers();
-			if ((modifier & MouseEvent.BUTTON1_MASK) != 0) {
-				if (e.getClickCount() == 2) {
+		final JMenu exportMenu;
+		final JMenu removeMenu;
+		final JMenu analyzeMenu;
+		final JMenuItem exportCSVItem;
+		final JMenuItem removeMPItem;
+		final JMenuItem analyzeMPItem;
+		final JMenuItem analyzeOverlookedItem;
+		final JMenuItem analyzeCloneItem;
 
-					if (e.isShiftDown()) {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								new DetectionWindow();
-							}
-						});
-					} else {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								new PatternWindow();
-							}
-						});
+		MPListPopupMenu() {
+			this.exportMenu = new JMenu("export");
+			this.removeMenu = new JMenu("remove");
+			this.analyzeMenu = new JMenu("analyze");
+			this.exportCSVItem = new JMenuItem("MPs into a CVS file");
+			this.removeMPItem = new JMenuItem("this MP from this list");
+			this.analyzeMPItem = new JMenuItem("this MP");
+			this.analyzeOverlookedItem = new JMenuItem("overlooked code");
+			this.analyzeCloneItem = new JMenuItem("clones");
+
+			this.exportMenu.add(this.exportCSVItem);
+			this.removeMenu.add(this.removeMPItem);
+			this.analyzeMenu.add(this.analyzeMPItem);
+			this.analyzeMenu.add(this.analyzeOverlookedItem);
+			this.analyzeMenu.add(this.analyzeCloneItem);
+
+			this.add(this.exportMenu);
+			this.add(this.removeMenu);
+			this.add(this.analyzeMenu);
+
+			this.exportCSVItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+
+					// get user home
+					JFileChooser fileChooser = new JFileChooser(new File(".")
+							.getAbsolutePath());
+					fileChooser.setAcceptAllFileFilterUsed(false);
+					fileChooser.setMultiSelectionEnabled(true);
+					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+					// show dialog
+					int returnValue = fileChooser.showSaveDialog(MPList.this);
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
+
+						try {
+							final File file = fileChooser.getSelectedFile();
+							final BufferedWriter bw = new BufferedWriter(
+									new FileWriter(file));
+
+							final MPListModel model = (MPListModel) MPList.this
+									.getModel();
+							final String data = model.getDataAsCSV();
+							bw.write(data);
+							bw.close();
+
+						} catch (IOException evt) {
+							evt.printStackTrace();
+						}
+
+					} else if (returnValue == JFileChooser.CANCEL_OPTION) {
+					} else if (returnValue == JFileChooser.ERROR_OPTION) {
 					}
 				}
-			} else if ((modifier & MouseEvent.BUTTON3_MASK) != 0) {
+			});
 
-				// get user home
-				JFileChooser fileChooser = new JFileChooser(
-						new File(".").getAbsolutePath());
-				fileChooser.setAcceptAllFileFilterUsed(false);
-				fileChooser.setMultiSelectionEnabled(true);
-				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-				// show dialog
-				int returnValue = fileChooser.showSaveDialog(MPList.this);
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
-
-					try {
-						final File file = fileChooser.getSelectedFile();
-						final BufferedWriter bw = new BufferedWriter(
-								new FileWriter(file));
-
-						final MPListModel model = (MPListModel) MPList.this
-								.getModel();
-						final String data = model.getDataAsCSV();
-						bw.write(data);
-						bw.close();
-
-					} catch (IOException evt) {
-						evt.printStackTrace();
-					}
-
-				} else if (returnValue == JFileChooser.CANCEL_OPTION) {
-				} else if (returnValue == JFileChooser.ERROR_OPTION) {
+			this.removeMPItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
 				}
-			}
+			});
+
+			this.analyzeMPItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							new PatternWindow();
+						}
+					});
+				}
+			});
+
+			this.analyzeOverlookedItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+
+				}
+			});
+
+			this.analyzeCloneItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							new DetectionWindow();
+						}
+					});
+				}
+			});
 		}
 	}
 
@@ -143,7 +196,32 @@ public class MPList extends JTable implements Observer {
 		this.selectionHandler = new MPSelectionHandler();
 		this.getSelectionModel()
 				.addListSelectionListener(this.selectionHandler);
-		this.addMouseListener(this.selectionHandler);
+
+		this.addMouseListener(new MouseListener() {
+			public void mouseClicked(MouseEvent e) {
+				final int button = e.getButton();
+				if (MouseEvent.BUTTON3 == button) {
+					final MPListPopupMenu menu = new MPListPopupMenu();
+					menu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+		});
 	}
 
 	@Override
@@ -155,11 +233,9 @@ public class MPList extends JTable implements Observer {
 
 				this.getSelectionModel().removeListSelectionListener(
 						this.selectionHandler);
-				this.removeMouseListener(this.selectionHandler);
 				this.setModel();
 				this.getSelectionModel().addListSelectionListener(
 						this.selectionHandler);
-				this.addMouseListener(this.selectionHandler);
 			}
 		}
 	}
