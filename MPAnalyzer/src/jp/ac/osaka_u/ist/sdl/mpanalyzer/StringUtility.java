@@ -158,11 +158,20 @@ public class StringUtility {
 
 	public static List<Statement> splitToStatements(final String text,
 			final String language) {
+		
+		if(text.isEmpty()){
+			return new ArrayList<Statement>();
+		}
+
+		if(text.startsWith("-")){
+			return new ArrayList<Statement>();
+		}
+		
 		final String[] args = new String[8];
 		args[0] = "-l";
 		args[1] = language;
 		args[2] = "-i";
-		args[3] = text.toString();
+		args[3] = text;
 		args[4] = "-q";
 		args[5] = "-a";
 		args[6] = "-d";
