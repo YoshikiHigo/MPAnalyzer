@@ -8,10 +8,14 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.swing.JButton;
@@ -20,7 +24,11 @@ import javax.swing.JPanel;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.olist.OList;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist.RList;
 
 import org.tmatesoft.svn.core.ISVNDirEntryHandler;
@@ -53,8 +61,12 @@ public class OverlookedWindow extends JFrame {
 		final JPanel leftPanel = new JPanel(new BorderLayout());
 		leftPanel.add(searchButton, BorderLayout.NORTH);
 		leftPanel.add(rList.scrollPane, BorderLayout.CENTER);
-
 		this.getContentPane().add(leftPanel, BorderLayout.WEST);
+
+		final OList oList = new OList();
+		final JPanel centerPanel = new JPanel(new BorderLayout());
+		centerPanel.add(oList.scrollPane, BorderLayout.WEST);
+		this.getContentPane().add(centerPanel, BorderLayout.CENTER);
 
 		this.setVisible(true);
 
@@ -62,13 +74,29 @@ public class OverlookedWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				final long revision = rList.getSelectedRevision();
-				OverlookedWindow.this.detectOverlookedCode(revision);
+				final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = OverlookedWindow.this
+						.detectOverlookedCode(revision);
+				oList.setModel(oCodefragments);
+				oList.repaint();
 			}
 		});
 	}
 
-	private void detectOverlookedCode(final long revision) {
+	private SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> detectOverlookedCode(
+			final long revision) {
 		final Map<String, List<Statement>> files = this.getFiles(revision);
+		final SortedSet<ModificationPattern> MPs = ObservedModificationPatterns
+				.getInstance(MPLABEL.FILTERED).get();
+		final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = new TreeMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>>();
+		for (final ModificationPattern mp : MPs) {
+			final List<Statement> pattern = mp.getModifications().get(0).before.statements;
+			final SortedMap<String, SortedSet<CodeFragment>> oCodefragmentForAMP = this
+					.getOverlookedCode(files, pattern);
+			if (0 < oCodefragmentForAMP.size()) {
+				oCodefragments.put(mp, oCodefragmentForAMP);
+			}
+		}
+		return oCodefragments;
 	}
 
 	private Map<String, List<Statement>> getFiles(final long revision) {
@@ -179,5 +207,53 @@ public class OverlookedWindow extends JFrame {
 		}
 
 		return new HashMap<String, List<Statement>>();
+	}
+
+	private SortedMap<String, SortedSet<CodeFragment>> getOverlookedCode(
+			final Map<String, List<Statement>> files,
+			final List<Statement> pattern) {
+
+		final SortedMap<String, SortedSet<CodeFragment>> oCodefragments = new TreeMap<String, SortedSet<CodeFragment>>();
+
+		for (final Entry<String, List<Statement>> entry : files.entrySet()) {
+			final String path = entry.getKey();
+			final List<Statement> statements = entry.getValue();
+
+			final SortedSet<CodeFragment> oCodefragmentsInAFile = this
+					.getOverookedCode(statements, pattern);
+			if (0 < oCodefragmentsInAFile.size()) {
+				oCodefragments.put(path, oCodefragmentsInAFile);
+			}
+		}
+
+		return oCodefragments;
+	}
+
+	private SortedSet<CodeFragment> getOverookedCode(
+			final List<Statement> statements, final List<Statement> pattern) {
+
+		int pIndex = 0;
+		final SortedSet<CodeFragment> oCodefragments = new TreeSet<CodeFragment>();
+		List<Statement> correspondence = new ArrayList<Statement>();
+		for (int index = 0; index < statements.size(); index++) {
+
+			if (statements.get(index).hash == pattern.get(pIndex).hash) {
+				pIndex++;
+				correspondence.add(statements.get(index));
+				if (pIndex == pattern.size()) {
+					final CodeFragment codefragment = new CodeFragment(
+							correspondence);
+					oCodefragments.add(codefragment);
+					correspondence = new ArrayList<Statement>();
+					pIndex = 0;
+				}
+			}
+
+			else {
+				pIndex = 0;
+			}
+		}
+
+		return oCodefragments;
 	}
 }

@@ -10,22 +10,33 @@ public class CodeFragment implements Comparable<CodeFragment> {
 
 	public final List<Statement> statements;
 	public final String text;
+	public final String position;
 	public final int hash;
 
 	public CodeFragment(final List<Statement> statements) {
 		this.statements = statements;
-		final StringBuilder tmp = new StringBuilder();
-		for (final Statement statement : this.statements) {
-			tmp.append(statement);
-			tmp.append(System.getProperty("line.separator"));
+		{
+			final StringBuilder tmp = new StringBuilder();
+			for (final Statement statement : this.statements) {
+				tmp.append(statement);
+				tmp.append(System.getProperty("line.separator"));
+			}
+			this.text = tmp.toString();
 		}
-		this.text = tmp.toString();
+		{
+			final StringBuilder tmp2 = new StringBuilder();
+			tmp2.append(statements.get(0).getStartLine());
+			tmp2.append(" --- ");
+			tmp2.append(statements.get(statements.size() - 1).getEndLine());
+			this.position = tmp2.toString();
+		}
 		this.hash = this.text.hashCode();
 	}
 
 	public CodeFragment(final String text) {
 		this.statements = StringUtility.splitToStatements(text);
 		this.text = text;
+		this.position = "unknown";
 		this.hash = this.text.hashCode();
 
 	}
