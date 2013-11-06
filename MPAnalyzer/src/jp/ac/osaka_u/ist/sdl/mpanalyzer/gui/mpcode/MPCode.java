@@ -70,7 +70,26 @@ public class MPCode extends JTextArea implements Observer {
 					final String text = this.code == CODE.BEFORE ? pattern
 							.getModifications().get(0).before.text : pattern
 							.getModifications().get(0).after.text;
-					this.setText(text);
+					if (!text.isEmpty()) {
+						this.setText(text);
+					} else {
+						this.setText("NO CODE");
+					}
+				}
+			}
+
+			else if (patterns.label.equals(MPLABEL.OVERLOOKED)) {
+
+				this.setText("");
+
+				if (patterns.isSet()) {
+					final ModificationPattern pattern = patterns.get().first();
+					final String text = pattern.getModifications().get(0).after.text;
+					if (!text.isEmpty()) {
+						this.setText(text);
+					} else {
+						this.setText("NO CODE");
+					}
 				}
 			}
 		}

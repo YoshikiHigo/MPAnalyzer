@@ -79,7 +79,7 @@ public class DetectionWindow extends JFrame implements Observer {
 		final DTree dTree = new DTree();
 
 		final DCode dCode = new DCode();
-		ObservedCodeFragments.getInstance(CFLABEL.SELECTED).addObserver(dCode);
+		ObservedCodeFragments.getInstance(CFLABEL.DETECTION).addObserver(dCode);
 		ObservedFiles.getInstance(FLABEL.SELECTED).addObserver(dCode);
 		ObservedRevisions.getInstance(RLABEL.DETECTION).addObserver(dCode);
 
@@ -94,7 +94,7 @@ public class DetectionWindow extends JFrame implements Observer {
 
 		this.getContentPane().add(mainPane);
 
-		ObservedCodeFragments.getInstance(CFLABEL.SELECTED).addObserver(this);
+		ObservedCodeFragments.getInstance(CFLABEL.DETECTION).addObserver(this);
 		ObservedFiles.getInstance(FLABEL.SELECTED).addObserver(this);
 		ObservedRevisions.getInstance(RLABEL.DETECTION).addObserver(this);
 
@@ -117,7 +117,7 @@ public class DetectionWindow extends JFrame implements Observer {
 
 				ObservedRevisions.getInstance(RLABEL.DETECTION).set(revision,
 						DetectionWindow.this);
-				ObservedCodeFragments.getInstance(CFLABEL.SELECTED).set(
+				ObservedCodeFragments.getInstance(CFLABEL.DETECTION).set(
 						codefragment, DetectionWindow.this);
 
 				final ProgressDialog progressDialog = new ProgressDialog(

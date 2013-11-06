@@ -1,4 +1,4 @@
-package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.dcode;
+package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ocode;
 
 import java.awt.Color;
 import java.awt.Insets;
@@ -40,7 +40,7 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-public class DCode extends JTextArea implements Observer {
+public class OCode extends JTextArea implements Observer {
 
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
@@ -55,7 +55,7 @@ public class DCode extends JTextArea implements Observer {
 	private CodeFragment codefragment;
 	private List<Statement> statements;
 
-	public DCode() {
+	public OCode() {
 
 		this.setTabSize(TAB_SIZE);
 
@@ -65,7 +65,7 @@ public class DCode extends JTextArea implements Observer {
 
 		final Insets margin = new Insets(5, 50, 5, 5);
 		this.setMargin(margin);
-		this.setUI(new DCodeUI(new HashSet<Integer>(), this, margin));
+		this.setUI(new OCodeUI(new HashSet<Integer>(), this, margin));
 		this.setText("");
 		this.setEditable(false);
 
@@ -91,7 +91,7 @@ public class DCode extends JTextArea implements Observer {
 					case 1:
 						break;
 					case 2:
-						DCode.this.display();
+						OCode.this.display();
 						break;
 					default:
 					}
@@ -123,7 +123,7 @@ public class DCode extends JTextArea implements Observer {
 
 		if (o instanceof ObservedFiles) {
 			final ObservedFiles observedFiles = (ObservedFiles) o;
-			if (observedFiles.label.equals(FLABEL.SELECTED)) {
+			if (observedFiles.label.equals(FLABEL.OVERLOOKED)) {
 
 				this.setText("");
 
@@ -151,15 +151,17 @@ public class DCode extends JTextArea implements Observer {
 									}
 								});
 
-						DCode.this.statements = StringUtility
+						OCode.this.statements = StringUtility
 								.splitToStatements(text.toString(), LANGUAGE);
-						final SortedSet<Integer> highlightedLines = this
-								.getHighlightedLines(DCode.this.statements,
-										this.codefragment.statements);
+						final SortedSet<Integer> highlightedLines = new TreeSet<Integer>();
+						for (int line = this.codefragment.getStartLine(); line <= this.codefragment
+								.getEndLine(); line++) {
+							highlightedLines.add(line - 1);
+						}
 
 						final Insets margin = new Insets(5, 50, 5, 5);
 						this.setMargin(margin);
-						this.setUI(new DCodeUI(highlightedLines, this, margin));
+						this.setUI(new OCodeUI(highlightedLines, this, margin));
 						this.setText(text.toString());
 						this.setTitle(path);
 
@@ -172,7 +174,7 @@ public class DCode extends JTextArea implements Observer {
 
 		else if (o instanceof ObservedRevisions) {
 			final ObservedRevisions observedRevisions = (ObservedRevisions) o;
-			if (observedRevisions.label.equals(RLABEL.DETECTION)) {
+			if (observedRevisions.label.equals(RLABEL.OVERLOOKED)) {
 				if (observedRevisions.isSet()) {
 					this.revision = observedRevisions.get().first();
 				}
@@ -181,43 +183,12 @@ public class DCode extends JTextArea implements Observer {
 
 		else if (o instanceof ObservedCodeFragments) {
 			final ObservedCodeFragments observedCodeFragments = (ObservedCodeFragments) o;
-			if (observedCodeFragments.label.equals(CFLABEL.DETECTION)) {
+			if (observedCodeFragments.label.equals(CFLABEL.OVERLOOKED)) {
 				if (observedCodeFragments.isSet()) {
 					this.codefragment = observedCodeFragments.get().first();
 				}
 			}
 		}
-	}
-
-	private SortedSet<Integer> getHighlightedLines(
-			final List<Statement> statements, final List<Statement> pattern) {
-
-		final SortedSet<Integer> lines = new TreeSet<Integer>();
-		final SortedSet<Integer> candidates = new TreeSet<Integer>();
-
-		int pIndex = 0;
-		for (int index = 0; index < statements.size(); index++) {
-
-			final Statement statement = statements.get(index);
-			if (statement.hash == pattern.get(pIndex).hash) {
-				pIndex++;
-				candidates.add(statement.tokens.get(0).line - 1);
-				candidates
-						.add(statement.tokens.get(statement.tokens.size() - 1).line - 1);
-				if (pIndex == pattern.size()) {
-					pIndex = 0;
-					lines.addAll(candidates);
-					candidates.clear();
-				}
-			}
-
-			else {
-				pIndex = 0;
-				candidates.clear();
-			}
-		}
-
-		return lines;
 	}
 
 	private SortedSet<Integer> getPatternLines(

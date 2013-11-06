@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -14,18 +16,65 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 
-public class OList extends JTable {
+public class OList extends JTable implements Observer {
 
 	static final int COLUMN_LENGTH_ID = 10;
 	static final int COLUMN_LENGTH_NAME = 200;
 	static final int COLUMN_LENGTH_POSITION = 50;
 
 	final public JScrollPane scrollPane;
+	final private OSelectionHandler selectionHandler;
+
+	class OSelectionHandler implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(final ListSelectionEvent e) {
+
+			if (e.getValueIsAdjusting()) {
+				return;
+			}
+
+			final int firstIndex = e.getFirstIndex();
+			final int lastIndex = e.getLastIndex();
+
+			for (int index = firstIndex; index <= lastIndex; index++) {
+
+				final int modelIndex = OList.this.convertRowIndexToModel(index);
+				final OListModel model = (OListModel) OList.this.getModel();
+				final Object[] element = model.oCodefragments.get(modelIndex);
+
+				final ModificationPattern mp = (ModificationPattern) element[0];
+				final String path = (String) element[1];
+				final CodeFragment codefragment = (CodeFragment) element[2];
+
+				ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).clear(
+						OList.this);
+				ObservedFiles.getInstance(FLABEL.OVERLOOKED).clear(OList.this);
+				ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+						.clear(OList.this);
+
+				ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).set(
+						codefragment, OList.this);
+				ObservedFiles.getInstance(FLABEL.OVERLOOKED).set(path,
+						OList.this);
+				ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+						.set(mp, OList.this);
+			}
+		}
+	}
 
 	public OList() {
 
@@ -43,9 +92,9 @@ public class OList extends JTable {
 		this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black),
 				"Overlooked code fragments"));
 
-		// this.selectionHandler = new MPSelectionHandler();
-		// this.getSelectionModel()
-		// .addListSelectionListener(this.selectionHandler);
+		this.selectionHandler = new OSelectionHandler();
+		this.getSelectionModel()
+				.addListSelectionListener(this.selectionHandler);
 	}
 
 	public void setModel(
@@ -94,5 +143,15 @@ public class OList extends JTable {
 			}
 		}
 		return list;
+	}
+
+	@Override
+	public void update(final Observable o, final Object arg) {
+
+		this.getSelectionModel().removeListSelectionListener(
+				this.selectionHandler);
+
+		this.getSelectionModel()
+				.addListSelectionListener(this.selectionHandler);
 	}
 }

@@ -14,7 +14,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 public class ObservedCodeFragments extends Observable {
 
 	public enum CFLABEL {
-		SELECTED;
+		DETECTION, OVERLOOKED;
 	}
 
 	private static final Map<CFLABEL, ObservedCodeFragments> INSTANCES = new HashMap<CFLABEL, ObservedCodeFragments>();

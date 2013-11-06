@@ -12,7 +12,7 @@ import java.util.TreeSet;
 public class ObservedFiles extends Observable {
 
 	public enum FLABEL {
-		SELECTED;
+		SELECTED, OVERLOOKED;
 	}
 
 	private static final Map<FLABEL, ObservedFiles> INSTANCES = new HashMap<FLABEL, ObservedFiles>();

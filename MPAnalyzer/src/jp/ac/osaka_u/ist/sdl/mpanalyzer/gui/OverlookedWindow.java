@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -21,13 +23,19 @@ import java.util.TreeSet;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedRevisions.RLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mpcode.MPCode;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ocode.OCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.olist.OList;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist.RList;
 
@@ -43,7 +51,7 @@ import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-public class OverlookedWindow extends JFrame {
+public class OverlookedWindow extends JFrame implements Observer {
 
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
@@ -66,8 +74,28 @@ public class OverlookedWindow extends JFrame {
 		final OList oList = new OList();
 		final JPanel centerPanel = new JPanel(new BorderLayout());
 		centerPanel.add(oList.scrollPane, BorderLayout.WEST);
+		final OCode oCode = new OCode();
+		ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED)
+				.addObserver(oCode);
+		ObservedFiles.getInstance(FLABEL.OVERLOOKED).addObserver(oCode);
+		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(oCode);
+		final JSplitPane codePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		codePanel.setTopComponent(oCode.scrollPane);
+		final MPCode mpCode = new MPCode(CODE.AFTER);
+		ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+				.addObserver(mpCode);
+		codePanel.setBottomComponent(mpCode.scrollPane);
+		centerPanel.add(codePanel, BorderLayout.CENTER);
+
 		this.getContentPane().add(centerPanel, BorderLayout.CENTER);
 
+		ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).addObserver(this);
+		ObservedFiles.getInstance(FLABEL.OVERLOOKED).addObserver(this);
+		ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+				.addObserver(this);
+		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(this);
+
+		codePanel.setDividerLocation(d.height - 300);
 		this.setVisible(true);
 
 		searchButton.addActionListener(new ActionListener() {
@@ -78,6 +106,16 @@ public class OverlookedWindow extends JFrame {
 						.detectOverlookedCode(revision);
 				oList.setModel(oCodefragments);
 				oList.repaint();
+
+				ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).clear(
+						OverlookedWindow.this);
+				ObservedFiles.getInstance(FLABEL.OVERLOOKED).clear(
+						OverlookedWindow.this);
+				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).clear(
+						OverlookedWindow.this);
+
+				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).set(revision,
+						OverlookedWindow.this);
 			}
 		});
 	}
@@ -255,5 +293,9 @@ public class OverlookedWindow extends JFrame {
 		}
 
 		return oCodefragments;
+	}
+
+	@Override
+	public void update(final Observable o, final Object arg) {
 	}
 }

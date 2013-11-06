@@ -12,7 +12,7 @@ import java.util.TreeSet;
 public class ObservedRevisions extends Observable {
 
 	public enum RLABEL {
-		DETECTION;
+		DETECTION, OVERLOOKED;
 	}
 
 	private static final Map<RLABEL, ObservedRevisions> INSTANCES = new HashMap<RLABEL, ObservedRevisions>();

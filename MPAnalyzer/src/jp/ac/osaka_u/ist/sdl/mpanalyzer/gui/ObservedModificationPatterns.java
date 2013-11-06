@@ -14,7 +14,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 public class ObservedModificationPatterns extends Observable {
 
 	public enum MPLABEL {
-		ALL, FILTERED, SELECTED;
+		ALL, FILTERED, SELECTED, OVERLOOKED;
 	}
 
 	private static final Map<MPLABEL, ObservedModificationPatterns> INSTANCES = new HashMap<MPLABEL, ObservedModificationPatterns>();
