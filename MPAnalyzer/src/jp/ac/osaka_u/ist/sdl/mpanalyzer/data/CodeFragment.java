@@ -24,11 +24,17 @@ public class CodeFragment implements Comparable<CodeFragment> {
 			this.text = tmp.toString();
 		}
 		{
-			final StringBuilder tmp2 = new StringBuilder();
-			tmp2.append(statements.get(0).getStartLine());
-			tmp2.append(" --- ");
-			tmp2.append(statements.get(statements.size() - 1).getEndLine());
-			this.position = tmp2.toString();
+
+			if (!statements.isEmpty()) {
+				final StringBuilder tmp2 = new StringBuilder();
+				tmp2.append(statements.get(0).getStartLine());
+				tmp2.append(" --- ");
+				tmp2.append(statements.get(statements.size() - 1).getEndLine());
+				this.position = tmp2.toString();
+			} else {
+				this.position = "not exist.";
+			}
+
 		}
 		this.hash = this.text.hashCode();
 	}
