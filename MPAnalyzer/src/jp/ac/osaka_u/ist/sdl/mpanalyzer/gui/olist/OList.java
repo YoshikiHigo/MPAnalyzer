@@ -22,8 +22,8 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 public class OList extends JTable {
 
 	static final int COLUMN_LENGTH_ID = 10;
-	static final int COLUMN_LENGTH_NAME = 150;
-	static final int COLUMN_LENGTH_POSITION = 100;
+	static final int COLUMN_LENGTH_NAME = 200;
+	static final int COLUMN_LENGTH_POSITION = 50;
 
 	final public JScrollPane scrollPane;
 
@@ -57,6 +57,11 @@ public class OList extends JTable {
 		final RowSorter<OListModel> sorter = new TableRowSorter<OListModel>(
 				model);
 		this.setRowSorter(sorter);
+
+		for (int i = 0; i < this.getColumnCount(); i++) {
+			this.getColumnModel().getColumn(i)
+					.setCellRenderer(new OListRenderer());
+		}
 
 		this.getColumnModel().getColumn(0).setPreferredWidth(COLUMN_LENGTH_ID);
 		this.getColumnModel().getColumn(1)
