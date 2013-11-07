@@ -127,6 +127,38 @@ public class CLPanel extends JTextArea implements Observer {
 					this.setText(text.toString());
 				}
 			}
+
+			else if (observedModificationPatterns.label
+					.equals(MPLABEL.OVERLOOKED)) {
+				this.setText("");
+				if (observedModificationPatterns.isSet()) {
+					final ModificationPattern pattern = observedModificationPatterns
+							.get().first();
+					this.messages = new TreeMap<Long, String>();
+					this.dates = new TreeMap<Long, String>();
+					for (final Modification m : pattern.getModifications()) {
+						final long revision = m.revision.number;
+						final String date = m.revision.date;
+						final String message = m.revision.message;
+						if (!this.messages.containsKey(revision)) {
+							this.messages.put(revision, message);
+						}
+						if (!this.dates.containsKey(revision)) {
+							this.dates.put(revision, date);
+						}
+					}
+					final StringBuilder text = new StringBuilder();
+					for (final Long revision : this.messages.keySet()) {
+						text.append(revision);
+						text.append(" (");
+						text.append(this.dates.get(revision));
+						text.append(") ");
+						text.append(": ");
+						text.append(this.messages.get(revision));
+					}
+					this.setText(text.toString());
+				}
+			}
 		}
 	}
 }

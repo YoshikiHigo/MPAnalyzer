@@ -34,6 +34,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedRevisions.RLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.clpanel.CLPanel;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mpcode.MPCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ocode.OCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.olist.OList;
@@ -71,22 +72,29 @@ public class OverlookedWindow extends JFrame implements Observer {
 		leftPanel.add(rList.scrollPane, BorderLayout.CENTER);
 		this.getContentPane().add(leftPanel, BorderLayout.WEST);
 
+		final JSplitPane listPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		final OList oList = new OList();
-		final JPanel centerPanel = new JPanel(new BorderLayout());
-		centerPanel.add(oList.scrollPane, BorderLayout.WEST);
+		listPanel.setTopComponent(oList.scrollPane);
+		final CLPanel clPanel = new CLPanel();
+		ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+				.addObserver(clPanel);
+		listPanel.setBottomComponent(clPanel.scrollPane);
+
+		final JSplitPane codePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		final OCode oCode = new OCode();
 		ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED)
 				.addObserver(oCode);
 		ObservedFiles.getInstance(FLABEL.OVERLOOKED).addObserver(oCode);
 		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(oCode);
-		final JSplitPane codePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		codePanel.setTopComponent(oCode.scrollPane);
 		final MPCode mpCode = new MPCode(CODE.AFTER);
 		ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
 				.addObserver(mpCode);
 		codePanel.setBottomComponent(mpCode.scrollPane);
-		centerPanel.add(codePanel, BorderLayout.CENTER);
 
+		final JPanel centerPanel = new JPanel(new BorderLayout());
+		centerPanel.add(listPanel, BorderLayout.WEST);
+		centerPanel.add(codePanel, BorderLayout.CENTER);
 		this.getContentPane().add(centerPanel, BorderLayout.CENTER);
 
 		ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).addObserver(this);
@@ -95,24 +103,29 @@ public class OverlookedWindow extends JFrame implements Observer {
 				.addObserver(this);
 		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(this);
 
+		listPanel.setDividerLocation(d.height - 400);
 		codePanel.setDividerLocation(d.height - 300);
+
 		this.setVisible(true);
 
 		searchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				final long revision = rList.getSelectedRevision();
-				final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = OverlookedWindow.this
-						.detectOverlookedCode(revision);
-				oList.setModel(oCodefragments);
-				oList.repaint();
 
 				ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
 				ObservedFiles.getInstance(FLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
+				ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+						.clear(OverlookedWindow.this);
 				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
+
+				final long revision = rList.getSelectedRevision();
+				final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = OverlookedWindow.this
+						.detectOverlookedCode(revision);
+				oList.setModel(oCodefragments);
+				oList.repaint();
 
 				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).set(revision,
 						OverlookedWindow.this);
