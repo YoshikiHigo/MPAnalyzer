@@ -33,33 +33,36 @@ public class PatternWindow extends JFrame implements Observer {
 
 		final MList list = new MList();
 		ObservedModifications.getInstance(MLABEL.SELECTED).addObserver(list);
+		this.logDisplay = new JTextArea();
+		this.logDisplay.setEditable(false);
+		this.logDisplay.setLineWrap(true);
+		this.logDisplay.setBorder(new TitledBorder(new LineBorder(Color.black),
+				"Log message"));
+		final JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		topPane.setLeftComponent(list.scrollPane);
+		topPane.setRightComponent(this.logDisplay);
 
 		final MCode beforeCode = new MCode(CODE.BEFORE);
 		ObservedModifications.getInstance(MLABEL.SELECTED).addObserver(
 				beforeCode);
-
 		final MCode afterCode = new MCode(CODE.AFTER);
 		ObservedModifications.getInstance(MLABEL.SELECTED).addObserver(
 				afterCode);
-
 		final JSplitPane codePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		codePane.add(beforeCode.scrollPane, JSplitPane.LEFT);
 		codePane.add(afterCode.scrollPane, JSplitPane.RIGHT);
 
-		final JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		mainPane.add(list.scrollPane, JSplitPane.LEFT);
-		mainPane.add(codePane, JSplitPane.RIGHT);
-
+		final JSplitPane mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		mainPane.setTopComponent(topPane);
+		mainPane.setBottomComponent(codePane);
 		this.getContentPane().add(mainPane, BorderLayout.CENTER);
-
-		this.logDisplay = new JTextArea();
-		this.logDisplay.setEditable(false);
-		this.logDisplay.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"Log message"));
-		this.getContentPane().add(this.logDisplay, BorderLayout.SOUTH);
 
 		this.setVisible(true);
 
+		topPane.setDividerLocation(MList.COLUMN_LENGTH_NUMBER
+				+ MList.COLUMN_LENGTH_DATE + MList.COLUMN_LENGTH_PATH
+				+ MList.COLUMN_LENGTH_BEFORE_POSITION
+				+ MList.COLUMN_LENGTH_AFTER_POSITION);
 		codePane.setDividerLocation(codePane.getWidth() / 2);
 	}
 

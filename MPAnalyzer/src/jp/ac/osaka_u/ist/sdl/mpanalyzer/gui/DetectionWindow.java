@@ -38,7 +38,11 @@ public class DetectionWindow extends JFrame implements Observer {
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setSize(new Dimension(d.width - 5, d.height - 27));
 
+		final JPanel topLeftPanel = new JPanel(new BorderLayout());
+		final JButton searchButton = new JButton("Search");
+		topLeftPanel.add(searchButton, BorderLayout.NORTH);
 		final RList rList = new RList();
+		topLeftPanel.add(rList.scrollPane, BorderLayout.CENTER);
 
 		final JRadioButton beforeButton = new JRadioButton(
 				"Before modification", false);
@@ -68,16 +72,12 @@ public class DetectionWindow extends JFrame implements Observer {
 		topMainPanl.add(buttonPane, BorderLayout.NORTH);
 		topMainPanl.add(mCodePane, BorderLayout.CENTER);
 
-		final JButton searchButton = new JButton("Search");
-
 		final JPanel topPane = new JPanel();
 		topPane.setLayout(new BorderLayout());
-		topPane.add(rList.scrollPane, BorderLayout.WEST);
+		topPane.add(topLeftPanel, BorderLayout.WEST);
 		topPane.add(topMainPanl, BorderLayout.CENTER);
-		topPane.add(searchButton, BorderLayout.EAST);
 
 		final DTree dTree = new DTree();
-
 		final DCode dCode = new DCode();
 		ObservedCodeFragments.getInstance(CFLABEL.DETECTION).addObserver(dCode);
 		ObservedFiles.getInstance(FLABEL.SELECTED).addObserver(dCode);

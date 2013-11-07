@@ -23,18 +23,31 @@ class MListRenderer extends DefaultTableCellRenderer {
 		final MListModel model = (MListModel) table.getModel();
 		final Modification modification = model.modifications[modelRow];
 		switch (modelColumn) {
-		case 0:
-			renderer.setHorizontalAlignment(JLabel.RIGHT);
+		case 0: {
+			renderer.setHorizontalAlignment(JLabel.CENTER);
 			renderer.setText(Long.toString(modification.revision.number));
 			break;
-		case 1:
-			renderer.setHorizontalAlignment(JLabel.RIGHT);
+		}
+		case 1: {
+			renderer.setHorizontalAlignment(JLabel.CENTER);
 			renderer.setText(modification.revision.date);
 			break;
-		case 2:
-			renderer.setHorizontalAlignment(JLabel.RIGHT);
+		}
+		case 2: {
+			renderer.setHorizontalAlignment(JLabel.LEFT);
 			renderer.setText(modification.filepath);
 			break;
+		}
+		case 3: {
+			renderer.setHorizontalAlignment(JLabel.CENTER);
+			renderer.setText(modification.before.position);
+			break;
+		}
+		case 4: {
+			renderer.setHorizontalAlignment(JLabel.CENTER);
+			renderer.setText(modification.after.position);
+			break;
+		}
 		default:
 			assert false : "Here shouldn't be reached!";
 		}

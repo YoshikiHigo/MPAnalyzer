@@ -5,12 +5,11 @@ import java.util.Collection;
 import javax.swing.table.AbstractTableModel;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 
 public class MListModel extends AbstractTableModel {
 
 	static public final String[] TITLES = new String[] { "Revision", "Date",
-			"File"};
+			"Path", "POSITION BEFORE", "POSITION AFTER" };
 
 	final public Modification[] modifications;
 
@@ -38,6 +37,10 @@ public class MListModel extends AbstractTableModel {
 			return this.modifications[row].revision.date;
 		case 2:
 			return this.modifications[row].filepath;
+		case 3:
+			return this.modifications[row].before.position;
+		case 4:
+			return this.modifications[row].after.position;
 		default:
 			assert false : "Here sholdn't be reached!";
 			return null;
@@ -51,6 +54,8 @@ public class MListModel extends AbstractTableModel {
 			return Long.class;
 		case 1:
 		case 2:
+		case 3:
+		case 4:
 			return String.class;
 		default:
 			assert false : "Here shouldn't be reached!";

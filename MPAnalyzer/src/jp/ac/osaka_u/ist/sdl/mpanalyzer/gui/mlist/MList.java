@@ -19,8 +19,8 @@ import javax.swing.table.TableRowSorter;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications.MLABEL;
 
 public class MList extends JTable implements Observer {
@@ -49,8 +49,11 @@ public class MList extends JTable implements Observer {
 		}
 	}
 
-	static final int COLUMN_LENGTH_NUMBER = 50;
-	static final int COLUMN_LENGTH_DATE = 100;
+	static final public int COLUMN_LENGTH_NUMBER = 100;
+	static final public int COLUMN_LENGTH_DATE = 150;
+	static final public int COLUMN_LENGTH_PATH = 400;
+	static final public int COLUMN_LENGTH_BEFORE_POSITION = 100;
+	static final public int COLUMN_LENGTH_AFTER_POSITION = 100;
 
 	final public JScrollPane scrollPane;
 	final private MPSelectionHandler selectionHandler;
@@ -125,5 +128,8 @@ public class MList extends JTable implements Observer {
 				.setPreferredWidth(COLUMN_LENGTH_NUMBER);
 		this.getColumnModel().getColumn(1)
 				.setPreferredWidth(COLUMN_LENGTH_DATE);
+		this.getColumnModel().getColumn(2).setPreferredWidth(COLUMN_LENGTH_PATH);
+		this.getColumnModel().getColumn(3).setPreferredWidth(COLUMN_LENGTH_BEFORE_POSITION);
+		this.getColumnModel().getColumn(4).setPreferredWidth(COLUMN_LENGTH_AFTER_POSITION);
 	}
 }

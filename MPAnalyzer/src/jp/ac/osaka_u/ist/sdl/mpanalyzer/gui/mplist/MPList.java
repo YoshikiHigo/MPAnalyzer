@@ -80,9 +80,9 @@ public class MPList extends JTable implements Observer {
 			this.analyzeMenu = new JMenu("analyze");
 			this.exportCSVItem = new JMenuItem("MPs into a CVS file");
 			this.removeMPItem = new JMenuItem("this MP from this list");
-			this.analyzeMPItem = new JMenuItem("this MP");
-			this.analyzeOverlookedItem = new JMenuItem("overlooked code");
-			this.analyzeCloneItem = new JMenuItem("clones");
+			this.analyzeMPItem = new JMenuItem("modifications in the selected MP");
+			this.analyzeOverlookedItem = new JMenuItem("overlooked code from all the listed MPs");
+			this.analyzeCloneItem = new JMenuItem("clones using the selected MP");
 
 			this.exportMenu.add(this.exportCSVItem);
 			this.removeMenu.add(this.removeMPItem);

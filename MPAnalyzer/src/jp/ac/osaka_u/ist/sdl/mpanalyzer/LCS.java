@@ -30,8 +30,6 @@ public class LCS {
 		}
 
 		final Cell[][] table = new Cell[array1.size()][array2.size()];
-		System.out.println("table size: " + array1.size() + " x "
-				+ array2.size());
 		if (array1.get(0).hash == array2.get(0).hash) {
 			table[0][0] = new Cell(1, true, 0, 0, null);
 		} else {
