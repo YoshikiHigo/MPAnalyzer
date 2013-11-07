@@ -17,8 +17,8 @@ public class ProgressDialog extends JDialog {
 	final public JTextField note;
 	final public Canceled canceled;
 
-	public ProgressDialog(final JFrame parent) {
-		super(parent, "searching patterns...", true);
+	public ProgressDialog(final JFrame parent, final String title) {
+		super(parent, title, true);
 
 		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 

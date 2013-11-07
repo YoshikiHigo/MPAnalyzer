@@ -121,7 +121,7 @@ public class DetectionWindow extends JFrame implements Observer {
 						codefragment, DetectionWindow.this);
 
 				final ProgressDialog progressDialog = new ProgressDialog(
-						DetectionWindow.this);
+						DetectionWindow.this, "searching patterns...");
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {

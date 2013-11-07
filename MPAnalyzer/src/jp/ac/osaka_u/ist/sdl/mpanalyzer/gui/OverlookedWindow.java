@@ -24,6 +24,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
@@ -38,6 +40,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.clpanel.CLPanel;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mpcode.MPCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ocode.OCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.olist.OList;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.progress.ProgressDialog;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.rlist.RList;
 
 import org.tmatesoft.svn.core.ISVNDirEntryHandler;
@@ -58,6 +61,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 			.getPATH_TO_REPOSITORY();
 	static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
+
+	private ProgressDialog progressDialog;
 
 	public OverlookedWindow() {
 		super("Overlooked code Window - MPAnalyzer");
@@ -112,6 +117,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				searchButton.setEnabled(false);
+
 				ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
 				ObservedFiles.getInstance(FLABEL.OVERLOOKED).clear(
@@ -121,14 +128,41 @@ public class OverlookedWindow extends JFrame implements Observer {
 				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
 
-				final long revision = rList.getSelectedRevision();
-				final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = OverlookedWindow.this
-						.detectOverlookedCode(revision);
-				oList.setModel(oCodefragments);
-				oList.repaint();
+				final ProgressDialog progressDialog = new ProgressDialog(
+						OverlookedWindow.this,
+						"searching overlooked code fragments...");
+				OverlookedWindow.this.progressDialog = progressDialog;
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						progressDialog.setVisible(true);
+					}
+				});
 
-				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).set(revision,
-						OverlookedWindow.this);
+				final SwingWorker<Object, Object> task = new SwingWorker<Object, Object>() {
+
+					@Override
+					protected Object doInBackground() throws Exception {
+						final long revision = rList.getSelectedRevision();
+						final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = OverlookedWindow.this
+								.detectOverlookedCode(revision);
+						oList.setModel(oCodefragments);
+						oList.repaint();
+
+						ObservedRevisions.getInstance(RLABEL.OVERLOOKED).set(
+								revision, OverlookedWindow.this);
+						return null;
+					}
+
+					@Override
+					protected void done() {
+						super.done();
+						searchButton.setEnabled(true);
+						progressDialog.dispose();
+					}
+
+				};
+				task.execute();
 			}
 		});
 	}
@@ -160,8 +194,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 			final SVNWCClient wcClient = SVNClientManager.newInstance()
 					.getWCClient();
 
-			// this.progressDialog.note.setText("preparing a file list ...");
-			// this.progressDialog.repaint();
+			this.progressDialog.note.setText("preparing a file list ...");
+			this.progressDialog.repaint();
 
 			final SortedSet<String> paths = new TreeSet<String>();
 
@@ -173,17 +207,18 @@ public class OverlookedWindow extends JFrame implements Observer {
 						public void handleDirEntry(final SVNDirEntry entry)
 								throws SVNException {
 
-							// if (progressDialog.canceled.isCanceled()) {
-							// return;
-							// }
+							if (OverlookedWindow.this.progressDialog.canceled
+									.isCanceled()) {
+								return;
+							}
 
-							// progressDialog.progressBar
-							// .setMaximum(progressDialog.progressBar
-							// .getMaximum() + 1);
-							// progressDialog.progressBar
-							// .setValue(progressDialog.progressBar
-							// .getValue() + 1);
-							// progressDialog.repaint();
+							OverlookedWindow.this.progressDialog.progressBar
+									.setMaximum(OverlookedWindow.this.progressDialog.progressBar
+											.getMaximum() + 1);
+							OverlookedWindow.this.progressDialog.progressBar
+									.setValue(OverlookedWindow.this.progressDialog.progressBar
+											.getValue() + 1);
+							OverlookedWindow.this.progressDialog.repaint();
 
 							if (entry.getKind() == SVNNodeKind.FILE) {
 								final String path = entry.getRelativePath();
@@ -194,10 +229,11 @@ public class OverlookedWindow extends JFrame implements Observer {
 
 									paths.add(path);
 
-									// progressDialog.note
-									// .setText("preparing files ... "
-									// + path);
-									// progressDialog.repaint();
+									OverlookedWindow.this.progressDialog.note
+											.setText("preparing files ... "
+													+ path);
+									OverlookedWindow.this.progressDialog
+											.repaint();
 
 								} else if (LANGUAGE.equalsIgnoreCase("C")
 										&& path.startsWith(TARGET)
@@ -205,31 +241,32 @@ public class OverlookedWindow extends JFrame implements Observer {
 
 									paths.add(path);
 
-									// progressDialog.note
-									// .setText("preparing files ... "
-									// + path);
-									// progressDialog.repaint();
+									OverlookedWindow.this.progressDialog.note
+											.setText("preparing files ... "
+													+ path);
+									OverlookedWindow.this.progressDialog
+											.repaint();
 
 								}
 							}
 						}
 					});
 
-			// this.progressDialog.progressBar.setMaximum(files.size());
-			// this.progressDialog.progressBar.setValue(0);
+			this.progressDialog.progressBar.setMaximum(paths.size());
+			this.progressDialog.progressBar.setValue(0);
 
 			final Map<String, List<Statement>> files = new HashMap<String, List<Statement>>();
 			int progress = 1;
 			for (final String path : paths) {
 
-				// if (progressDialog.canceled.isCanceled()) {
-				// return new ArrayList<FileData>();
-				// }
+				if (this.progressDialog.canceled.isCanceled()) {
+					return new HashMap<String, List<Statement>>();
+				}
 
-				// this.progressDialog.progressBar.setValue(progress++);
-				// this.progressDialog.note.setText("detecting patterns ... "
-				// + path);
-				// this.progressDialog.repaint();
+				this.progressDialog.progressBar.setValue(progress++);
+				this.progressDialog.note.setText("detecting patterns ... "
+						+ path);
+				this.progressDialog.repaint();
 
 				final SVNURL fileurl = SVNURL.fromFile(new File(
 						PATH_TO_REPOSITORY
