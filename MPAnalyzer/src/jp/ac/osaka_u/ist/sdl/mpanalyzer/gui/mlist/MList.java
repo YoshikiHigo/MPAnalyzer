@@ -49,11 +49,11 @@ public class MList extends JTable implements Observer {
 		}
 	}
 
-	static final public int COLUMN_LENGTH_NUMBER = 100;
-	static final public int COLUMN_LENGTH_DATE = 150;
+	static final public int COLUMN_LENGTH_NUMBER = 70;
+	static final public int COLUMN_LENGTH_DATE = 130;
 	static final public int COLUMN_LENGTH_PATH = 400;
-	static final public int COLUMN_LENGTH_BEFORE_POSITION = 100;
-	static final public int COLUMN_LENGTH_AFTER_POSITION = 100;
+	static final public int COLUMN_LENGTH_BEFORE_POSITION = 120;
+	static final public int COLUMN_LENGTH_AFTER_POSITION = 120;
 
 	final public JScrollPane scrollPane;
 	final private MPSelectionHandler selectionHandler;
