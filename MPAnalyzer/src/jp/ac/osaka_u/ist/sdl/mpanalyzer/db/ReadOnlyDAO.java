@@ -59,12 +59,20 @@ public class ReadOnlyDAO extends DAO {
 		modificationSQL
 				.append("(select C1.text from codefragment C1 where C1.hash=M.beforeHash), ");
 		modificationSQL
-				.append("(select C3.text from codefragment C3 where C3.hash=M.afterHash), ");
+				.append("(select C2.start from codefragment C2 where C2.hash=M.beforeHash), ");
+		modificationSQL
+				.append("(select C3.end from codefragment C3 where C3.hash=M.beforeHash), ");
+		modificationSQL
+				.append("(select C4.text from codefragment C4 where C4.hash=M.afterHash), ");
+		modificationSQL
+				.append("(select C5.start from codefragment C5 where C5.hash=M.afterHash), ");
+		modificationSQL
+				.append("(select C6.end from codefragment C6 where C6.hash=M.afterHash), ");
 		modificationSQL.append("M.revision, M.type, ");
 		modificationSQL
-				.append("(select R.date from revision R where R.number = M.revision), ");
+				.append("(select R1.date from revision R1 where R1.number = M.revision), ");
 		modificationSQL
-				.append("(select R.message from revision R where R.number = M.revision) ");
+				.append("(select R2.message from revision R2 where R2.number = M.revision) ");
 		modificationSQL
 				.append("from modification M where beforeHash = ? and afterHash = ?");
 		this.modificationStatement = this.connector
@@ -92,16 +100,21 @@ public class ReadOnlyDAO extends DAO {
 			final int id = result.getInt(1);
 			final String filepath = result.getString(2);
 			final String beforeText = result.getString(3);
-			final String afterText = result.getString(4);
-			final long number = result.getLong(5);
+			final int beforeStart = result.getInt(4);
+			final int beforeEnd = result.getInt(5);
+			final String afterText = result.getString(6);
+			final int afterStart = result.getInt(7);
+			final int afterEnd = result.getInt(8);
+			final long number = result.getLong(9);
 			final ModificationType modificationType = beforeText.isEmpty() ? ModificationType.ADD
 					: afterText.isEmpty() ? ModificationType.DELETE
 							: ModificationType.CHANGE;
-			final ChangeType changeType = ChangeType.getType(result.getInt(6));
-			final String date = result.getString(7);
-			final String message = result.getString(8);
+			final ChangeType changeType = ChangeType.getType(result.getInt(10));
+			final String date = result.getString(11);
+			final String message = result.getString(12);
 			final Modification modification = new Modification(id, filepath,
-					new CodeFragment(beforeText), new CodeFragment(afterText),
+					new CodeFragment(beforeText, beforeStart, beforeEnd),
+					new CodeFragment(afterText, afterStart, afterEnd),
 					new Revision(number, date, message), modificationType,
 					changeType);
 			modifications.add(modification);

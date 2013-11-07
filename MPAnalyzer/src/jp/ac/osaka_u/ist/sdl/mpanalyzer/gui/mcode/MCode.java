@@ -8,9 +8,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
@@ -26,11 +24,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.LCS;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.CODE;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications.MLABEL;
@@ -47,9 +41,10 @@ public class MCode extends JTextArea implements Observer {
 
 	static public final int TAB_SIZE = 4;
 
-	public final List<Modification> modifications;
 	public final JScrollPane scrollPane;
 	public final CODE code;
+
+	private Modification modification;
 
 	public MCode(final CODE code) {
 
@@ -83,7 +78,7 @@ public class MCode extends JTextArea implements Observer {
 		}
 
 		this.code = code;
-		this.modifications = new ArrayList<Modification>();
+		this.modification = null;
 
 		this.addMouseListener(new MouseAdapter() {
 			@Override
@@ -126,10 +121,9 @@ public class MCode extends JTextArea implements Observer {
 
 					try {
 
-						final Modification modification = observedModifications
-								.get().first();
-						final long revision = modification.revision.number;
-						final String filepath = modification.filepath;
+						this.modification = observedModifications.get().first();
+						final long revision = this.modification.revision.number;
+						final String filepath = this.modification.filepath;
 						final String PATH_TO_REPOSITORY = Config
 								.getPATH_TO_REPOSITORY();
 						final SVNURL url = SVNURL.fromFile(new File(
@@ -160,47 +154,7 @@ public class MCode extends JTextArea implements Observer {
 									}
 								});
 
-						final List<Statement> beforeStatements = StringUtility
-								.splitToStatements(beforeText.toString(),
-										LANGUAGE);
-						final List<Statement> afterStatements = StringUtility
-								.splitToStatements(afterText.toString(),
-										LANGUAGE);
-
-						this.modifications.clear();
-						final List<Modification> modifications = LCS
-								.getModifications(beforeStatements,
-										afterStatements, filepath,
-										modification.revision);
-						for (final Modification m : modifications) {
-							if (m.isSamePattern(modification)) {
-								this.modifications.add(m);
-							}
-						}
-
-						final Set<Integer> lines = new HashSet<Integer>();
-						for (final Modification m : modifications) {
-
-							final CodeFragment cf;
-							switch (this.code) {
-							case BEFORE:
-								cf = m.before;
-								break;
-							case AFTER:
-								cf = m.after;
-								break;
-							default:
-								cf = new CodeFragment("");
-								assert false : "here shouldn't be reached!";
-								System.exit(0);
-							}
-							final int startLine = cf.getStartLine();
-							final int endLine = cf.getEndLine();
-							for (int line = startLine - 1; line < endLine; line++) {
-								lines.add(line);
-							}
-						}
-
+						final Set<Integer> lines = this.getModifiedLines();
 						final Insets margin = new Insets(5, 50, 5, 5);
 						this.setMargin(margin);
 						this.setUI(new MCodeUI(this.code, lines, this, margin));
@@ -224,29 +178,27 @@ public class MCode extends JTextArea implements Observer {
 		}
 	}
 
-	private SortedSet<Integer> getModificationLines() {
-
+	private SortedSet<Integer> getModifiedLines() {
 		final SortedSet<Integer> lines = new TreeSet<Integer>();
-
-		for (final Modification m : this.modifications) {
-			final CodeFragment c;
-			switch (this.code) {
-			case BEFORE:
-				c = m.before;
-				break;
-			case AFTER:
-				c = m.after;
-				break;
-			default:
-				c = null;
-				assert false : "here shouldn't be reached!";
-				System.exit(0);
+		switch (this.code) {
+		case BEFORE: {
+			for (int line = this.modification.before.getStartLine(); line <= this.modification.before
+					.getEndLine(); line++) {
+				lines.add(line - 1);
 			}
-			if (!c.statements.isEmpty()) {
-				lines.add(c.statements.get(0).tokens.get(0).line - 1);
-			}
+			break;
 		}
-
+		case AFTER: {
+			for (int line = this.modification.after.getStartLine(); line <= this.modification.after
+					.getEndLine(); line++) {
+				lines.add(line - 1);
+			}
+			break;
+		}
+		default:
+			assert false : "here shouldn't be reached!";
+			System.exit(0);
+		}
 		return lines;
 	}
 
@@ -255,7 +207,7 @@ public class MCode extends JTextArea implements Observer {
 		final Document doc = this.getDocument();
 		final Element root = doc.getDefaultRootElement();
 
-		final SortedSet<Integer> lines = this.getModificationLines();
+		final SortedSet<Integer> lines = this.getModifiedLines();
 		if (lines.isEmpty()) {
 			return;
 		}

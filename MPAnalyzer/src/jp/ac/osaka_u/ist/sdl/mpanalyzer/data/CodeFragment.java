@@ -39,12 +39,9 @@ public class CodeFragment implements Comparable<CodeFragment> {
 		this.hash = this.text.hashCode();
 	}
 
-	public CodeFragment(final String text) {
-		this.statements = StringUtility.splitToStatements(text);
-		this.text = text;
-		this.position = "unknown";
-		this.hash = this.text.hashCode();
-
+	public CodeFragment(final String text, final int startLine,
+			final int endLine) {
+		this(StringUtility.splitToStatements(text, startLine, endLine));
 	}
 
 	@Override

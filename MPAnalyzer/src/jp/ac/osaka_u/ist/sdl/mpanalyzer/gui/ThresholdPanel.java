@@ -19,9 +19,9 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ModificationType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.ReadOnlyDAO;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 
@@ -189,6 +189,9 @@ public class ThresholdPanel extends JPanel implements Observer {
 		queryButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
+				queryButton.setEnabled(false);
+
 				int supportMin = 1;
 				int supportMax = Integer.MAX_VALUE;
 				try {
@@ -423,6 +426,8 @@ public class ThresholdPanel extends JPanel implements Observer {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
+
+				queryButton.setEnabled(true);
 			}
 		});
 	}

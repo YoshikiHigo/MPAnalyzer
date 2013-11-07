@@ -122,7 +122,8 @@ public class StringUtility {
 		return afterText;
 	}
 
-	public static List<Statement> splitToStatements(final String text) {
+	public static List<Statement> splitToStatements(final String text,
+			final int startLine, final int endLine) {
 		final List<Statement> statements = new ArrayList<Statement>();
 		final String[] lines = text.split(System.getProperty("line.separator"));
 		for (final String line : lines) {
@@ -132,20 +133,11 @@ public class StringUtility {
 			statements.add(statement);
 		}
 
-		// final List<Statement> statements = new ArrayList<Statement>();
-		// int startIndex = 0;
-		// int endIndex = 0;
-		// for (int index = 0; index < text.length(); index++) {
-		// if (';' == text.charAt(index) || '{' == text.charAt(index)
-		// || '}' == text.charAt(index)) {
-		// endIndex = index + 1;
-		// final String subText = text.substring(startIndex, endIndex);
-		// final List<Token> tokens = new ArrayList<Token>();
-		// tokens.add(new Token(subText, TokenType.STATEMENT, 0));
-		// final Statement statement = new Statement(tokens);
-		// statements.add(statement);
-		// }
-		// }
+		if (!statements.isEmpty()) {
+			statements.get(0).tokens.get(0).line = startLine;
+			statements.get(statements.size() - 1).tokens.get(0).line = endLine;
+		}
+
 		return statements;
 	}
 
@@ -158,15 +150,15 @@ public class StringUtility {
 
 	public static List<Statement> splitToStatements(final String text,
 			final String language) {
-		
-		if(text.isEmpty()){
+
+		if (text.isEmpty()) {
 			return new ArrayList<Statement>();
 		}
 
-		if(text.startsWith("-")){
+		if (text.startsWith("-")) {
 			return new ArrayList<Statement>();
 		}
-		
+
 		final String[] args = new String[8];
 		args[0] = "-l";
 		args[1] = language;
