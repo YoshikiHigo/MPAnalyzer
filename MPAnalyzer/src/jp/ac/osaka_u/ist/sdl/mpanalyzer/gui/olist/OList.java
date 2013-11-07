@@ -1,6 +1,10 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.olist;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -9,11 +13,15 @@ import java.util.Observer;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -28,6 +36,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.PatternWindow;
 
 public class OList extends JTable implements Observer {
 
@@ -76,6 +85,40 @@ public class OList extends JTable implements Observer {
 		}
 	}
 
+	class OListPopupMenu extends JPopupMenu {
+
+		OListPopupMenu() {
+			final JMenuItem seeItem = new JMenuItem(
+					"see the details of the selected MP");
+			this.add(seeItem);
+
+			seeItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+
+					final OListModel model = (OListModel) OList.this.getModel();
+					final SortedSet<ModificationPattern> mps = new TreeSet<ModificationPattern>();
+					for (final int index : OList.this.getSelectedRows()) {
+						final int modelIndex = OList.this
+								.convertRowIndexToModel(index);
+						final ModificationPattern mp = (ModificationPattern) model.oCodefragments
+								.get(modelIndex)[0];
+						mps.add(mp);
+					}
+					ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+							.setAll(mps, OList.this);
+
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							new PatternWindow();
+						}
+					});
+				}
+			});
+		}
+	}
+
 	public OList() {
 
 		super();
@@ -95,6 +138,32 @@ public class OList extends JTable implements Observer {
 		this.selectionHandler = new OSelectionHandler();
 		this.getSelectionModel()
 				.addListSelectionListener(this.selectionHandler);
+
+		this.addMouseListener(new MouseListener() {
+			public void mouseClicked(MouseEvent e) {
+				final int button = e.getButton();
+				if (MouseEvent.BUTTON3 == button) {
+					final OListPopupMenu menu = new OListPopupMenu();
+					menu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+		});
 	}
 
 	public void setModel(
