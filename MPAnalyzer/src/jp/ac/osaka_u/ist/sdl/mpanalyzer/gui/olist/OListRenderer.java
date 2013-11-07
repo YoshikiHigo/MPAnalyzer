@@ -28,7 +28,7 @@ class OListRenderer extends DefaultTableCellRenderer {
 			break;
 		}
 		case 1: {
-			renderer.setHorizontalAlignment(JLabel.LEFT);
+			renderer.setHorizontalAlignment(JLabel.LEADING);
 			break;
 		}
 		case 2: {

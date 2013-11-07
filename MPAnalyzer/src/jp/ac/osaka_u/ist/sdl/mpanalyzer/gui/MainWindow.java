@@ -50,11 +50,6 @@ public class MainWindow extends JFrame {
 				threshold);
 		this.getContentPane().add(threshold, BorderLayout.NORTH);
 
-		final CLPanel clPanel = new CLPanel();
-		ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).addObserver(
-				clPanel);
-		this.getContentPane().add(clPanel.scrollPane, BorderLayout.SOUTH);
-
 		final JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		final PCGraph graph = new PCGraph();
 		ObservedModificationPatterns.getInstance(MPLABEL.ALL)
@@ -65,13 +60,19 @@ public class MainWindow extends JFrame {
 				graph);
 		topPane.add(graph, JSplitPane.LEFT);
 
+		final JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		final MPList list = new MPList();
 		ObservedModificationPatterns.getInstance(MPLABEL.ALL).addObserver(list);
 		ObservedModificationPatterns.getInstance(MPLABEL.FILTERED).addObserver(
 				list);
 		ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).addObserver(
 				list);
-		topPane.add(list.scrollPane, JSplitPane.RIGHT);
+		rightPane.setTopComponent(list.scrollPane);
+		final CLPanel clPanel = new CLPanel();
+		ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).addObserver(
+				clPanel);
+		rightPane.setBottomComponent(clPanel.scrollPane);
+		topPane.add(rightPane, JSplitPane.RIGHT);
 
 		final MPCode beforeCode = new MPCode(CODE.BEFORE);
 		ObservedModificationPatterns.getInstance(MPLABEL.ALL).addObserver(
@@ -100,9 +101,10 @@ public class MainWindow extends JFrame {
 
 		this.getContentPane().add(mainPane, BorderLayout.CENTER);
 
+		rightPane.setDividerLocation(d.height - 550);
 		topPane.setDividerLocation(d.width / 2);
 		bottomPane.setDividerLocation(d.width / 2);
-		mainPane.setDividerLocation(d.height / 2);
+		mainPane.setDividerLocation(d.height -350);
 
 		this.setVisible(true);
 	}
