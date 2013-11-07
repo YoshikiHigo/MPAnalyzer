@@ -244,11 +244,10 @@ public class PCGraph extends JPanel implements Observer {
 				}
 			}
 
-			ObservedModificationPatterns.getInstance(MPLABEL.FILTERED).setAll(
-					inPatterns, PCGraph.this);
 			ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).clear(
 					PCGraph.this);
-			PCGraph.this.repaint();
+			ObservedModificationPatterns.getInstance(MPLABEL.FILTERED).setAll(
+					inPatterns, PCGraph.this);
 		}
 
 		void draw(final Graphics g) {
@@ -367,6 +366,10 @@ public class PCGraph extends JPanel implements Observer {
 				this.resetMaxValues();
 				this.filter.reset();
 				this.filter.update();
+			}
+
+			else if (patterns.label.equals(MPLABEL.FILTERED)) {
+				this.repaint();
 			}
 		}
 	}

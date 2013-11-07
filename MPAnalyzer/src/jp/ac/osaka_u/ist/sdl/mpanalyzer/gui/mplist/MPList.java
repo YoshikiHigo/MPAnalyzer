@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -132,6 +133,17 @@ public class MPList extends JTable implements Observer {
 			this.removeMPItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					final MPListModel model = (MPListModel) MPList.this
+							.getModel();
+					final SortedSet<ModificationPattern> mps = new TreeSet<ModificationPattern>();
+					for (final int index : MPList.this.getSelectedRows()) {
+						final int modelIndex = MPList.this
+								.convertRowIndexToModel(index);
+						final ModificationPattern mp = model.patterns[modelIndex];
+						mps.add(mp);
+					}
+					ObservedModificationPatterns.getInstance(MPLABEL.FILTERED)
+							.removeAll(mps, MPList.this);
 				}
 			});
 
