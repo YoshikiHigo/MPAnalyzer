@@ -51,14 +51,26 @@ public class MPList extends JTable implements Observer {
 			final int firstIndex = e.getFirstIndex();
 			final int lastIndex = e.getLastIndex();
 
-			for (int i = firstIndex; i <= lastIndex; i++) {
+			final SortedSet<ModificationPattern> patterns = new TreeSet<ModificationPattern>();
+			for (int index = firstIndex; index <= lastIndex; index++) {
 
-				final int modelIndex = MPList.this.convertRowIndexToModel(i);
+				if (!MPList.this.selectionModel.isSelectedIndex(index)) {
+					continue;
+				}
+
+				final int modelIndex = MPList.this
+						.convertRowIndexToModel(index);
 				final MPListModel model = (MPListModel) MPList.this.getModel();
 				final ModificationPattern pattern = model.patterns[modelIndex];
+				patterns.add(pattern);
+			}
 
-				ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).set(
-						pattern, MPList.this);
+			if (!patterns.isEmpty()) {
+				ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+						.setAll(patterns, MPList.this);
+			} else {
+				ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+						.clear(MPList.this);
 			}
 		}
 	}
@@ -80,9 +92,12 @@ public class MPList extends JTable implements Observer {
 			this.analyzeMenu = new JMenu("analyze");
 			this.exportCSVItem = new JMenuItem("MPs into a CVS file");
 			this.removeMPItem = new JMenuItem("this MP from this list");
-			this.analyzeMPItem = new JMenuItem("modifications in the selected MP");
-			this.analyzeOverlookedItem = new JMenuItem("overlooked code from all the listed MPs");
-			this.analyzeCloneItem = new JMenuItem("clones using the selected MP");
+			this.analyzeMPItem = new JMenuItem(
+					"modifications in the selected MP");
+			this.analyzeOverlookedItem = new JMenuItem(
+					"overlooked code from all the listed MPs");
+			this.analyzeCloneItem = new JMenuItem(
+					"clones using the selected MP");
 
 			this.exportMenu.add(this.exportCSVItem);
 			this.removeMenu.add(this.removeMPItem);

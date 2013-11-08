@@ -59,28 +59,51 @@ public class OList extends JTable implements Observer {
 			final int firstIndex = e.getFirstIndex();
 			final int lastIndex = e.getLastIndex();
 
+			final SortedSet<CodeFragment> codefragments = new TreeSet<CodeFragment>();
+			final SortedSet<String> paths = new TreeSet<String>();
+			final SortedSet<ModificationPattern> mps = new TreeSet<ModificationPattern>();
+
 			for (int index = firstIndex; index <= lastIndex; index++) {
+
+				if (!OList.this.selectionModel.isSelectedIndex(index)) {
+					continue;
+				}
 
 				final int modelIndex = OList.this.convertRowIndexToModel(index);
 				final OListModel model = (OListModel) OList.this.getModel();
 				final Object[] element = model.oCodefragments.get(modelIndex);
 
 				final ModificationPattern mp = (ModificationPattern) element[0];
-				final String path = (String) element[1];
-				final CodeFragment codefragment = (CodeFragment) element[2];
+				mps.add(mp);
 
+				final String path = (String) element[1];
+				paths.add(path);
+
+				final CodeFragment codefragment = (CodeFragment) element[2];
+				codefragments.add(codefragment);
+			}
+
+			if (!codefragments.isEmpty()) {
+				ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).setAll(
+						codefragments, OList.this);
+			} else {
 				ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).clear(
 						OList.this);
+			}
+
+			if (!paths.isEmpty()) {
+				ObservedFiles.getInstance(FLABEL.OVERLOOKED).setAll(paths,
+						OList.this);
+			} else {
 				ObservedFiles.getInstance(FLABEL.OVERLOOKED).clear(OList.this);
+			}
+
+			if (!mps.isEmpty()) {
+				ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+						.setAll(mps, OList.this);
+			} else {
 				ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
 						.clear(OList.this);
-
-				ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).set(
-						codefragment, OList.this);
-				ObservedFiles.getInstance(FLABEL.OVERLOOKED).set(path,
-						OList.this);
-				ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
-						.set(mp, OList.this);
 			}
 		}
 	}

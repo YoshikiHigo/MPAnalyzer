@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -37,15 +38,22 @@ public class MList extends JTable implements Observer {
 			final int firstIndex = e.getFirstIndex();
 			final int lastIndex = e.getLastIndex();
 
-			for (int i = firstIndex; i <= lastIndex; i++) {
+			final SortedSet<Modification> modifications = new TreeSet<Modification>();
+			for (int index = firstIndex; index <= lastIndex; index++) {
 
-				final int modelIndex = MList.this.convertRowIndexToModel(i);
+				if (!MList.this.selectionModel.isSelectedIndex(index)) {
+					continue;
+				}
+
+				final int modelIndex = MList.this.convertRowIndexToModel(index);
 				final MListModel model = (MListModel) MList.this.getModel();
 				final Modification modification = model.modifications[modelIndex];
+				modifications.add(modification);
 
-				ObservedModifications.getInstance(MLABEL.SELECTED).set(
-						modification, MList.this);
 			}
+
+			ObservedModifications.getInstance(MLABEL.SELECTED).setAll(
+					modifications, MList.this);
 		}
 	}
 
