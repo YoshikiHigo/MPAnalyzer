@@ -16,7 +16,7 @@ public class MPDAO extends DAO {
 
 		final Statement statement = this.connector.createStatement();
 		final StringBuilder text1 = new StringBuilder();
-		text1.append("select (select C.hash from codefragment C where C.id = M.beforeID) beforeHash from modification M ");
+		text1.append("select beforeHash from modification ");
 		text1.append("group by beforeHash having count(beforeHash) <> 1");
 		final ResultSet result1 = statement.executeQuery(text1.toString());
 		final List<Integer> hashs = new ArrayList<Integer>();
@@ -27,14 +27,9 @@ public class MPDAO extends DAO {
 		final StringBuilder text2 = new StringBuilder();
 		text2.append("insert into pattern (beforeHash, afterHash, type, support, confidence) ");
 		text2.append("select A.beforeHash, A.afterHash, A.type, A.times, ");
-		text2.append("CAST(A.times AS REAL)/(select count(*) from (select (select C1.hash ");
-		text2.append("from codefragment C1 where C1.id = M.beforeID) beforeHash ");
-		text2.append("from modification M) T where T.beforeHash=?) ");
-		text2.append("from (select ");
-		text2.append("(select C2.hash from codefragment C2 where C2.id = M2.beforeID) beforeHash, ");
-		text2.append("(select C3.hash from codefragment C3 where C3.id = M2.afterID) afterHash, ");
-		text2.append("type, count(*) times ");
-		text2.append("from modification M2 where beforeHash=? group by afterHash) A ");
+		text2.append("CAST(A.times AS REAL)/(select count(*) from modification where beforeHash=?) ");
+		text2.append("from (select beforeHash, afterHash, type, count(*) times ");
+		text2.append("from modification where beforeHash=? group by afterHash) A");
 		final PreparedStatement pStatement = this.connector
 				.prepareStatement(text2.toString());
 

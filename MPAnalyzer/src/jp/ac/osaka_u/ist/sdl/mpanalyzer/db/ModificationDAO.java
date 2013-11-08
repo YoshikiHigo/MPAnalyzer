@@ -18,7 +18,7 @@ public class ModificationDAO extends DAO {
 		this.codefragmentPS = this.connector
 				.prepareStatement("insert into codefragment values (?, ?, ?, ?, ?)");
 		this.modificationPS = this.connector
-				.prepareStatement("insert into modification (filepath, beforeID, afterID, revision, type) values (?, ?, ?, ?, ?)");
+				.prepareStatement("insert into modification (filepath, beforeID, beforeHash, afterID, afterHash, revision, type) values (?, ?, ?, ?, ?, ?, ?)");
 
 		this.numberOfCodefragmentPS = 0;
 		this.numberOfModificationPS = 0;
@@ -55,9 +55,11 @@ public class ModificationDAO extends DAO {
 
 		this.modificationPS.setString(1, modification.filepath);
 		this.modificationPS.setInt(2, modification.before.getID());
-		this.modificationPS.setInt(3, modification.after.getID());
-		this.modificationPS.setInt(4, (int) modification.revision.number);
-		this.modificationPS.setInt(5, modification.changeType.getValue());
+		this.modificationPS.setInt(3, modification.before.hash);
+		this.modificationPS.setInt(4, modification.after.getID());
+		this.modificationPS.setInt(5, modification.after.hash);
+		this.modificationPS.setInt(6, (int) modification.revision.number);
+		this.modificationPS.setInt(7, modification.changeType.getValue());
 		this.modificationPS.addBatch();
 		this.numberOfModificationPS++;
 

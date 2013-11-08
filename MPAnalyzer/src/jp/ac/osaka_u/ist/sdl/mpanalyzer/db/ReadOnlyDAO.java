@@ -60,18 +60,16 @@ public class ReadOnlyDAO extends DAO {
 		modificationSQL
 				.append("T.beforeStart, T.beforeEnd, T.afterHash, T.afterText, ");
 		modificationSQL
-				.append("T.afterStart, T.afterEnd, T.revision, T.type, T.date, T.message from");
-		modificationSQL.append("(select M.id id, M.filepath filepath, ");
+				.append("T.afterStart, T.afterEnd, T.revision, T.type, T.date, T.message from ");
 		modificationSQL
-				.append("(select C1.hash from codefragment C1 where C1.id = M.beforeID) beforeHash, ");
+				.append("(select M.id id, M.filepath filepath, M.beforeHash beforeHash, ");
 		modificationSQL
 				.append("(select C2.text from codefragment C2 where C2.id = M.beforeID) beforeText, ");
 		modificationSQL
 				.append("(select C3.start from codefragment C3 where C3.id = M.beforeID) beforeStart, ");
 		modificationSQL
 				.append("(select C4.end from codefragment C4 where C4.id = M.beforeID) beforeEnd, ");
-		modificationSQL
-				.append("(select C5.hash from codefragment C5 where C5.id = M.afterID) afterHash, ");
+		modificationSQL.append("M.afterHash afterHash, ");
 		modificationSQL
 				.append("(select C6.text from codefragment C6 where C6.id = M.afterID) afterText, ");
 		modificationSQL

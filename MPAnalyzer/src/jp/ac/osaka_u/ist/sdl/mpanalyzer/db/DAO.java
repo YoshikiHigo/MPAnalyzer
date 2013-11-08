@@ -13,7 +13,7 @@ public abstract class DAO {
 
 	static public final String REVISION_SCHEMA = "number integer, date string, message string";
 	static public final String CODEFRAGMENT_SCHEMA = "id integer, text string, hash integer, start int, end int";
-	static public final String MODIFICATION_SCHEMA = "id integer primary key autoincrement, filepath string, beforeID integer, afterID integer, revision integer, type integer";
+	static public final String MODIFICATION_SCHEMA = "id integer primary key autoincrement, filepath string, beforeID integer, beforeHash integer, afterID integer, afterHash integer, revision integer, type integer";
 	static public final String PATTERN_SCHEMA = "id integer primary key autoincrement, beforeHash integer, afterHash integer, type integer, support integer, confidence real";
 	static public final String PROBLEM_SCHEMA = "filepath string, start int, end int, problempattern string, problemID int, presentCode string, proposedCode string";
 	static public final String CLONE_SCHEMA = "id integer primary key autoincrement, filepath string, start inteter, end integer, revision integer, setID integer, groupID integer, changed boolean";
@@ -78,7 +78,11 @@ public abstract class DAO {
 			statement
 					.executeUpdate("create index beforeIDIndex on modification (beforeID)");
 			statement
+					.executeUpdate("create index beforeHashIndex on modification (beforeHash)");
+			statement
 					.executeUpdate("create index afterIDIndex on modification (afterID)");
+			statement
+					.executeUpdate("create index afterHashIndex on modification (afterHash)");
 		}
 		if (createPatternTable) {
 			statement.executeUpdate("drop table if exists pattern");
