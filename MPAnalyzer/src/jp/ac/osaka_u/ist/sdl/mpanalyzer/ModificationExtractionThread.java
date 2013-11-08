@@ -29,6 +29,7 @@ public class ModificationExtractionThread extends Thread {
 			.getPATH_TO_REPOSITORY();
 	static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
+	static final private boolean ONLYCONDITION = Config.isOnlyCondition();
 	static final private int LARGEMODIFICATION = Config.getLargeModification();
 
 	final public int id;
@@ -144,12 +145,16 @@ public class ModificationExtractionThread extends Thread {
 					final List<Modification> modifications = LCS
 							.getModifications(beforeStatements,
 									afterStatements, path, afterRevision);
-//					for (final Modification m : modifications) {
-//						if (m.isCondition()) {
-//							this.queue.add(m);
-//						}
-//					}
-					this.queue.addAll(modifications);
+
+					if (ONLYCONDITION) {
+						for (final Modification m : modifications) {
+							if (m.isCondition()) {
+								this.queue.add(m);
+							}
+						}
+					} else {
+						this.queue.addAll(modifications);
+					}
 				}
 			}
 

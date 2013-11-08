@@ -30,6 +30,10 @@ public class Config {
 	public static String getTARGET() {
 		return getConfig("TARGET");
 	}
+	
+	public static boolean isOnlyCondition(){
+		return getConfig("ONLYCONDITION").equalsIgnoreCase("YES");		
+	}
 
 	public static long getStartRevision() {
 		final String startRevision = getConfig("STARTREVISION");
