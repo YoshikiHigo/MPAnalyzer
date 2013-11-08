@@ -55,26 +55,36 @@ public class ReadOnlyDAO extends DAO {
 				.toString());
 
 		final StringBuilder modificationSQL = new StringBuilder();
-		modificationSQL.append("select M.id, M.filepath, ");
 		modificationSQL
-				.append("(select C1.text from codefragment C1 where C1.hash=M.beforeHash), ");
+				.append("select T.id, T.filepath, T.beforeHash, T.beforeText, ");
 		modificationSQL
-				.append("(select C2.start from codefragment C2 where C2.hash=M.beforeHash), ");
+				.append("T.beforeStart, T.beforeEnd, T.afterHash, T.afterText, ");
 		modificationSQL
-				.append("(select C3.end from codefragment C3 where C3.hash=M.beforeHash), ");
+				.append("T.afterStart, T.afterEnd, T.revision, T.type, T.date, T.message from");
+		modificationSQL.append("(select M.id id, M.filepath filepath, ");
 		modificationSQL
-				.append("(select C4.text from codefragment C4 where C4.hash=M.afterHash), ");
+				.append("(select C1.hash from codefragment C1 where C1.id = M.beforeID) beforeHash, ");
 		modificationSQL
-				.append("(select C5.start from codefragment C5 where C5.hash=M.afterHash), ");
+				.append("(select C2.text from codefragment C2 where C2.id = M.beforeID) beforeText, ");
 		modificationSQL
-				.append("(select C6.end from codefragment C6 where C6.hash=M.afterHash), ");
-		modificationSQL.append("M.revision, M.type, ");
+				.append("(select C3.start from codefragment C3 where C3.id = M.beforeID) beforeStart, ");
 		modificationSQL
-				.append("(select R1.date from revision R1 where R1.number = M.revision), ");
+				.append("(select C4.end from codefragment C4 where C4.id = M.beforeID) beforeEnd, ");
 		modificationSQL
-				.append("(select R2.message from revision R2 where R2.number = M.revision) ");
+				.append("(select C5.hash from codefragment C5 where C5.id = M.afterID) afterHash, ");
 		modificationSQL
-				.append("from modification M where beforeHash = ? and afterHash = ?");
+				.append("(select C6.text from codefragment C6 where C6.id = M.afterID) afterText, ");
+		modificationSQL
+				.append("(select C7.start from codefragment C7 where C7.id = M.afterID) afterStart, ");
+		modificationSQL
+				.append("(select C8.end from codefragment C8 where C8.id = M.afterID) afterEnd, ");
+		modificationSQL.append("M.revision revision, M.type type, ");
+		modificationSQL
+				.append("(select R1.date from revision R1 where R1.number = M.revision) date, ");
+		modificationSQL
+				.append("(select R2.message from revision R2 where R2.number = M.revision) message ");
+		modificationSQL
+				.append("from modification M) T where T.beforeHash=? and T.afterHash=?");
 		this.modificationStatement = this.connector
 				.prepareStatement(modificationSQL.toString());
 
@@ -99,24 +109,26 @@ public class ReadOnlyDAO extends DAO {
 		while (result.next()) {
 			final int id = result.getInt(1);
 			final String filepath = result.getString(2);
-			final String beforeText = result.getString(3);
-			final int beforeStart = result.getInt(4);
-			final int beforeEnd = result.getInt(5);
-			final String afterText = result.getString(6);
-			final int afterStart = result.getInt(7);
-			final int afterEnd = result.getInt(8);
-			final long number = result.getLong(9);
+			final int beforeID = result.getInt(3);
+			final String beforeText = result.getString(4);
+			final int beforeStart = result.getInt(5);
+			final int beforeEnd = result.getInt(6);
+			final int afterID = result.getInt(7);
+			final String afterText = result.getString(8);
+			final int afterStart = result.getInt(9);
+			final int afterEnd = result.getInt(10);
+			final long number = result.getLong(11);
 			final ModificationType modificationType = beforeText.isEmpty() ? ModificationType.ADD
 					: afterText.isEmpty() ? ModificationType.DELETE
 							: ModificationType.CHANGE;
-			final ChangeType changeType = ChangeType.getType(result.getInt(10));
-			final String date = result.getString(11);
-			final String message = result.getString(12);
+			final ChangeType changeType = ChangeType.getType(result.getInt(12));
+			final String date = result.getString(13);
+			final String message = result.getString(14);
 			final Modification modification = new Modification(id, filepath,
-					new CodeFragment(beforeText, beforeStart, beforeEnd),
-					new CodeFragment(afterText, afterStart, afterEnd),
-					new Revision(number, date, message), modificationType,
-					changeType);
+					new CodeFragment(beforeID, beforeText, beforeStart,
+							beforeEnd), new CodeFragment(afterID, afterText,
+							afterStart, afterEnd), new Revision(number, date,
+							message), modificationType, changeType);
 			modifications.add(modification);
 		}
 

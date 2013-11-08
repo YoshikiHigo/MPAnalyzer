@@ -2,18 +2,23 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.Token;
 
 public class CodeFragment implements Comparable<CodeFragment> {
 
+	private final static AtomicInteger ID_GENERATOR = new AtomicInteger();
+
 	public final List<Statement> statements;
+	private int id;
 	public final String text;
 	public final String position;
 	public final int hash;
 
 	public CodeFragment(final List<Statement> statements) {
+		this.id = ID_GENERATOR.getAndIncrement();
 		this.statements = statements;
 		{
 			final StringBuilder tmp = new StringBuilder();
@@ -39,9 +44,14 @@ public class CodeFragment implements Comparable<CodeFragment> {
 		this.hash = this.text.hashCode();
 	}
 
-	public CodeFragment(final String text, final int startLine,
+	public CodeFragment(final int id, final String text, final int startLine,
 			final int endLine) {
 		this(StringUtility.splitToStatements(text, startLine, endLine));
+		this.id = id;
+	}
+
+	public int getID() {
+		return this.id;
 	}
 
 	@Override

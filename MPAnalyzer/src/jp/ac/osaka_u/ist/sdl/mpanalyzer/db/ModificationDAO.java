@@ -16,9 +16,9 @@ public class ModificationDAO extends DAO {
 		super(false, true, true, false, false, false);
 
 		this.codefragmentPS = this.connector
-				.prepareStatement("insert into codefragment values (?, ?, ?, ?)");
+				.prepareStatement("insert into codefragment values (?, ?, ?, ?, ?)");
 		this.modificationPS = this.connector
-				.prepareStatement("insert into modification (filepath, beforeHash, afterHash, revision, type) values (?, ?, ?, ?, ?)");
+				.prepareStatement("insert into modification (filepath, beforeID, afterID, revision, type) values (?, ?, ?, ?, ?)");
 
 		this.numberOfCodefragmentPS = 0;
 		this.numberOfModificationPS = 0;
@@ -27,33 +27,35 @@ public class ModificationDAO extends DAO {
 	public void addModification(final Modification modification)
 			throws Exception {
 
-		this.codefragmentPS.setString(1, modification.before.text);
-		this.codefragmentPS.setInt(2, modification.before.hash);
+		this.codefragmentPS.setInt(1, modification.before.getID());
+		this.codefragmentPS.setString(2, modification.before.text);
+		this.codefragmentPS.setInt(3, modification.before.hash);
 		final int beforeStart = modification.before.statements.isEmpty() ? 0
 				: modification.before.statements.get(0).getStartLine();
 		final int beforeEnd = modification.before.statements.isEmpty() ? 0
 				: modification.before.statements.get(
 						modification.before.statements.size() - 1).getEndLine();
-		this.codefragmentPS.setInt(3, beforeStart);
-		this.codefragmentPS.setInt(4, beforeEnd);
+		this.codefragmentPS.setInt(4, beforeStart);
+		this.codefragmentPS.setInt(5, beforeEnd);
 		this.codefragmentPS.addBatch();
 		this.numberOfCodefragmentPS++;
 
-		this.codefragmentPS.setString(1, modification.after.text);
-		this.codefragmentPS.setInt(2, modification.after.hash);
+		this.codefragmentPS.setInt(1, modification.after.getID());
+		this.codefragmentPS.setString(2, modification.after.text);
+		this.codefragmentPS.setInt(3, modification.after.hash);
 		final int afterStart = modification.after.statements.isEmpty() ? 0
 				: modification.after.statements.get(0).getStartLine();
 		final int afterEnd = modification.after.statements.isEmpty() ? 0
 				: modification.after.statements.get(
 						modification.after.statements.size() - 1).getEndLine();
-		this.codefragmentPS.setInt(3, afterStart);
-		this.codefragmentPS.setInt(4, afterEnd);
+		this.codefragmentPS.setInt(4, afterStart);
+		this.codefragmentPS.setInt(5, afterEnd);
 		this.codefragmentPS.addBatch();
 		this.numberOfCodefragmentPS++;
 
 		this.modificationPS.setString(1, modification.filepath);
-		this.modificationPS.setInt(2, modification.before.hash);
-		this.modificationPS.setInt(3, modification.after.hash);
+		this.modificationPS.setInt(2, modification.before.getID());
+		this.modificationPS.setInt(3, modification.after.getID());
 		this.modificationPS.setInt(4, (int) modification.revision.number);
 		this.modificationPS.setInt(5, modification.changeType.getValue());
 		this.modificationPS.addBatch();

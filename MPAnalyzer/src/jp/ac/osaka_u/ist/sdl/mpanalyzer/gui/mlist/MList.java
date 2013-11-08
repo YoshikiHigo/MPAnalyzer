@@ -58,16 +58,9 @@ public class MList extends JTable implements Observer {
 	final public JScrollPane scrollPane;
 	final private MPSelectionHandler selectionHandler;
 
-	final private ModificationPattern pattern;
-
 	public MList() {
 
 		super();
-
-		final SortedSet<ModificationPattern> patterns = ObservedModificationPatterns
-				.getInstance(MPLABEL.SELECTED).get();
-		assert !patterns.isEmpty() : "Condition is unsatisfied.";
-		this.pattern = patterns.first();
 
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -115,7 +108,13 @@ public class MList extends JTable implements Observer {
 	}
 
 	private void setModel() {
-		final MListModel model = new MListModel(this.pattern.getModifications());
+
+		final SortedSet<ModificationPattern> patterns = ObservedModificationPatterns
+				.getInstance(MPLABEL.SELECTED).get();
+		assert !patterns.isEmpty() : "Condition is unsatisfied.";
+		final ModificationPattern pattern = patterns.first();
+
+		final MListModel model = new MListModel(pattern.getModifications());
 		this.setModel(model);
 		final RowSorter<MListModel> sorter = new TableRowSorter<MListModel>(
 				model);
@@ -128,8 +127,11 @@ public class MList extends JTable implements Observer {
 				.setPreferredWidth(COLUMN_LENGTH_NUMBER);
 		this.getColumnModel().getColumn(1)
 				.setPreferredWidth(COLUMN_LENGTH_DATE);
-		this.getColumnModel().getColumn(2).setPreferredWidth(COLUMN_LENGTH_PATH);
-		this.getColumnModel().getColumn(3).setPreferredWidth(COLUMN_LENGTH_BEFORE_POSITION);
-		this.getColumnModel().getColumn(4).setPreferredWidth(COLUMN_LENGTH_AFTER_POSITION);
+		this.getColumnModel().getColumn(2)
+				.setPreferredWidth(COLUMN_LENGTH_PATH);
+		this.getColumnModel().getColumn(3)
+				.setPreferredWidth(COLUMN_LENGTH_BEFORE_POSITION);
+		this.getColumnModel().getColumn(4)
+				.setPreferredWidth(COLUMN_LENGTH_AFTER_POSITION);
 	}
 }

@@ -12,8 +12,8 @@ public abstract class DAO {
 	final protected Connection connector;
 
 	static public final String REVISION_SCHEMA = "number integer, date string, message string";
-	static public final String CODEFRAGMENT_SCHEMA = "text string, hash integer, start int, end int";
-	static public final String MODIFICATION_SCHEMA = "id integer primary key autoincrement, filepath string, beforeHash integer, afterHash integer, revision integer, type integer";
+	static public final String CODEFRAGMENT_SCHEMA = "id integer, text string, hash integer, start int, end int";
+	static public final String MODIFICATION_SCHEMA = "id integer primary key autoincrement, filepath string, beforeID integer, afterID integer, revision integer, type integer";
 	static public final String PATTERN_SCHEMA = "id integer primary key autoincrement, beforeHash integer, afterHash integer, type integer, support integer, confidence real";
 	static public final String PROBLEM_SCHEMA = "filepath string, start int, end int, problempattern string, problemID int, presentCode string, proposedCode string";
 	static public final String CLONE_SCHEMA = "id integer primary key autoincrement, filepath string, start inteter, end integer, revision integer, setID integer, groupID integer, changed boolean";
@@ -63,6 +63,8 @@ public abstract class DAO {
 			statement.executeUpdate("create table codefragment ("
 					+ CODEFRAGMENT_SCHEMA + ")");
 			statement
+					.executeUpdate("create index cfIDIndex on codefragment (id)");
+			statement
 					.executeUpdate("create index textIndex on codefragment (text)");
 			statement
 					.executeUpdate("create index hashIndex on codefragment (hash)");
@@ -72,11 +74,11 @@ public abstract class DAO {
 			statement.executeUpdate("create table modification ("
 					+ MODIFICATION_SCHEMA + ")");
 			statement
-					.executeUpdate("create index idIndex on modification (id)");
+					.executeUpdate("create index mIDIndex on modification (id)");
 			statement
-					.executeUpdate("create index beforeHashIndex on modification (beforeHash)");
+					.executeUpdate("create index beforeIDIndex on modification (beforeID)");
 			statement
-					.executeUpdate("create index afterHashIndex on modification (afterHash)");
+					.executeUpdate("create index afterIDIndex on modification (afterID)");
 		}
 		if (createPatternTable) {
 			statement.executeUpdate("drop table if exists pattern");
