@@ -26,7 +26,7 @@ public class MExtractor {
 				System.exit(0);
 			}
 
-			final AtomicInteger index = new AtomicInteger(0);
+			final AtomicInteger index = new AtomicInteger(1);
 			final BlockingQueue<Modification> queue = new ArrayBlockingQueue<Modification>(
 					100000, true);
 			final ModificationWritingThread writingThread = new ModificationWritingThread(

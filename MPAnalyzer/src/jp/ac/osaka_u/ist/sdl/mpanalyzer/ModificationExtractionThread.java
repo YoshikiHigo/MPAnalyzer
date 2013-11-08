@@ -64,9 +64,11 @@ public class ModificationExtractionThread extends Thread {
 				if (this.revisions.length <= targetIndex) {
 					break;
 				}
+				if(targetIndex < 1){
+					continue;
+				}
 
-				final Revision beforeRevision = 0 == targetIndex ? new Revision(
-						0, "", "") : this.revisions[targetIndex - 1];
+				final Revision beforeRevision = this.revisions[targetIndex - 1];
 				final Revision afterRevision = this.revisions[targetIndex];
 
 				final StringBuilder progress = new StringBuilder();
