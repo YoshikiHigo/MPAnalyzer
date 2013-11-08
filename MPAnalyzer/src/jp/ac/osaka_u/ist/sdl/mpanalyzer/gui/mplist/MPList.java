@@ -77,39 +77,38 @@ public class MPList extends JTable implements Observer {
 
 	class MPListPopupMenu extends JPopupMenu {
 
-		final JMenu exportMenu;
-		final JMenu removeMenu;
-		final JMenu analyzeMenu;
-		final JMenuItem exportCSVItem;
-		final JMenuItem removeMPItem;
-		final JMenuItem analyzeMPItem;
-		final JMenuItem analyzeOverlookedItem;
-		final JMenuItem analyzeCloneItem;
-
 		MPListPopupMenu() {
-			this.exportMenu = new JMenu("export");
-			this.removeMenu = new JMenu("remove");
-			this.analyzeMenu = new JMenu("analyze");
-			this.exportCSVItem = new JMenuItem("MPs into a CVS file");
-			this.removeMPItem = new JMenuItem("this MP from this list");
-			this.analyzeMPItem = new JMenuItem(
+			final JMenu exportMenu = new JMenu("export");
+			final JMenu removeMenu = new JMenu("remove");
+			final JMenu analyzeMenu = new JMenu("analyze");
+			final JMenuItem exportCSVItem = new JMenuItem("MPs into a CVS file");
+			final JMenuItem removeMPItem = new JMenuItem(
+					"this MP from this list");
+			final JMenuItem analyzeMPItem = new JMenuItem(
 					"modifications in the selected MP");
-			this.analyzeOverlookedItem = new JMenuItem(
+			final JMenuItem analyzeOverlookedItem = new JMenuItem(
 					"overlooked code from all the listed MPs");
-			this.analyzeCloneItem = new JMenuItem(
+			final JMenuItem analyzeCloneItem = new JMenuItem(
 					"clones using the selected MP");
 
-			this.exportMenu.add(this.exportCSVItem);
-			this.removeMenu.add(this.removeMPItem);
-			this.analyzeMenu.add(this.analyzeMPItem);
-			this.analyzeMenu.add(this.analyzeOverlookedItem);
-			this.analyzeMenu.add(this.analyzeCloneItem);
+			exportMenu.add(exportCSVItem);
+			removeMenu.add(removeMPItem);
+			analyzeMenu.add(analyzeMPItem);
+			analyzeMenu.add(analyzeOverlookedItem);
+			analyzeMenu.add(analyzeCloneItem);
 
-			this.add(this.exportMenu);
-			this.add(this.removeMenu);
-			this.add(this.analyzeMenu);
+			add(exportMenu);
+			add(removeMenu);
+			add(analyzeMenu);
 
-			this.exportCSVItem.addActionListener(new ActionListener() {
+			if (!ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+					.isSet()) {
+				removeMPItem.setEnabled(false);
+				analyzeMPItem.setEnabled(false);
+				analyzeCloneItem.setEnabled(false);
+			}
+
+			exportCSVItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 
@@ -145,7 +144,7 @@ public class MPList extends JTable implements Observer {
 				}
 			});
 
-			this.removeMPItem.addActionListener(new ActionListener() {
+			removeMPItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					final MPListModel model = (MPListModel) MPList.this
@@ -162,7 +161,7 @@ public class MPList extends JTable implements Observer {
 				}
 			});
 
-			this.analyzeMPItem.addActionListener(new ActionListener() {
+			analyzeMPItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					SwingUtilities.invokeLater(new Runnable() {
@@ -174,7 +173,7 @@ public class MPList extends JTable implements Observer {
 				}
 			});
 
-			this.analyzeOverlookedItem.addActionListener(new ActionListener() {
+			analyzeOverlookedItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					SwingUtilities.invokeLater(new Runnable() {
@@ -186,7 +185,7 @@ public class MPList extends JTable implements Observer {
 				}
 			});
 
-			this.analyzeCloneItem.addActionListener(new ActionListener() {
+			analyzeCloneItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					SwingUtilities.invokeLater(new Runnable() {
