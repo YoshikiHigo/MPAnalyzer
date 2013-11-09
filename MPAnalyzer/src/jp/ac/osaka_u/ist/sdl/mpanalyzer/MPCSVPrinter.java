@@ -9,7 +9,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.ReadOnlyDAO;
 
-public class MPPrinterAsCSV {
+public class MPCSVPrinter {
 
 	public static void main(String[] args) {
 
@@ -17,7 +17,7 @@ public class MPPrinterAsCSV {
 
 			final long startTime = System.nanoTime();
 
-			final String CVSFILE = Config.getCSV();
+			final String CVSFILE = Config.getMPCSVFILE();
 
 			System.out.println("outputing to " + CVSFILE + " ... ");
 

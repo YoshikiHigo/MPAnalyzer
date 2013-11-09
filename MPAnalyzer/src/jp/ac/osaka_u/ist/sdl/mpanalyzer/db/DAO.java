@@ -15,7 +15,6 @@ public abstract class DAO {
 	static public final String CODEFRAGMENT_SCHEMA = "id integer, text string, hash integer, start int, end int";
 	static public final String MODIFICATION_SCHEMA = "id integer primary key autoincrement, filepath string, beforeID integer, beforeHash integer, afterID integer, afterHash integer, revision integer, type integer";
 	static public final String PATTERN_SCHEMA = "id integer primary key autoincrement, beforeHash integer, afterHash integer, type integer, support integer, confidence real";
-	static public final String PROBLEM_SCHEMA = "filepath string, start int, end int, problempattern string, problemID int, presentCode string, proposedCode string";
 	static public final String CLONE_SCHEMA = "id integer primary key autoincrement, filepath string, start inteter, end integer, revision integer, setID integer, groupID integer, changed boolean";
 
 	DAO(final boolean createRevisionTable,
@@ -39,17 +38,6 @@ public abstract class DAO {
 		this.connector = DriverManager.getConnection(url.toString());
 
 		final Statement statement = this.connector.createStatement();
-
-		statement.executeUpdate("create table if not exists revision ("
-				+ REVISION_SCHEMA + ")");
-		statement.executeUpdate("create table if not exists codefragment ("
-				+ CODEFRAGMENT_SCHEMA + ")");
-		statement.executeUpdate("create table if not exists modification ("
-				+ MODIFICATION_SCHEMA + ")");
-		statement.executeUpdate("create table if not exists pattern ("
-				+ PATTERN_SCHEMA + ")");
-		statement.executeUpdate("create table if not exists problem ("
-				+ PROBLEM_SCHEMA + ")");
 
 		if (createRevisionTable) {
 			statement.executeUpdate("drop table if exists revision");
@@ -93,13 +81,6 @@ public abstract class DAO {
 					.executeUpdate("create index supportIndex on pattern (support)");
 			statement
 					.executeUpdate("create index confidenceIndex on pattern (confidence)");
-		}
-		if (createProblemTable) {
-			statement.executeUpdate("drop table if exists problem");
-			statement.executeUpdate("create table problem (" + PROBLEM_SCHEMA
-					+ ")");
-			statement
-					.executeUpdate("create index problemIDIndex on problem (problemID)");
 		}
 		if (createCloneTable) {
 			statement.executeUpdate("drop table if exists clone");

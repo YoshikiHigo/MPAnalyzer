@@ -41,24 +41,15 @@ public class MPDAO extends DAO {
 			} else if (0 == number % 100) {
 				System.out.print(".");
 			}
+			if (0 == number % 5000) {
+				System.out.println();
+			}
 			pStatement.setInt(1, beforeHash);
 			pStatement.setInt(2, beforeHash);
 			pStatement.executeUpdate();
 			number++;
 		}
 		System.out.println(" done.");
-
-		// final Statement statement = this.connector.createStatement();
-		// final StringBuilder insert = new StringBuilder();
-		// insert.append("insert into pattern");
-		// insert.append(" (beforeHash, afterHash, type, support, confidence) ");
-		// insert.append("select A.beforeHash, A.afterHash, A.type, A.a, CAST(A.a AS REAL)/CAST(B.b AS REAL)");
-		// insert.append("from (select beforeHash, afterHash, type, count(afterHash) a ");
-		// insert.append("from modification group by beforeHash, afterHash) A, ");
-		// insert.append("(select beforeHash, count(beforeHash) b ");
-		// insert.append("from modification group by beforeHash) B ");
-		// insert.append("where A.beforeHash = B.beforeHash");
-		// statement.executeUpdate(insert.toString());
 
 		statement.close();
 	}

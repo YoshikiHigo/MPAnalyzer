@@ -30,7 +30,6 @@ public class ModificationExtractionThread extends Thread {
 	static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
 	static final private boolean ONLYCONDITION = Config.isOnlyCondition();
-	static final private int LARGEMODIFICATION = Config.getLargeModification();
 
 	final public int id;
 	final public Revision[] revisions;
@@ -64,7 +63,7 @@ public class ModificationExtractionThread extends Thread {
 				if (this.revisions.length <= targetIndex) {
 					break;
 				}
-				if(targetIndex < 1){
+				if (targetIndex < 1) {
 					continue;
 				}
 

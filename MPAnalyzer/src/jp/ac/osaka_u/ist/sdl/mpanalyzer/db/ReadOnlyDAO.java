@@ -12,7 +12,6 @@ import java.util.TreeSet;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.clone.Clone;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Inconsistency;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ModificationType;
@@ -159,33 +158,6 @@ public class ReadOnlyDAO extends DAO {
 		}
 
 		return patterns;
-	}
-
-	public List<Inconsistency> getInconsistency(final int place)
-			throws Exception {
-
-		this.inconsistencyStatement.setInt(1, place);
-		final ResultSet result = this.inconsistencyStatement.executeQuery();
-
-		final List<Inconsistency> inconsistencies = new ArrayList<Inconsistency>();
-		while (result.next()) {
-
-			final String filepath = result.getString(1);
-			final int startLine = result.getInt(2);
-			final int endLine = result.getInt(3);
-			final String pattern = result.getString(4);
-			final int patternID = result.getInt(5);
-			final String presentCode = result.getString(6);
-			final String suggestedCode = result.getString(7);
-
-			final Inconsistency inconsistency = new Inconsistency(filepath,
-					startLine, endLine, pattern, patternID, presentCode,
-					suggestedCode, 0, 0f);
-
-			inconsistencies.add(inconsistency);
-		}
-
-		return inconsistencies;
 	}
 
 	public SortedSet<Revision> getRevisions() throws Exception {

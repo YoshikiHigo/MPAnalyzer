@@ -19,8 +19,8 @@ public class Config {
 		return getConfig("DATABASENAME");
 	}
 
-	public static String getCSV() {
-		return getConfig("CSV");
+	public static String getMPCSVFILE() {
+		return getConfig("MPCSVFILE");
 	}
 
 	public static String getLanguage() {
@@ -30,9 +30,9 @@ public class Config {
 	public static String getTARGET() {
 		return getConfig("TARGET");
 	}
-	
-	public static boolean isOnlyCondition(){
-		return getConfig("ONLYCONDITION").equalsIgnoreCase("YES");		
+
+	public static boolean isOnlyCondition() {
+		return getConfig("ONLYCONDITION").equalsIgnoreCase("YES");
 	}
 
 	public static long getStartRevision() {
@@ -56,17 +56,9 @@ public class Config {
 		final String cloneThreshold = getConfig("CLONETHRESHOLD");
 		return Integer.parseInt(cloneThreshold);
 	}
-	
-	public static String getCloneOutputFile(){
+
+	public static String getCloneOutputFile() {
 		return getConfig("CLONEOUTPUTFILE");
-	}
-
-	public static String getPATH_TO_PATTERNSFILE() {
-		return getConfig("PATTERNS");
-	}
-
-	public static String getPATH_TO_INCONSISTENCIESFILE() {
-		return getConfig("INCONSISTENCIES");
 	}
 
 	public static boolean IGNORE_INDENT() {
@@ -97,30 +89,9 @@ public class Config {
 		}
 	}
 
-	public static int getSupportValue() {
-		final String text = getConfig("SUPPORT");
-		return Integer.parseInt(text);
-	}
-
-	public static float getConfidenceValue() {
-		final String text = getConfig("CONFIDENCE");
-		return Float.parseFloat(text);
-	}
-
-	public static int getPlaceValue() {
-		final String text = getConfig("PLACE");
-		return Integer.parseInt(text);
-	}
-
 	public static int getThreadsValue() {
 		final String text = getConfig("THREADS");
 		return Integer.parseInt(text);
-	}
-
-	public static int getLargeModification() {
-		final String text = getConfig("LARGEMODIFICATION");
-		return text.equalsIgnoreCase("NOLIMIT") ? Integer.MAX_VALUE : Integer
-				.parseInt(text);
 	}
 
 	public static boolean IGNORE_IMPORT() {
