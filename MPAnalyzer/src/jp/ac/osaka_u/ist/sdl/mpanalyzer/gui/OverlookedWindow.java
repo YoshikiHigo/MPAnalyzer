@@ -1,7 +1,9 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,11 +23,16 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.border.LineBorder;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
@@ -70,10 +77,22 @@ public class OverlookedWindow extends JFrame implements Observer {
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setSize(new Dimension(d.width - 5, d.height - 27));
 
-		final RList rList = new RList();
+		final JLabel placeLabel = new JLabel("Place");
+		placeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		final JTextField placeField = new JTextField();
+		final JPanel placePanel = new JPanel(new GridLayout(1, 2));
+		placePanel.setBorder(new LineBorder(Color.black));
+		placePanel.add(placeLabel);
+		placePanel.add(placeField);
+
 		final JButton searchButton = new JButton("search");
+		final JPanel configurationPanel = new JPanel(new GridLayout(2, 1));
+		configurationPanel.add(searchButton);
+		configurationPanel.add(placePanel);
+
+		final RList rList = new RList();
 		final JPanel leftPanel = new JPanel(new BorderLayout());
-		leftPanel.add(searchButton, BorderLayout.NORTH);
+		leftPanel.add(configurationPanel, BorderLayout.NORTH);
 		leftPanel.add(rList.scrollPane, BorderLayout.CENTER);
 		this.getContentPane().add(leftPanel, BorderLayout.WEST);
 
@@ -128,6 +147,31 @@ public class OverlookedWindow extends JFrame implements Observer {
 				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
 
+				final int value;
+				try {
+					final String text = placeField.getText();
+					if (text.isEmpty()) {
+						value = Integer.MAX_VALUE;
+					} else {
+						value = Integer.parseInt(text);
+					}
+				} catch (final NumberFormatException exception) {
+
+					final JDialog dialog = new JDialog(OverlookedWindow.this,
+							"MPAnalyzer", true);
+					final JLabel error = new JLabel(
+							"PLACE must be emply or a positive integer!");
+					error.setHorizontalAlignment(SwingConstants.CENTER);
+					dialog.getContentPane().add(error);
+					dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					dialog.setSize(300, 80);
+					dialog.setLocation(100, 100);
+					dialog.setVisible(true);
+
+					searchButton.setEnabled(true);
+					return;
+				}
+
 				final ProgressDialog progressDialog = new ProgressDialog(
 						OverlookedWindow.this,
 						"searching overlooked code fragments...");
@@ -145,7 +189,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 					protected Object doInBackground() throws Exception {
 						final long revision = rList.getSelectedRevision();
 						final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = OverlookedWindow.this
-								.detectOverlookedCode(revision);
+								.detectOverlookedCode(revision, value);
 						oList.setModel(oCodefragments);
 						oList.repaint();
 
@@ -168,7 +212,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 	}
 
 	private SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> detectOverlookedCode(
-			final long revision) {
+			final long revision, final int place) {
 		final Map<String, List<Statement>> files = this.getFiles(revision);
 		final SortedSet<ModificationPattern> MPs = ObservedModificationPatterns
 				.getInstance(MPLABEL.FILTERED).get();
@@ -177,7 +221,13 @@ public class OverlookedWindow extends JFrame implements Observer {
 			final List<Statement> pattern = mp.getModifications().get(0).before.statements;
 			final SortedMap<String, SortedSet<CodeFragment>> oCodefragmentForAMP = this
 					.getOverlookedCode(files, pattern);
-			if (0 < oCodefragmentForAMP.size()) {
+
+			final List<CodeFragment> cfForChecking = new ArrayList<CodeFragment>();
+			for (final SortedSet<CodeFragment> cfs : oCodefragmentForAMP
+					.values()) {
+				cfForChecking.addAll(cfs);
+			}
+			if ((0 < cfForChecking.size()) && (cfForChecking.size() <= place)) {
 				oCodefragments.put(mp, oCodefragmentForAMP);
 			}
 		}
