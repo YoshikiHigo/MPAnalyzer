@@ -39,6 +39,15 @@ public abstract class DAO {
 
 		final Statement statement = this.connector.createStatement();
 
+		statement.executeUpdate("create table if not exists revision ("
+				+ REVISION_SCHEMA + ")");
+		statement.executeUpdate("create table if not exists codefragment ("
+				+ CODEFRAGMENT_SCHEMA + ")");
+		statement.executeUpdate("create table if not exists modification ("
+				+ MODIFICATION_SCHEMA + ")");
+		statement.executeUpdate("create table if not exists pattern ("
+				+ PATTERN_SCHEMA + ")");
+
 		if (createRevisionTable) {
 			statement.executeUpdate("drop table if exists revision");
 			statement.executeUpdate("create table revision (" + REVISION_SCHEMA

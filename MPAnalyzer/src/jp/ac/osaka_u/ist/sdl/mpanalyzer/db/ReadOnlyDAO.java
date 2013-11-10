@@ -39,7 +39,6 @@ public class ReadOnlyDAO extends DAO {
 
 	final private PreparedStatement modificationStatement;
 	final private PreparedStatement patternStatement;
-	final private PreparedStatement inconsistencyStatement;
 
 	private ReadOnlyDAO() throws Exception {
 
@@ -84,15 +83,6 @@ public class ReadOnlyDAO extends DAO {
 				.append("from modification M) T where T.beforeHash=? and T.afterHash=?");
 		this.modificationStatement = this.connector
 				.prepareStatement(modificationSQL.toString());
-
-		final StringBuilder inconsistencySQL = new StringBuilder();
-		inconsistencySQL
-				.append("select filepath, start, end, problempattern, problemID, presentCode, proposedCode from problem where problemID in ");
-		inconsistencySQL.append("(select problemID from problem ");
-		inconsistencySQL
-				.append("group by problemID having count(problemID) <= ?)");
-		this.inconsistencyStatement = this.connector
-				.prepareStatement(inconsistencySQL.toString());
 	}
 
 	public List<Modification> getModifications(final int beforeHash,
