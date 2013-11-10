@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.Cell.BASE;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
@@ -40,7 +41,7 @@ public class LCS {
 				table[x][0] = new Cell(1, true, x, 0, null);
 			} else {
 				table[x][0] = new Cell(table[x - 1][0].value, false, x, 0,
-						table[x - 1][0]);
+						BASE.LEFT);
 			}
 		}
 		for (int y = 1; y < array2.size(); y++) {
@@ -48,7 +49,7 @@ public class LCS {
 				table[0][y] = new Cell(1, true, 0, y, null);
 			} else {
 				table[0][y] = new Cell(table[0][y - 1].value, false, 0, y,
-						table[0][y - 1]);
+						BASE.UP);
 			}
 		}
 		for (int x = 1; x < array1.size(); x++) {
@@ -57,11 +58,12 @@ public class LCS {
 				final Cell up = table[x][y - 1];
 				final Cell upleft = table[x - 1][y - 1];
 				if (array1.get(x).hash == array2.get(y).hash) {
-					table[x][y] = new Cell(upleft.value + 1, true, x, y, upleft);
+					table[x][y] = new Cell(upleft.value + 1, true, x, y,
+							BASE.UPLEFT);
 				} else {
 					table[x][y] = (left.value >= up.value) ? new Cell(
-							left.value, false, x, y, left) : new Cell(up.value,
-							false, x, y, up);
+							left.value, false, x, y, BASE.LEFT) : new Cell(
+							up.value, false, x, y, BASE.UP);
 				}
 			}
 		}
@@ -102,18 +104,23 @@ public class LCS {
 				}
 
 			} else {
-				final Cell previous = current.base;
+				final BASE previous = current.base;
 				if (null != previous) {
-					if (previous.x < current.x) {
+					if (BASE.LEFT == previous) {
 						xdiff.add(current.x);
-					} else if (previous.y < current.y) {
+					}
+					if (BASE.UP == previous) {
 						ydiff.add(current.y);
 					}
 				}
 			}
 
 			if (null != current.base) {
-				current = current.base;
+				final int baseX = BASE.UP == current.base ? current.x
+						: current.x - 1;
+				final int baseY = BASE.LEFT == current.base ? current.y
+						: current.y - 1;
+				current = table[baseX][baseY];
 			} else {
 				break;
 			}
@@ -150,7 +157,7 @@ public class LCS {
 					kindTable[x][0] = new Cell(1, true, x, 0, null);
 				} else {
 					kindTable[x][0] = new Cell(kindTable[x - 1][0].value,
-							false, x, 0, kindTable[x - 1][0]);
+							false, x, 0, BASE.LEFT);
 				}
 			}
 			for (int y = 1; y < tokens2.size(); y++) {
@@ -158,7 +165,7 @@ public class LCS {
 					kindTable[0][y] = new Cell(1, true, 0, y, null);
 				} else {
 					kindTable[0][y] = new Cell(kindTable[0][y - 1].value,
-							false, 0, y, kindTable[0][y - 1]);
+							false, 0, y, BASE.UP);
 				}
 			}
 			for (int x = 1; x < tokens1.size(); x++) {
@@ -168,11 +175,11 @@ public class LCS {
 					final Cell upleft = kindTable[x - 1][y - 1];
 					if (tokens1.get(x).getClass() == tokens2.get(y).getClass()) {
 						kindTable[x][y] = new Cell(upleft.value + 1, true, x,
-								y, upleft);
+								y, BASE.UPLEFT);
 					} else {
 						kindTable[x][y] = (left.value >= up.value) ? new Cell(
-								left.value, false, x, y, left) : new Cell(
-								up.value, false, x, y, up);
+								left.value, false, x, y, BASE.LEFT) : new Cell(
+								up.value, false, x, y, BASE.UP);
 					}
 				}
 			}
@@ -180,11 +187,10 @@ public class LCS {
 			Cell cell = kindTable[tokens1.size() - 1][tokens2.size() - 1];
 			while (true) {
 				if (null != cell.base) {
-					Cell previous = cell.base;
-					if (previous.x == cell.x || previous.y == cell.y) {
+					if (BASE.UP == cell.base || BASE.LEFT == cell.base) {
 						return ChangeType.TYPE3;
 					}
-					cell = previous;
+					cell = kindTable[cell.x - 1][cell.y - 1];
 				} else {
 					break;
 				}
@@ -203,7 +209,7 @@ public class LCS {
 					valueTable[x][0] = new Cell(1, true, x, 0, null);
 				} else {
 					valueTable[x][0] = new Cell(valueTable[x - 1][0].value,
-							false, x, 0, valueTable[x - 1][0]);
+							false, x, 0, BASE.LEFT);
 				}
 			}
 			for (int y = 1; y < tokens2.size(); y++) {
@@ -211,7 +217,7 @@ public class LCS {
 					valueTable[0][y] = new Cell(1, true, 0, y, null);
 				} else {
 					valueTable[0][y] = new Cell(valueTable[0][y - 1].value,
-							false, 0, y, valueTable[0][y - 1]);
+							false, 0, y, BASE.UP);
 				}
 			}
 			for (int x = 1; x < tokens1.size(); x++) {
@@ -221,11 +227,11 @@ public class LCS {
 					final Cell upleft = valueTable[x - 1][y - 1];
 					if (tokens1.get(x).value == tokens2.get(y).value) {
 						valueTable[x][y] = new Cell(upleft.value + 1, true, x,
-								y, upleft);
+								y, BASE.UPLEFT);
 					} else {
 						valueTable[x][y] = (left.value >= up.value) ? new Cell(
-								left.value, false, x, y, left) : new Cell(
-								up.value, false, x, y, up);
+								left.value, false, x, y, BASE.LEFT) : new Cell(
+								up.value, false, x, y, BASE.UP);
 					}
 				}
 			}
@@ -233,11 +239,10 @@ public class LCS {
 			Cell cell = valueTable[tokens1.size() - 1][tokens2.size() - 1];
 			while (true) {
 				if (null != cell.base) {
-					Cell previous = cell.base;
-					if (previous.x == cell.x || previous.y == cell.y) {
+					if (BASE.UP == cell.base || BASE.LEFT == cell.base) {
 						return ChangeType.TYPE2;
 					}
-					cell = previous;
+					cell = valueTable[cell.x - 1][cell.y - 1];
 				} else {
 					break;
 				}
@@ -250,14 +255,18 @@ public class LCS {
 
 class Cell {
 
+	enum BASE {
+		LEFT, UP, UPLEFT;
+	}
+
 	final public int value;
 	final public boolean match;
 	final public int x;
 	final public int y;
-	final public Cell base;
+	final public BASE base;
 
 	public Cell(final int value, final boolean match, final int x, final int y,
-			final Cell base) {
+			final BASE base) {
 		this.value = value;
 		this.match = match;
 		this.x = x;
