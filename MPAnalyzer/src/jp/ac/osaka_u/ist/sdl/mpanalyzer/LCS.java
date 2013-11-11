@@ -126,6 +126,12 @@ public class LCS {
 			}
 		}
 
+		for (int i = 0; i < array1.size(); i++) {
+			for (int j = 0; j < array2.size(); j++) {
+				table[i][j] = null;
+			}
+		}
+
 		return modifications;
 	}
 
@@ -188,11 +194,22 @@ public class LCS {
 			while (true) {
 				if (null != cell.base) {
 					if (BASE.UP == cell.base || BASE.LEFT == cell.base) {
+						for (int i = 0; i < tokens1.size(); i++) {
+							for (int j = 0; j < tokens2.size(); j++) {
+								kindTable[i][j] = null;
+							}
+						}
 						return ChangeType.TYPE3;
 					}
 					cell = kindTable[cell.x - 1][cell.y - 1];
 				} else {
 					break;
+				}
+			}
+
+			for (int i = 0; i < tokens1.size(); i++) {
+				for (int j = 0; j < tokens2.size(); j++) {
+					kindTable[i][j] = null;
 				}
 			}
 		}
@@ -240,11 +257,22 @@ public class LCS {
 			while (true) {
 				if (null != cell.base) {
 					if (BASE.UP == cell.base || BASE.LEFT == cell.base) {
+						for (int i = 0; i < tokens1.size(); i++) {
+							for (int j = 0; j < tokens2.size(); j++) {
+								valueTable[i][j] = null;
+							}
+						}
 						return ChangeType.TYPE2;
 					}
 					cell = valueTable[cell.x - 1][cell.y - 1];
 				} else {
 					break;
+				}
+			}
+
+			for (int i = 0; i < tokens1.size(); i++) {
+				for (int j = 0; j < tokens2.size(); j++) {
+					valueTable[i][j] = null;
 				}
 			}
 		}
