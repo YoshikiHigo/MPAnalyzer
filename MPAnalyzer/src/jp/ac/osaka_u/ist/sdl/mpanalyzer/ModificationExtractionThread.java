@@ -56,7 +56,6 @@ public class ModificationExtractionThread extends Thread {
 					.getWCClient();
 			final SVNDiffClient diffClient = SVNClientManager.newInstance()
 					.getDiffClient();
-			final LCS lcs = new LCS();
 
 			while (true) {
 
@@ -144,7 +143,7 @@ public class ModificationExtractionThread extends Thread {
 					final List<Statement> afterStatements = StringUtility
 							.splitToStatements(afterText.toString(), LANGUAGE);
 
-					final List<Modification> modifications = lcs
+					final List<Modification> modifications = LCS
 							.getModifications(beforeStatements,
 									afterStatements, path, afterRevision);
 
