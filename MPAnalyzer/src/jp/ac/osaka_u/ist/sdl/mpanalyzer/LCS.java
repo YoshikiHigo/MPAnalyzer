@@ -17,51 +17,58 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.Token;
 
 public class LCS {
 
-	public static List<Modification> getModifications(
-			final List<Statement> array1, final List<Statement> array2,
-			final String filepath, final Revision revision) {
+	public static final int MAX = 5000;
+
+	private final Cell[][] table;
+
+	public LCS() {
+		this.table = new Cell[MAX][MAX];
+	}
+
+	public List<Modification> getModifications(final List<Statement> array1,
+			final List<Statement> array2, final String filepath,
+			final Revision revision) {
 
 		if (array1.isEmpty() || array2.isEmpty()) {
 			return new ArrayList<Modification>();
 		}
 
-		if (3500 < array1.size() || 3500 < array2.size()) {
+		if (MAX < array1.size() || MAX < array2.size()) {
 			System.out.println("large file!");
 			return new ArrayList<Modification>();
 		}
 
-		final Cell[][] table = new Cell[array1.size()][array2.size()];
 		if (array1.get(0).hash == array2.get(0).hash) {
-			table[0][0] = new Cell(1, true, 0, 0, null);
+			this.table[0][0] = new Cell(1, true, 0, 0, null);
 		} else {
-			table[0][0] = new Cell(0, false, 0, 0, null);
+			this.table[0][0] = new Cell(0, false, 0, 0, null);
 		}
 		for (int x = 1; x < array1.size(); x++) {
 			if (array1.get(x).hash == array2.get(0).hash) {
-				table[x][0] = new Cell(1, true, x, 0, null);
+				this.table[x][0] = new Cell(1, true, x, 0, null);
 			} else {
-				table[x][0] = new Cell(table[x - 1][0].value, false, x, 0,
-						BASE.LEFT);
+				this.table[x][0] = new Cell(this.table[x - 1][0].value, false,
+						x, 0, BASE.LEFT);
 			}
 		}
 		for (int y = 1; y < array2.size(); y++) {
 			if (array1.get(0).hash == array2.get(y).hash) {
-				table[0][y] = new Cell(1, true, 0, y, null);
+				this.table[0][y] = new Cell(1, true, 0, y, null);
 			} else {
-				table[0][y] = new Cell(table[0][y - 1].value, false, 0, y,
-						BASE.UP);
+				this.table[0][y] = new Cell(this.table[0][y - 1].value, false,
+						0, y, BASE.UP);
 			}
 		}
 		for (int x = 1; x < array1.size(); x++) {
 			for (int y = 1; y < array2.size(); y++) {
-				final Cell left = table[x - 1][y];
-				final Cell up = table[x][y - 1];
-				final Cell upleft = table[x - 1][y - 1];
+				final Cell left = this.table[x - 1][y];
+				final Cell up = this.table[x][y - 1];
+				final Cell upleft = this.table[x - 1][y - 1];
 				if (array1.get(x).hash == array2.get(y).hash) {
-					table[x][y] = new Cell(upleft.value + 1, true, x, y,
+					this.table[x][y] = new Cell(upleft.value + 1, true, x, y,
 							BASE.UPLEFT);
 				} else {
-					table[x][y] = (left.value >= up.value) ? new Cell(
+					this.table[x][y] = (left.value >= up.value) ? new Cell(
 							left.value, false, x, y, BASE.LEFT) : new Cell(
 							up.value, false, x, y, BASE.UP);
 				}
@@ -69,7 +76,7 @@ public class LCS {
 		}
 
 		final List<Modification> modifications = new ArrayList<Modification>();
-		Cell current = table[array1.size() - 1][array2.size() - 1];
+		Cell current = this.table[array1.size() - 1][array2.size() - 1];
 		final SortedSet<Integer> xdiff = new TreeSet<Integer>();
 		final SortedSet<Integer> ydiff = new TreeSet<Integer>();
 		while (true) {
@@ -120,15 +127,9 @@ public class LCS {
 						: current.x - 1;
 				final int baseY = BASE.LEFT == current.base ? current.y
 						: current.y - 1;
-				current = table[baseX][baseY];
+				current = this.table[baseX][baseY];
 			} else {
 				break;
-			}
-		}
-
-		for (int i = 0; i < array1.size(); i++) {
-			for (int j = 0; j < array2.size(); j++) {
-				table[i][j] = null;
 			}
 		}
 
