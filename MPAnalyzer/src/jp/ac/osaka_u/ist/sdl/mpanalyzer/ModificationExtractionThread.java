@@ -155,6 +155,7 @@ public class ModificationExtractionThread extends Thread {
 						}
 					} else {
 						this.queue.addAll(modifications);
+						System.out.println("Number of Modifications: " + modifications.size());
 					}
 				}
 			}
