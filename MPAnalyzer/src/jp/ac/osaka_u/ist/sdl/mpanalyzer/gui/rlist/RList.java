@@ -46,8 +46,12 @@ public class RList extends JPanel {
 						}
 					});
 
+			final int threshold = 100;
 			revisions.addAll(ReadOnlyDAO.getInstance().getRevisions());
-			this.setLayout(new GridLayout(revisions.size(), 1));
+			this.setLayout(new GridLayout(
+					revisions.size() < threshold ? revisions.size() : threshold,
+					1));
+			int number = 0;
 			for (final Revision revision : revisions) {
 				final StringBuilder text = new StringBuilder();
 				text.append(revision.number);
@@ -59,6 +63,9 @@ public class RList extends JPanel {
 				this.group.add(button);
 				this.add(button);
 				this.buttonRevisionMap.put(button, revision);
+				if (100 < ++number) {
+					break;
+				}
 			}
 		} catch (final Exception e) {
 			this.add(new JLabel("Error happened in getting revisions."));
