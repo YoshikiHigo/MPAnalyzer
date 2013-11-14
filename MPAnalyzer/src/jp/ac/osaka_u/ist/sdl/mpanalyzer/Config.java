@@ -27,10 +27,6 @@ public class Config {
 		return getConfig("LANGUAGE");
 	}
 
-	public static String getTARGET() {
-		return getConfig("TARGET");
-	}
-
 	public static boolean isOnlyCondition() {
 		return getConfig("ONLYCONDITION").equalsIgnoreCase("YES");
 	}

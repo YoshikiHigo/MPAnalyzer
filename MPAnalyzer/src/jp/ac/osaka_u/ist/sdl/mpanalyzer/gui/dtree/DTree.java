@@ -85,7 +85,6 @@ public class DTree extends JTree implements Observer {
 
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
-	static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
 
 	public final JScrollPane scrollPane;
@@ -231,8 +230,7 @@ public class DTree extends JTree implements Observer {
 
 							if (entry.getKind() == SVNNodeKind.FILE) {
 								final String path = entry.getRelativePath();
-								if (path.startsWith(TARGET)
-										&& path.endsWith(".java")) {
+								if (path.endsWith(".java")) {
 
 									progressDialog.note
 											.setText("preparing files ... "

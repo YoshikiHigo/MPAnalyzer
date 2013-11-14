@@ -32,7 +32,6 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 public class CDetector {
 
 	private static final String REPOSITORY = Config.getPATH_TO_REPOSITORY();
-	private static final String TARGET = Config.getTARGET();
 	private static final String LANGUAGE = Config.getLanguage();
 	private static final long REVISION = Config.getCloneDetectionRevision();
 	private static final int THREADS = Config.getThreadsValue();
@@ -116,10 +115,7 @@ public class CDetector {
 								final String path = entry.getRelativePath();
 
 								if (StringUtility.isJavaFile(path)) {
-									if (TARGET.isEmpty()
-											|| path.startsWith(TARGET)) {
-										files.add(path);
-									}
+									files.add(path);
 								}
 							}
 						}

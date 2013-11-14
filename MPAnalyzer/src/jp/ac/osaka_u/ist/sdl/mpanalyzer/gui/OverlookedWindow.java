@@ -66,7 +66,6 @@ public class OverlookedWindow extends JFrame implements Observer {
 
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
-	static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
 
 	private ProgressDialog progressDialog;
@@ -274,7 +273,6 @@ public class OverlookedWindow extends JFrame implements Observer {
 								final String path = entry.getRelativePath();
 
 								if (LANGUAGE.equalsIgnoreCase("JAVA")
-										&& path.startsWith(TARGET)
 										&& StringUtility.isJavaFile(path)) {
 
 									paths.add(path);
@@ -286,7 +284,6 @@ public class OverlookedWindow extends JFrame implements Observer {
 											.repaint();
 
 								} else if (LANGUAGE.equalsIgnoreCase("C")
-										&& path.startsWith(TARGET)
 										&& StringUtility.isCFile(path)) {
 
 									paths.add(path);

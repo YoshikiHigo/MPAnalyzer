@@ -27,7 +27,7 @@ public class ModificationExtractionThread extends Thread {
 
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
-	static final private String TARGET = Config.getTARGET();
+	// static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
 	static final private boolean ONLYCONDITION = Config.isOnlyCondition();
 
@@ -89,19 +89,21 @@ public class ModificationExtractionThread extends Thread {
 							@Override
 							public void handleDiffStatus(
 									final SVNDiffStatus diffStatus) {
+
 								final String path = diffStatus.getPath();
 								final SVNStatusType type = diffStatus
 										.getModificationType();
+
+								if (!type.equals(SVNStatusType.STATUS_MODIFIED)) {
+									return;
+								}
+
 								if (LANGUAGE.equalsIgnoreCase("JAVA")
-										&& path.startsWith(TARGET)
-										&& StringUtility.isJavaFile(path)
-										&& type.equals(SVNStatusType.STATUS_MODIFIED)) {
+										&& StringUtility.isJavaFile(path)) {
 									modifiedFileList.add(path);
 									System.out.println(path);
 								} else if (LANGUAGE.equalsIgnoreCase("C")
-										&& path.startsWith(TARGET)
-										&& StringUtility.isCFile(path)
-										&& type.equals(SVNStatusType.STATUS_MODIFIED)) {
+										&& StringUtility.isCFile(path)) {
 									modifiedFileList.add(path);
 									System.out.println(path);
 								}
@@ -155,7 +157,8 @@ public class ModificationExtractionThread extends Thread {
 						}
 					} else {
 						this.queue.addAll(modifications);
-						System.out.println("Number of Modifications: " + modifications.size());
+						System.out.println("Number of Modifications: "
+								+ modifications.size());
 					}
 				}
 			}

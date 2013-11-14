@@ -44,7 +44,6 @@ public class DCode extends JTextArea implements Observer {
 
 	static final private String PATH_TO_REPOSITORY = Config
 			.getPATH_TO_REPOSITORY();
-	static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
 
 	static public final int TAB_SIZE = 4;

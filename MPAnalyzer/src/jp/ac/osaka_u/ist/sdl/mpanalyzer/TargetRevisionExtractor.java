@@ -22,7 +22,6 @@ public class TargetRevisionExtractor {
 			final long startTime = System.nanoTime();
 
 			final String PATH_TO_REPOSITORY = Config.getPATH_TO_REPOSITORY();
-			final String TARGET = "/" + Config.getTARGET();
 			final String LANGUAGE = Config.getLanguage();
 
 			final SVNURL url = SVNURL.fromFile(new File(PATH_TO_REPOSITORY));
@@ -48,14 +47,12 @@ public class TargetRevisionExtractor {
 								final Revision revision = new Revision(number,
 										date, message);
 								if (LANGUAGE.equalsIgnoreCase("JAVA")
-										&& path.startsWith(TARGET)
 										&& StringUtility.isJavaFile(path)) {
 									System.out.print(Integer.toString(number));
 									System.out.println(" is beging checked.");
 									dao.addRevision(revision);
 									break;
 								} else if (LANGUAGE.equalsIgnoreCase("C")
-										&& path.startsWith(TARGET)
 										&& StringUtility.isCFile(path)) {
 									System.out.print(Integer.toString(number));
 									System.out.println(" is being checked.");
