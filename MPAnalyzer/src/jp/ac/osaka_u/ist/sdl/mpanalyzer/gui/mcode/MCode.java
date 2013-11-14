@@ -169,6 +169,8 @@ public class MCode extends JTextArea implements Observer {
 							assert false : "here shouldn't be reached!";
 							System.exit(0);
 						}
+						
+						this.display();
 
 					} catch (final Exception e) {
 						e.printStackTrace();

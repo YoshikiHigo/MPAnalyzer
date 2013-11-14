@@ -163,6 +163,8 @@ public class OCode extends JTextArea implements Observer {
 						this.setUI(new OCodeUI(highlightedLines, this, margin));
 						this.setText(text.toString());
 						this.setTitle(path);
+						
+						this.display();
 
 					} catch (final Exception e) {
 						e.printStackTrace();
