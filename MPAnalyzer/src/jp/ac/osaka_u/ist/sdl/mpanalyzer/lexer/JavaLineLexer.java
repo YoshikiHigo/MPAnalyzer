@@ -46,6 +46,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.INSTANCEOF;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.INT;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.LEFTBRACKET;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.LEFTPAREN;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.LEFTSQUAREBRACKET;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.LESS;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.LESSEQUAL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.LONG;
@@ -54,6 +55,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.MINUSEQUAL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.MOD;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.MODEQUAL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.NEW;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.NOT;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.NULL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.NUMBERLITERAL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.OR;
@@ -67,6 +69,7 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.QUESTION;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.RETURN;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.RIGHTBRACKET;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.RIGHTPAREN;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.RIGHTSQUAREBRACKET;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.SEMICOLON;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.SHORT;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.STAR;
@@ -154,6 +157,9 @@ public class JavaLineLexer implements LineLexer {
 		} else if (string.startsWith("==")) {
 			text.delete(0, 2);
 			tokenList.add(new EQUAL());
+		} else if (string.startsWith("!")) {
+			text.delete(0, 1);
+			tokenList.add(new NOT());
 		}
 
 		else if (string.startsWith(":")) {
@@ -207,6 +213,12 @@ public class JavaLineLexer implements LineLexer {
 		} else if (string.startsWith("}")) {
 			text.delete(0, 1);
 			tokenList.add(new RIGHTBRACKET());
+		} else if (string.startsWith("[")) {
+			text.delete(0, 1);
+			tokenList.add(new LEFTSQUAREBRACKET());
+		} else if (string.startsWith("]")) {
+			text.delete(0, 1);
+			tokenList.add(new RIGHTSQUAREBRACKET());
 		} else if (string.startsWith(",")) {
 			text.delete(0, 1);
 			tokenList.add(new COMMA());
