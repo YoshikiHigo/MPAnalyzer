@@ -46,11 +46,12 @@ public class RList extends JPanel {
 						}
 					});
 
-			final int threshold = 100;
+//			final int threshold = 100;
 			revisions.addAll(ReadOnlyDAO.getInstance().getRevisions());
-			this.setLayout(new GridLayout(
-					revisions.size() < threshold ? revisions.size() : threshold,
-					1));
+//			this.setLayout(new GridLayout(
+//					revisions.size() < threshold ? revisions.size() : threshold,
+//					1));
+			this.setLayout(new GridLayout(revisions.size(), 1));
 			int number = 0;
 			for (final Revision revision : revisions) {
 				final StringBuilder text = new StringBuilder();
