@@ -61,8 +61,8 @@ public abstract class DAO {
 					+ CODEFRAGMENT_SCHEMA + ")");
 			statement
 					.executeUpdate("create index cfIDIndex on codefragment (id)");
-			statement
-					.executeUpdate("create index textIndex on codefragment (text)");
+//			statement
+//					.executeUpdate("create index textIndex on codefragment (text)");
 			statement
 					.executeUpdate("create index hashIndex on codefragment (hash)");
 		}
