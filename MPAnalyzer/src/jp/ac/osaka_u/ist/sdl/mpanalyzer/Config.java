@@ -33,14 +33,30 @@ public class Config {
 
 	public static long getStartRevision() {
 		final String startRevision = getConfig("STARTREVISION");
-		return startRevision.equalsIgnoreCase("INITIAL") ? 0l : Long
-				.parseLong(startRevision);
+		if(startRevision.isEmpty()){
+			return -1;
+		}
+		try{
+			return Long.parseLong(startRevision);
+		}catch(NumberFormatException e){
+			e.printStackTrace();
+			System.exit(0);
+		}
+		return -1;
 	}
 
 	public static long getEndRevision() {
-		final String endRevision = getConfig("ENDREVISION");
-		return endRevision.equalsIgnoreCase("LATEST") ? Long.MAX_VALUE : Long
-				.parseLong(endRevision);
+		final String startRevision = getConfig("ENDREVISION");
+		if(startRevision.isEmpty()){
+			return -1;
+		}
+		try{
+			return Long.parseLong(startRevision);
+		}catch(NumberFormatException e){
+			e.printStackTrace();
+			System.exit(0);
+		}
+		return -1;
 	}
 
 	public static long getCloneDetectionRevision() {

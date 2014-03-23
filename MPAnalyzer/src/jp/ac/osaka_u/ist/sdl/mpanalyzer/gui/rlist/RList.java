@@ -124,8 +124,16 @@ public class RList extends JPanel {
 			FSRepositoryFactory.setup();
 			final SVNRepository repository = FSRepositoryFactory.create(url);
 
-			final long startRevision = Config.getStartRevision();
-			final long endRevision = Config.getEndRevision();
+			long startRevision = Config.getStartRevision();
+			long endRevision = Config.getEndRevision();
+			
+			if(startRevision < 0){
+				startRevision = 0l;
+			}
+			
+			if(endRevision < 0){
+				endRevision = repository.getLatestRevision();
+			}
 
 			final SortedSet<Revision> revisions = new TreeSet<Revision>();
 
