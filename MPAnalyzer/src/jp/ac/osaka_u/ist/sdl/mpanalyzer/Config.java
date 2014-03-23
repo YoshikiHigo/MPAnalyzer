@@ -125,6 +125,9 @@ public class Config {
 					"config.txt"));
 			while (reader.ready()) {
 				final String line = reader.readLine();
+				if(line.startsWith("#")){
+					continue;
+				}
 				final StringTokenizer tokenizer = new StringTokenizer(line, "=");
 				final String variable = tokenizer.nextToken();
 				if (variable.equals(term)) {
