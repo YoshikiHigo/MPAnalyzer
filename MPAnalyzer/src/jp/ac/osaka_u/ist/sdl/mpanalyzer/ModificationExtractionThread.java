@@ -25,8 +25,8 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 public class ModificationExtractionThread extends Thread {
 
-	static final private String PATH_TO_REPOSITORY = Config
-			.getPATH_TO_REPOSITORY();
+	static final private String PATH_TO_DATABASEREPOSITORY = Config
+			.getPATH_TO_DATABASEREPOSITORY();
 	// static final private String TARGET = Config.getTARGET();
 	static final private String LANGUAGE = Config.getLanguage();
 	static final private boolean ONLYCONDITION = Config.isOnlyCondition();
@@ -50,7 +50,8 @@ public class ModificationExtractionThread extends Thread {
 
 		try {
 
-			final SVNURL url = SVNURL.fromFile(new File(PATH_TO_REPOSITORY));
+			final SVNURL url = SVNURL.fromFile(new File(
+					PATH_TO_DATABASEREPOSITORY));
 			FSRepositoryFactory.setup();
 			final SVNWCClient wcClient = SVNClientManager.newInstance()
 					.getWCClient();
@@ -112,7 +113,7 @@ public class ModificationExtractionThread extends Thread {
 
 				for (final String path : modifiedFileList) {
 					final SVNURL fileurl = SVNURL.fromFile(new File(
-							PATH_TO_REPOSITORY
+							PATH_TO_DATABASEREPOSITORY
 									+ System.getProperty("file.separator")
 									+ path));
 

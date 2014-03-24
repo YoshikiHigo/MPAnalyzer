@@ -124,10 +124,10 @@ public class MCode extends JTextArea implements Observer {
 						this.modification = observedModifications.get().first();
 						final long revision = this.modification.revision.number;
 						final String filepath = this.modification.filepath;
-						final String PATH_TO_REPOSITORY = Config
-								.getPATH_TO_REPOSITORY();
+						final String PATH_TO_DATABASEREPOSITORY = Config
+								.getPATH_TO_DATABASEREPOSITORY();
 						final SVNURL url = SVNURL.fromFile(new File(
-								PATH_TO_REPOSITORY + "/" + filepath));
+								PATH_TO_DATABASEREPOSITORY + "/" + filepath));
 						FSRepositoryFactory.setup();
 						final SVNWCClient wcClient = SVNClientManager
 								.newInstance().getWCClient();
@@ -169,7 +169,7 @@ public class MCode extends JTextArea implements Observer {
 							assert false : "here shouldn't be reached!";
 							System.exit(0);
 						}
-						
+
 						this.display();
 
 					} catch (final Exception e) {

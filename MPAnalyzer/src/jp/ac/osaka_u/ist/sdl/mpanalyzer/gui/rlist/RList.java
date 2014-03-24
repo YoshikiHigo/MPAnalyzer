@@ -21,7 +21,6 @@ import javax.swing.border.TitledBorder;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.ReadOnlyDAO;
 
 import org.tmatesoft.svn.core.ISVNLogEntryHandler;
 import org.tmatesoft.svn.core.SVNException;
@@ -56,15 +55,16 @@ public class RList extends JPanel {
 						}
 					});
 
-			//revisions.addAll(ReadOnlyDAO.getInstance().getRevisions());
+			// revisions.addAll(ReadOnlyDAO.getInstance().getRevisions());
 			revisions.addAll(getRevisionsFromRepository());
-			
+
 			// final int threshold = 100;
 			// this.setLayout(new GridLayout(
 			// revisions.size() < threshold ? revisions.size() : threshold,
 			// 1));
-			this.setLayout(new GridLayout(revisions.size(), 1));
-			int number = 0;
+			this.setLayout(new GridLayout(revisions.size() > 100 ? 100
+					: revisions.size(), 1));
+			int number = 1;
 			for (final Revision revision : revisions) {
 				final StringBuilder text = new StringBuilder();
 				text.append(revision.number);
@@ -126,12 +126,12 @@ public class RList extends JPanel {
 
 			long startRevision = Config.getStartRevision();
 			long endRevision = Config.getEndRevision();
-			
-			if(startRevision < 0){
+
+			if (startRevision < 0) {
 				startRevision = 0l;
 			}
-			
-			if(endRevision < 0){
+
+			if (endRevision < 0) {
 				endRevision = repository.getLatestRevision();
 			}
 

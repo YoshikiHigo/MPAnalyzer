@@ -11,6 +11,10 @@ public class Config {
 		return getConfig("REPOSITORY");
 	}
 
+	public static String getPATH_TO_DATABASEREPOSITORY() {
+		return getConfig("DATABASEREPOSITORY");
+	}
+
 	public static String getDATABASELOCATION() {
 		return getConfig("DATABASELOCATION");
 	}
@@ -31,28 +35,56 @@ public class Config {
 		return getConfig("ONLYCONDITION").equalsIgnoreCase("YES");
 	}
 
-	public static long getStartRevision() {
-		final String startRevision = getConfig("STARTREVISION");
-		if(startRevision.isEmpty()){
+	public static long getDatabaseStartRevision() {
+		final String startRevision = getConfig("DATABASESTARTREVISION");
+		if (startRevision.isEmpty()) {
 			return -1;
 		}
-		try{
+		try {
 			return Long.parseLong(startRevision);
-		}catch(NumberFormatException e){
+		} catch (NumberFormatException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 		return -1;
 	}
 
-	public static long getEndRevision() {
-		final String startRevision = getConfig("ENDREVISION");
-		if(startRevision.isEmpty()){
+	public static long getDatabaseEndRevision() {
+		final String startRevision = getConfig("DATABASEENDREVISION");
+		if (startRevision.isEmpty()) {
 			return -1;
 		}
-		try{
+		try {
 			return Long.parseLong(startRevision);
-		}catch(NumberFormatException e){
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		return -1;
+	}
+	
+	public static long getStartRevision() {
+		final String startRevision = getConfig("STARTREVISION");
+		if (startRevision.isEmpty()) {
+			return -1;
+		}
+		try {
+			return Long.parseLong(startRevision);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		return -1;
+	}
+	
+	public static long getEndRevision() {
+		final String startRevision = getConfig("ENDREVISION");
+		if (startRevision.isEmpty()) {
+			return -1;
+		}
+		try {
+			return Long.parseLong(startRevision);
+		} catch (NumberFormatException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -141,7 +173,7 @@ public class Config {
 					"config.txt"));
 			while (reader.ready()) {
 				final String line = reader.readLine();
-				if(line.startsWith("#")){
+				if (line.startsWith("#")) {
 					continue;
 				}
 				final StringTokenizer tokenizer = new StringTokenizer(line, "=");

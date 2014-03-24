@@ -21,21 +21,23 @@ public class TargetRevisionExtractor {
 
 			final long startTime = System.nanoTime();
 
-			final String PATH_TO_REPOSITORY = Config.getPATH_TO_REPOSITORY();
+			final String PATH_TO_DATABASEREPOSITORY = Config
+					.getPATH_TO_DATABASEREPOSITORY();
 			final String LANGUAGE = Config.getLanguage();
 
-			final SVNURL url = SVNURL.fromFile(new File(PATH_TO_REPOSITORY));
+			final SVNURL url = SVNURL.fromFile(new File(
+					PATH_TO_DATABASEREPOSITORY));
 			FSRepositoryFactory.setup();
 			final SVNRepository repository = FSRepositoryFactory.create(url);
 
-			long startRevision = Config.getStartRevision();
-			long endRevision = Config.getEndRevision();
-			
-			if(startRevision < 0){
+			long startRevision = Config.getDatabaseStartRevision();
+			long endRevision = Config.getDatabaseEndRevision();
+
+			if (startRevision < 0) {
 				startRevision = 0l;
 			}
-			
-			if(endRevision < 0){
+
+			if (endRevision < 0) {
 				endRevision = repository.getLatestRevision();
 			}
 
