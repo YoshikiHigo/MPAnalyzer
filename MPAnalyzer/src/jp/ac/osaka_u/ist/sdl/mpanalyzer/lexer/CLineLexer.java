@@ -152,9 +152,9 @@ public class CLineLexer implements LineLexer {
 		} else if (string.startsWith("==")) {
 			text.delete(0, 2);
 			tokenList.add(new EQUAL());
-		} else if (string.startsWith("!")) {
-			text.delete(0, 1);
-			tokenList.add(new NOT());
+//		} else if (string.startsWith("!")) {
+//			text.delete(0, 1);
+//			tokenList.add(new NOT());
 		}
 
 		else if (string.startsWith(":")) {
