@@ -5,16 +5,48 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+import org.apache.commons.cli.CommandLine;
+
 public class Config {
 
-	public static String getPATH_TO_REPOSITORY() {
-		return getConfig("REPOSITORY");
+	static private Config SINGLETON = null;
+
+	static public boolean initialize(final CommandLine commandLine) {
+
+		if (null != SINGLETON) {
+			return false;
+		}
+
+		SINGLETON = new Config(commandLine);
+
+		return true;
+	}
+
+	static public Config getInstance() {
+
+		if (null == SINGLETON) {
+			System.err.println("SINGLETON is not initialized.");
+			System.exit(0);
+		}
+
+		return SINGLETON;
+	}
+
+	private final CommandLine commandLine;
+
+	private Config(final CommandLine commandLine) {
+		this.commandLine = commandLine;
+	}
+
+	public String getPATH_TO_REPOSITORY() {
+		return this.commandLine.getOptionValue("repo");
 	}
 
 	public static String getPATH_TO_DATABASEREPOSITORY() {
 		return getConfig("DATABASEREPOSITORY");
 	}
 
+	
 	public static String getDATABASELOCATION() {
 		return getConfig("DATABASELOCATION");
 	}
@@ -62,7 +94,7 @@ public class Config {
 		}
 		return -1;
 	}
-	
+
 	public static long getStartRevision() {
 		final String startRevision = getConfig("STARTREVISION");
 		if (startRevision.isEmpty()) {
@@ -76,7 +108,7 @@ public class Config {
 		}
 		return -1;
 	}
-	
+
 	public static long getEndRevision() {
 		final String startRevision = getConfig("ENDREVISION");
 		if (startRevision.isEmpty()) {
