@@ -1,23 +1,158 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.StringTokenizer;
-
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 
 public class Config {
 
 	static private Config SINGLETON = null;
 
-	static public boolean initialize(final CommandLine commandLine) {
+	static public boolean initialize(final String[] args) {
 
 		if (null != SINGLETON) {
 			return false;
 		}
 
-		SINGLETON = new Config(commandLine);
+		final Options options = new Options();
+
+		{
+			final Option option = new Option("lang", "language", true,
+					"programming language for analysis");
+			option.setArgName("language");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("repo", "repository", true,
+					"repository for mining");
+			option.setArgName("repository");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("startrev", "startrevision", true,
+					"start revision of repository for mining");
+			option.setArgName("revision");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("endrev", "endrevision", true,
+					"end revision of repository for mining");
+			option.setArgName("revision");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("db", "database", true,
+					"database for storing modification patterns");
+			option.setArgName("revision");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("test", "test", true,
+					"repository for testing");
+			option.setArgName("repository");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("teststartrev",
+					"teststartrevision", true,
+					"start revision of repository for test");
+			option.setArgName("revision");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("testendrev", "testendrevision",
+					true, "end revision of repository for test");
+			option.setArgName("revision");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("thd", "thread", true,
+					"end revision of repository for test");
+			option.setArgName("thread");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("ignind", "ignoreindent", false,
+					"canceling ignoring indent");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("ignspc", "ignorespace", false,
+					"canceling ignoring whitespace");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("ignimp", "ignoreimport", false,
+					"canceling ignoring import");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("igninc", "ignoreinclude", false,
+					"canceling ignoring include");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("onlycond", "onlycondition",
+					false, "extracting only condition");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("csv", "csv", true,
+					"CSV file for writing modification patterns");
+			option.setArgName("file");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		try {
+			final CommandLineParser parser = new PosixParser();
+			final CommandLine commandLine = parser.parse(options, args);
+			SINGLETON = new Config(commandLine);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
 
 		return true;
 	}
@@ -38,195 +173,98 @@ public class Config {
 		this.commandLine = commandLine;
 	}
 
-	public String getPATH_TO_REPOSITORY() {
+	public String getLANGUAGE() {
+		if (!this.commandLine.hasOption("lang")) {
+			System.err.println("option \"lang\" is not specified.");
+			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("lang");
+	}
+
+	public String getREPOSITORY_FOR_MINING() {
+		if (!this.commandLine.hasOption("repo")) {
+			System.err.println("option \"repo\" is not specified.");
+			System.exit(0);
+		}
 		return this.commandLine.getOptionValue("repo");
 	}
 
-	public static String getPATH_TO_DATABASEREPOSITORY() {
-		return getConfig("DATABASEREPOSITORY");
-	}
-
-	
-	public static String getDATABASELOCATION() {
-		return getConfig("DATABASELOCATION");
-	}
-
-	public static String getDATABASENAME() {
-		return getConfig("DATABASENAME");
-	}
-
-	public static String getMPCSVFILE() {
-		return getConfig("MPCSVFILE");
-	}
-
-	public static String getLanguage() {
-		return getConfig("LANGUAGE");
-	}
-
-	public static boolean isOnlyCondition() {
-		return getConfig("ONLYCONDITION").equalsIgnoreCase("YES");
-	}
-
-	public static long getDatabaseStartRevision() {
-		final String startRevision = getConfig("DATABASESTARTREVISION");
-		if (startRevision.isEmpty()) {
-			return -1;
-		}
-		try {
-			return Long.parseLong(startRevision);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			System.exit(0);
+	public long getSTART_REVISION_FOR_MINING() {
+		if (this.commandLine.hasOption("startrev")) {
+			return Long.parseLong(this.commandLine.getOptionValue("startrev"));
 		}
 		return -1;
 	}
 
-	public static long getDatabaseEndRevision() {
-		final String startRevision = getConfig("DATABASEENDREVISION");
-		if (startRevision.isEmpty()) {
-			return -1;
-		}
-		try {
-			return Long.parseLong(startRevision);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			System.exit(0);
+	public long getEND_REVISION_FOR_MINING() {
+		if (this.commandLine.hasOption("endrev")) {
+			return Long.parseLong(this.commandLine.getOptionValue("endrev"));
 		}
 		return -1;
 	}
 
-	public static long getStartRevision() {
-		final String startRevision = getConfig("STARTREVISION");
-		if (startRevision.isEmpty()) {
-			return -1;
-		}
-		try {
-			return Long.parseLong(startRevision);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
+	public String getDATABASE() {
+		if (!this.commandLine.hasOption("db")) {
+			System.err.println("option \"db\" is not specified.");
 			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("db");
+	}
+
+	public String getREPOSITORY_FOR_TEST() {
+		if (!this.commandLine.hasOption("test")) {
+			System.err.println("option \"test\" is not specified.");
+			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("test");
+	}
+
+	public long getSTART_REVISION_FOR_TEST() {
+		if (this.commandLine.hasOption("teststartrev")) {
+			return Long.parseLong(this.commandLine
+					.getOptionValue("teststartrev"));
 		}
 		return -1;
 	}
 
-	public static long getEndRevision() {
-		final String startRevision = getConfig("ENDREVISION");
-		if (startRevision.isEmpty()) {
-			return -1;
-		}
-		try {
-			return Long.parseLong(startRevision);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			System.exit(0);
+	public long getEND_REVISION_FOR_TEST() {
+		if (this.commandLine.hasOption("testendrev")) {
+			return Long
+					.parseLong(this.commandLine.getOptionValue("testendrev"));
 		}
 		return -1;
 	}
 
-	public static long getCloneDetectionRevision() {
-		final String cloneDetectionRevision = getConfig("CLONEDETECTIONREVISION");
-		return Long.parseLong(cloneDetectionRevision);
+	public int getTHREAD() {
+		return this.commandLine.hasOption("thd") ? Integer
+				.parseInt(this.commandLine.getOptionValue("thd")) : 1;
 	}
 
-	public static int getCloneThreshold() {
-		final String cloneThreshold = getConfig("CLONETHRESHOLD");
-		return Integer.parseInt(cloneThreshold);
+	public boolean isIGNORE_INDENT() {
+		return !this.commandLine.hasOption("ignind");
 	}
 
-	public static String getCloneOutputFile() {
-		return getConfig("CLONEOUTPUTFILE");
+	public boolean isIGNORE_WHITESPACE() {
+		return !this.commandLine.hasOption("ignspc");
 	}
 
-	public static boolean IGNORE_INDENT() {
-		final String term = getConfig("IGNOREINDENT");
-		if (term.equalsIgnoreCase("true")) {
-			return true;
-		} else if (term.equalsIgnoreCase("false")) {
-			return false;
-		} else {
-			System.out
-					.println("\'true\' or \'false\' must be specified for IGNOREINDENT");
-			System.exit(0);
-			return false;
-		}
+	public boolean isIGNORE_IMPORT() {
+		return !this.commandLine.hasOption("ignimp");
 	}
 
-	public static boolean IGNORE_WHITESPACE() {
-		final String term = getConfig("IGNOREWHITESPACE");
-		if (term.equalsIgnoreCase("true")) {
-			return true;
-		} else if (term.equalsIgnoreCase("false")) {
-			return false;
-		} else {
-			System.out
-					.println("\'true\' or \'false\' must be specified for IGNOREWHITESPACE");
-			System.exit(0);
-			return false;
-		}
+	public boolean isIGNORE_INCLUDE() {
+		return !this.commandLine.hasOption("inginc");
 	}
 
-	public static int getThreadsValue() {
-		final String text = getConfig("THREADS");
-		return Integer.parseInt(text);
+	public boolean isONLY_CONDITION() {
+		return this.commandLine.hasOption("onlycond");
 	}
 
-	public static boolean IGNORE_IMPORT() {
-		final String term = getConfig("IGNOREIMPORT");
-		if (term.equalsIgnoreCase("true")) {
-			return true;
-		} else if (term.equalsIgnoreCase("false")) {
-			return false;
-		} else {
-			System.out
-					.println("\'true\' or \'false\' must be specified for IGNOREIMPORT");
-			System.exit(0);
-			return false;
-		}
-	}
-
-	public static boolean IGNORE_INCLUDE() {
-		final String term = getConfig("IGNOREINCLUDE");
-		if (term.equalsIgnoreCase("true")) {
-			return true;
-		} else if (term.equalsIgnoreCase("false")) {
-			return false;
-		} else {
-			System.out
-					.println("\'true\' or \'false\' must be specified for IGNOREINCLUDE");
-			System.exit(0);
-			return false;
-		}
-	}
-
-	private static String getConfig(final String term) {
-
-		try {
-			final BufferedReader reader = new BufferedReader(new FileReader(
-					"config.txt"));
-			while (reader.ready()) {
-				final String line = reader.readLine();
-				if (line.startsWith("#")) {
-					continue;
-				}
-				final StringTokenizer tokenizer = new StringTokenizer(line, "=");
-				final String variable = tokenizer.nextToken();
-				if (variable.equals(term)) {
-					reader.close();
-					if (tokenizer.hasMoreTokens()) {
-						return tokenizer.nextToken();
-					} else {
-						return "";
-					}
-				}
-			}
-
-			reader.close();
-
-		} catch (final IOException e) {
-			System.err.println("invalid program: " + term);
+	public String getCSV_FILE() {
+		if (!this.commandLine.hasOption("csv")) {
+			System.err.println("option \"csv\" is not specified.");
 			System.exit(0);
 		}
-
-		return "";
+		return this.commandLine.getOptionValue("csv");
 	}
 }

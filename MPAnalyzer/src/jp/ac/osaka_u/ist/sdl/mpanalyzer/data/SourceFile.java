@@ -11,8 +11,8 @@ import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
 
 public class SourceFile implements Comparable<SourceFile> {
 
-	static final public boolean IGNORE_INDENT = Config.IGNORE_INDENT();
-	static final public boolean IGNORE_WHITESPACE = Config.IGNORE_WHITESPACE();
+	final public boolean IGNORE_INDENT;
+	final public boolean IGNORE_WHITESPACE;
 
 	public final String filepath;
 	private final List<String> originalLines;
@@ -25,13 +25,16 @@ public class SourceFile implements Comparable<SourceFile> {
 		this.originalLines.add("");
 		this.normalizedSequence = new StringBuilder();
 		this.positionMapper = new ArrayList<Integer>();
+
+		this.IGNORE_INDENT = Config.getInstance().isIGNORE_INDENT();
+		this.IGNORE_WHITESPACE = Config.getInstance().isIGNORE_WHITESPACE();
 	}
 
 	public void addLine(final String line) {
 
-		final String noindent = IGNORE_INDENT ? StringUtility
+		final String noindent = this.IGNORE_INDENT ? StringUtility
 				.removeIndent(line) : line;
-		final String nospace = IGNORE_WHITESPACE ? StringUtility
+		final String nospace = this.IGNORE_WHITESPACE ? StringUtility
 				.removeSpaceTab(noindent) : noindent;
 		final String trim = nospace.trim();
 		this.normalizedSequence.append(trim);
@@ -41,7 +44,6 @@ public class SourceFile implements Comparable<SourceFile> {
 			this.positionMapper.add(lineNumber);
 		}
 
-		// lineNumberの計算よりも後にある必要あり
 		this.originalLines.add(line);
 	}
 
@@ -58,7 +60,6 @@ public class SourceFile implements Comparable<SourceFile> {
 			checkingArray[index] = false;
 		}
 
-		// before文字列を用いて一致する部分をtrueに
 		if (!beforeSequence.isEmpty()) {
 			int fromIndex = 0;
 			while (true) {
@@ -75,7 +76,6 @@ public class SourceFile implements Comparable<SourceFile> {
 			}
 		}
 
-		// after文字列を用いて一致する部分をfalseに
 		if (!afterSequence.isEmpty()) {
 			int fromIndex = 0;
 			while (true) {

@@ -17,7 +17,8 @@ public class MPCSVPrinter {
 
 			final long startTime = System.nanoTime();
 
-			final String CVSFILE = Config.getMPCSVFILE();
+			Config.initialize(args);
+			final String CVSFILE = Config.getInstance().getCSV_FILE();
 
 			System.out.println("outputing to " + CVSFILE + " ... ");
 

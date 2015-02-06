@@ -4,13 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.clone.Clone;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
@@ -166,35 +163,6 @@ public class ReadOnlyDAO extends DAO {
 		}
 
 		return revisions;
-	}
-
-	public Map<Integer, List<Clone>> getClones() throws Exception {
-
-		final Statement cloneStatement = this.connector.createStatement();
-		final ResultSet result = cloneStatement
-				.executeQuery("select id, filepath, start, end, revision, setID, changed from clone");
-
-		final Map<Integer, List<Clone>> clones = new HashMap<Integer, List<Clone>>();
-		while (result.next()) {
-			final int id = result.getInt(1);
-			final String path = result.getString(2);
-			final int startLine = result.getInt(3);
-			final int endLine = result.getInt(4);
-			final long revision = result.getLong(5);
-			final int setID = result.getInt(6);
-			final int changed = result.getInt(7);
-
-			final Clone clone = new Clone(path, revision, startLine, endLine,
-					changed);
-			List<Clone> cloneset = clones.get(setID);
-			if (null == cloneset) {
-				cloneset = new ArrayList<Clone>();
-				clones.put(setID, cloneset);
-			}
-			cloneset.add(clone);
-		}
-
-		return clones;
 	}
 
 	@Override

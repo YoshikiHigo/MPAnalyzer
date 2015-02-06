@@ -117,27 +117,29 @@ public class RList extends JPanel {
 
 		try {
 
-			final String PATH_TO_REPOSITORY = Config.getPATH_TO_REPOSITORY();
-			final String LANGUAGE = Config.getLanguage();
+			final String repository = Config.getInstance()
+					.getREPOSITORY_FOR_TEST();
+			final String LANGUAGE = Config.getInstance().getLANGUAGE();
 
-			final SVNURL url = SVNURL.fromFile(new File(PATH_TO_REPOSITORY));
+			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
-			final SVNRepository repository = FSRepositoryFactory.create(url);
+			final SVNRepository svnRepository = FSRepositoryFactory.create(url);
 
-			long startRevision = Config.getStartRevision();
-			long endRevision = Config.getEndRevision();
+			long startRevision = Config.getInstance()
+					.getSTART_REVISION_FOR_TEST();
+			long endRevision = Config.getInstance().getEND_REVISION_FOR_TEST();
 
 			if (startRevision < 0) {
 				startRevision = 0l;
 			}
 
 			if (endRevision < 0) {
-				endRevision = repository.getLatestRevision();
+				endRevision = svnRepository.getLatestRevision();
 			}
 
 			final SortedSet<Revision> revisions = new TreeSet<Revision>();
 
-			repository.log(null, startRevision, endRevision, true, true,
+			svnRepository.log(null, startRevision, endRevision, true, true,
 					new ISVNLogEntryHandler() {
 						public void handleLogEntry(SVNLogEntry logEntry)
 								throws SVNException {

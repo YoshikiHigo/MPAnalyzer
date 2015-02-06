@@ -14,7 +14,8 @@ public class MExtractor {
 
 		try {
 
-			final int THREADS = Config.getThreadsValue();
+			Config.initialize(args);
+			final int THREADS = Config.getInstance().getTHREAD();
 
 			final long startTime = System.nanoTime();
 

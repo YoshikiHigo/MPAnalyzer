@@ -64,10 +64,6 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 public class OverlookedWindow extends JFrame implements Observer {
 
-	static final private String PATH_TO_REPOSITORY = Config
-			.getPATH_TO_REPOSITORY();
-	static final private String LANGUAGE = Config.getLanguage();
-
 	private ProgressDialog progressDialog;
 
 	public OverlookedWindow() {
@@ -236,7 +232,10 @@ public class OverlookedWindow extends JFrame implements Observer {
 	private Map<String, List<Statement>> getFiles(final long revision) {
 
 		try {
-			final SVNURL url = SVNURL.fromFile(new File(PATH_TO_REPOSITORY));
+			final String language = Config.getInstance().getLANGUAGE();
+			final String repository = Config.getInstance()
+					.getREPOSITORY_FOR_TEST();
+			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
 			final SVNLogClient logClient = SVNClientManager.newInstance()
 					.getLogClient();
@@ -272,7 +271,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 							if (entry.getKind() == SVNNodeKind.FILE) {
 								final String path = entry.getRelativePath();
 
-								if (LANGUAGE.equalsIgnoreCase("JAVA")
+								if (language.equalsIgnoreCase("JAVA")
 										&& StringUtility.isJavaFile(path)) {
 
 									paths.add(path);
@@ -283,7 +282,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 									OverlookedWindow.this.progressDialog
 											.repaint();
 
-								} else if (LANGUAGE.equalsIgnoreCase("C")
+								} else if (language.equalsIgnoreCase("C")
 										&& StringUtility.isCFile(path)) {
 
 									paths.add(path);
@@ -315,9 +314,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 						+ path);
 				this.progressDialog.repaint();
 
-				final SVNURL fileurl = SVNURL.fromFile(new File(
-						PATH_TO_REPOSITORY
-								+ System.getProperty("file.separator") + path));
+				final SVNURL fileurl = SVNURL.fromFile(new File(repository
+						+ System.getProperty("file.separator") + path));
 
 				final StringBuilder text = new StringBuilder();
 				wcClient.doGetFileContents(fileurl,
@@ -331,7 +329,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 						});
 
 				final List<Statement> statements = StringUtility
-						.splitToStatements(text.toString(), LANGUAGE);
+						.splitToStatements(text.toString(), language);
 				files.put(path, statements);
 			}
 

@@ -21,17 +21,19 @@ public class TargetRevisionExtractor {
 
 			final long startTime = System.nanoTime();
 
-			final String PATH_TO_DATABASEREPOSITORY = Config
-					.getPATH_TO_DATABASEREPOSITORY();
-			final String LANGUAGE = Config.getLanguage();
+			Config.initialize(args);
+			final String REPOSITORY_FOR_MINING = Config.getInstance()
+					.getREPOSITORY_FOR_MINING();
+			final String LANGUAGE = Config.getInstance().getLANGUAGE();
 
-			final SVNURL url = SVNURL.fromFile(new File(
-					PATH_TO_DATABASEREPOSITORY));
+			final SVNURL url = SVNURL.fromFile(new File(REPOSITORY_FOR_MINING));
 			FSRepositoryFactory.setup();
 			final SVNRepository repository = FSRepositoryFactory.create(url);
 
-			long startRevision = Config.getDatabaseStartRevision();
-			long endRevision = Config.getDatabaseEndRevision();
+			long startRevision = Config.getInstance()
+					.getSTART_REVISION_FOR_MINING();
+			long endRevision = Config.getInstance()
+					.getEND_REVISION_FOR_MINING();
 
 			if (startRevision < 0) {
 				startRevision = 0l;

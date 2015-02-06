@@ -83,10 +83,6 @@ public class DTree extends JTree implements Observer {
 		}
 	}
 
-	static final private String PATH_TO_REPOSITORY = Config
-			.getPATH_TO_REPOSITORY();
-	static final private String LANGUAGE = Config.getLanguage();
-
 	public final JScrollPane scrollPane;
 
 	private final FileNode rootNode;
@@ -196,7 +192,9 @@ public class DTree extends JTree implements Observer {
 		final List<FileData> data = new ArrayList<FileData>();
 
 		try {
-			final SVNURL url = SVNURL.fromFile(new File(PATH_TO_REPOSITORY));
+			final String repository = Config.getInstance()
+					.getREPOSITORY_FOR_TEST();
+			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
 			final SVNLogClient logClient = SVNClientManager.newInstance()
 					.getLogClient();
@@ -258,9 +256,8 @@ public class DTree extends JTree implements Observer {
 						+ path);
 				this.progressDialog.repaint();
 
-				final SVNURL fileurl = SVNURL.fromFile(new File(
-						PATH_TO_REPOSITORY
-								+ System.getProperty("file.separator") + path));
+				final SVNURL fileurl = SVNURL.fromFile(new File(repository
+						+ System.getProperty("file.separator") + path));
 
 				final StringBuilder text = new StringBuilder();
 				wcClient.doGetFileContents(fileurl,
@@ -273,8 +270,9 @@ public class DTree extends JTree implements Observer {
 							}
 						});
 
+				final String language = Config.getInstance().getLANGUAGE();
 				final List<Statement> statements = StringUtility
-						.splitToStatements(text.toString(), LANGUAGE);
+						.splitToStatements(text.toString(), language);
 				final int count = this.getCount(statements,
 						codeFragment.statements);
 

@@ -37,8 +37,6 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 public class MCode extends JTextArea implements Observer {
 
-	private static final String LANGUAGE = Config.getLanguage();
-
 	static public final int TAB_SIZE = 4;
 
 	public final JScrollPane scrollPane;
@@ -124,10 +122,11 @@ public class MCode extends JTextArea implements Observer {
 						this.modification = observedModifications.get().first();
 						final long revision = this.modification.revision.number;
 						final String filepath = this.modification.filepath;
-						final String PATH_TO_DATABASEREPOSITORY = Config
-								.getPATH_TO_DATABASEREPOSITORY();
+						final String REPOSITORY_FOR_MINING = Config
+								.getInstance()
+								.getREPOSITORY_FOR_MINING();
 						final SVNURL url = SVNURL.fromFile(new File(
-								PATH_TO_DATABASEREPOSITORY + "/" + filepath));
+								REPOSITORY_FOR_MINING + "/" + filepath));
 						FSRepositoryFactory.setup();
 						final SVNWCClient wcClient = SVNClientManager
 								.newInstance().getWCClient();

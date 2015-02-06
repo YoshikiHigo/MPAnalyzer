@@ -26,10 +26,10 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 public class ModificationExtractionThread extends Thread {
 
 	static final private String PATH_TO_DATABASEREPOSITORY = Config
-			.getPATH_TO_DATABASEREPOSITORY();
-	// static final private String TARGET = Config.getTARGET();
-	static final private String LANGUAGE = Config.getLanguage();
-	static final private boolean ONLYCONDITION = Config.isOnlyCondition();
+			.getInstance().getREPOSITORY_FOR_MINING();
+	static final private String LANGUAGE = Config.getInstance().getLANGUAGE();
+	static final private boolean ONLY_CONDITION = Config.getInstance()
+			.isONLY_CONDITION();
 
 	final public int id;
 	final public Revision[] revisions;
@@ -81,7 +81,7 @@ public class ModificationExtractionThread extends Thread {
 
 				final List<String> modifiedFileList = new ArrayList<String>();
 
-				// 変更されたソースファイルのリストを得る
+				// 螟画峩縺輔ｌ縺溘た繝ｼ繧ｹ繝輔ぃ繧､繝ｫ縺ｮ繝ｪ繧ｹ繝医ｒ蠕励ｋ
 				diffClient.doDiffStatus(url,
 						SVNRevision.create(beforeRevision.number), url,
 						SVNRevision.create(afterRevision.number),
@@ -117,7 +117,7 @@ public class ModificationExtractionThread extends Thread {
 									+ System.getProperty("file.separator")
 									+ path));
 
-					// 変更前ファイルの中身を取得
+					// 螟画峩蜑阪ヵ繧｡繧､繝ｫ縺ｮ荳ｭ霄ｫ繧貞叙蠕�
 					final StringBuilder beforeText = new StringBuilder();
 					wcClient.doGetFileContents(fileurl,
 							SVNRevision.create(beforeRevision.number),
@@ -129,7 +129,7 @@ public class ModificationExtractionThread extends Thread {
 								}
 							});
 
-					// 変更後ファイルの中身を取得
+					// 螟画峩蠕後ヵ繧｡繧､繝ｫ縺ｮ荳ｭ霄ｫ繧貞叙蠕�
 					final StringBuilder afterText = new StringBuilder();
 					wcClient.doGetFileContents(fileurl,
 							SVNRevision.create(afterRevision.number),
@@ -150,7 +150,7 @@ public class ModificationExtractionThread extends Thread {
 							.getModifications(beforeStatements,
 									afterStatements, path, afterRevision);
 
-					if (ONLYCONDITION) {
+					if (ONLY_CONDITION) {
 						for (final Modification m : modifications) {
 							if (m.isCondition()) {
 								this.queue.add(m);

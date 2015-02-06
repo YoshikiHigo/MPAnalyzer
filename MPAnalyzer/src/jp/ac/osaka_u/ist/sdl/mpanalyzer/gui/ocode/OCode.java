@@ -42,10 +42,6 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 public class OCode extends JTextArea implements Observer {
 
-	static final private String PATH_TO_REPOSITORY = Config
-			.getPATH_TO_REPOSITORY();
-	static final private String LANGUAGE = Config.getLanguage();
-
 	static public final int TAB_SIZE = 4;
 
 	public final JScrollPane scrollPane;
@@ -132,8 +128,10 @@ public class OCode extends JTextArea implements Observer {
 
 						final String path = observedFiles.get().first();
 
+						final String repository = Config.getInstance()
+								.getREPOSITORY_FOR_TEST();
 						final SVNURL fileurl = SVNURL.fromFile(new File(
-								PATH_TO_REPOSITORY
+								repository
 										+ System.getProperty("file.separator")
 										+ path));
 						final SVNWCClient wcClient = SVNClientManager
@@ -150,8 +148,10 @@ public class OCode extends JTextArea implements Observer {
 									}
 								});
 
+						final String language = Config.getInstance()
+								.getLANGUAGE();
 						OCode.this.statements = StringUtility
-								.splitToStatements(text.toString(), LANGUAGE);
+								.splitToStatements(text.toString(), language);
 						final SortedSet<Integer> highlightedLines = new TreeSet<Integer>();
 						for (int line = this.codefragment.getStartLine(); line <= this.codefragment
 								.getEndLine(); line++) {
@@ -163,7 +163,7 @@ public class OCode extends JTextArea implements Observer {
 						this.setUI(new OCodeUI(highlightedLines, this, margin));
 						this.setText(text.toString());
 						this.setTitle(path);
-						
+
 						this.display();
 
 					} catch (final Exception e) {

@@ -1,6 +1,5 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.db;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -23,18 +22,13 @@ public abstract class DAO {
 			final boolean createPatternTable, final boolean createProblemTable,
 			final boolean createCloneTable) throws Exception {
 
-		final String databaseLocation = Config.getDATABASELOCATION();
-		final String databaseName = Config.getDATABASENAME();
+		final String database = Config.getInstance().getDATABASE();
 
 		Class.forName("org.sqlite.JDBC");
 
 		final StringBuilder url = new StringBuilder();
 		url.append("jdbc:sqlite:");
-		url.append(databaseLocation);
-		if (url.charAt(url.length() - 1) != File.separatorChar) {
-			url.append(File.separator);
-		}
-		url.append(databaseName);
+		url.append(database);
 		this.connector = DriverManager.getConnection(url.toString());
 
 		final Statement statement = this.connector.createStatement();
@@ -61,8 +55,8 @@ public abstract class DAO {
 					+ CODEFRAGMENT_SCHEMA + ")");
 			statement
 					.executeUpdate("create index cfIDIndex on codefragment (id)");
-//			statement
-//					.executeUpdate("create index textIndex on codefragment (text)");
+			// statement
+			// .executeUpdate("create index textIndex on codefragment (text)");
 			statement
 					.executeUpdate("create index hashIndex on codefragment (hash)");
 		}
