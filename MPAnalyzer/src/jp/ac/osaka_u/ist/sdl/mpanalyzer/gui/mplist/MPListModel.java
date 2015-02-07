@@ -5,21 +5,21 @@ import java.util.Collection;
 import javax.swing.JComboBox;
 import javax.swing.table.AbstractTableModel;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 
 public class MPListModel extends AbstractTableModel {
 
 	static public final String[] TITLES = new String[] { "ID", "SUPPORT",
-			"CONFIDENCE", "NOD", "NOR", "NOF", "LBM", "LAM", "MTYPE", "CTYPE", "START", "END",
-			"CATEGORY" };
+			"CONFIDENCE", "NOD", "NOR", "NOF", "LBM", "LAM", "MTYPE", "CTYPE",
+			"START", "END", "CATEGORY" };
 
-	final public ModificationPattern[] patterns;
+	final public ChangePattern[] patterns;
 	final public JComboBox[] comboBoxes;
 
-	public MPListModel(final Collection<ModificationPattern> patterns,
+	public MPListModel(final Collection<ChangePattern> patterns,
 			final JComboBox[] comboBoxes) {
-		this.patterns = patterns.toArray(new ModificationPattern[] {});
+		this.patterns = patterns.toArray(new ChangePattern[] {});
 		this.comboBoxes = comboBoxes;
 	}
 
@@ -54,9 +54,9 @@ public class MPListModel extends AbstractTableModel {
 		case 7:
 			return this.patterns[row].getLAM();
 		case 8:
-			return this.patterns[row].modificationType.toString();
-		case 9:
 			return this.patterns[row].changeType.toString();
+		case 9:
+			return this.patterns[row].diffType.toString();
 		case 10:
 			return this.patterns[row].getRevisions().first();
 		case 11:

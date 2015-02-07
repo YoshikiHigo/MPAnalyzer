@@ -10,7 +10,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.CODE;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
@@ -66,7 +66,7 @@ public class MPCode extends JTextArea implements Observer {
 				this.setText("");
 
 				if (patterns.isSet()) {
-					final ModificationPattern pattern = patterns.get().first();
+					final ChangePattern pattern = patterns.get().first();
 					final String text = this.code == CODE.BEFORE ? pattern
 							.getModifications().get(0).before.text : pattern
 							.getModifications().get(0).after.text;
@@ -83,7 +83,7 @@ public class MPCode extends JTextArea implements Observer {
 				this.setText("");
 
 				if (patterns.isSet()) {
-					final ModificationPattern pattern = patterns.get().first();
+					final ChangePattern pattern = patterns.get().first();
 					final String text = pattern.getModifications().get(0).after.text;
 					if (!text.isEmpty()) {
 						this.setText(text);

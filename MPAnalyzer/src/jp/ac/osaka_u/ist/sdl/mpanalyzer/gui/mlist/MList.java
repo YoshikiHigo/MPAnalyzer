@@ -17,8 +17,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications;
@@ -38,7 +38,7 @@ public class MList extends JTable implements Observer {
 			final int firstIndex = e.getFirstIndex();
 			final int lastIndex = e.getLastIndex();
 
-			final SortedSet<Modification> modifications = new TreeSet<Modification>();
+			final SortedSet<Change> modifications = new TreeSet<Change>();
 			for (int index = firstIndex; index <= lastIndex; index++) {
 
 				if (!MList.this.selectionModel.isSelectedIndex(index)) {
@@ -47,7 +47,7 @@ public class MList extends JTable implements Observer {
 
 				final int modelIndex = MList.this.convertRowIndexToModel(index);
 				final MListModel model = (MListModel) MList.this.getModel();
-				final Modification modification = model.modifications[modelIndex];
+				final Change modification = model.modifications[modelIndex];
 				modifications.add(modification);
 
 			}
@@ -117,10 +117,10 @@ public class MList extends JTable implements Observer {
 
 	private void setModel() {
 
-		final SortedSet<ModificationPattern> patterns = ObservedModificationPatterns
+		final SortedSet<ChangePattern> patterns = ObservedModificationPatterns
 				.getInstance(MPLABEL.SELECTED).get();
 		assert !patterns.isEmpty() : "Condition is unsatisfied.";
-		final ModificationPattern pattern = patterns.first();
+		final ChangePattern pattern = patterns.first();
 
 		final MListModel model = new MListModel(pattern.getModifications());
 		this.setModel(model);

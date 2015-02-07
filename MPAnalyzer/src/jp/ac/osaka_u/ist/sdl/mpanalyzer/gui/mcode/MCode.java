@@ -24,7 +24,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.CODE;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications.MLABEL;
@@ -42,7 +42,7 @@ public class MCode extends JTextArea implements Observer {
 	public final JScrollPane scrollPane;
 	public final CODE code;
 
-	private Modification modification;
+	private Change modification;
 
 	public MCode(final CODE code) {
 

@@ -14,8 +14,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 
@@ -100,11 +100,11 @@ public class CLPanel extends JTextArea implements Observer {
 			if (observedModificationPatterns.label.equals(MPLABEL.SELECTED)) {
 				this.setText("");
 				if (observedModificationPatterns.isSet()) {
-					final ModificationPattern pattern = observedModificationPatterns
+					final ChangePattern pattern = observedModificationPatterns
 							.get().first();
 					this.messages = new TreeMap<Long, String>();
 					this.dates = new TreeMap<Long, String>();
-					for (final Modification m : pattern.getModifications()) {
+					for (final Change m : pattern.getModifications()) {
 						final long revision = m.revision.number;
 						final String date = m.revision.date;
 						final String message = m.revision.message;
@@ -132,11 +132,11 @@ public class CLPanel extends JTextArea implements Observer {
 					.equals(MPLABEL.OVERLOOKED)) {
 				this.setText("");
 				if (observedModificationPatterns.isSet()) {
-					final ModificationPattern pattern = observedModificationPatterns
+					final ChangePattern pattern = observedModificationPatterns
 							.get().first();
 					this.messages = new TreeMap<Long, String>();
 					this.dates = new TreeMap<Long, String>();
-					for (final Modification m : pattern.getModifications()) {
+					for (final Change m : pattern.getModifications()) {
 						final long revision = m.revision.number;
 						final String date = m.revision.date;
 						final String message = m.revision.message;

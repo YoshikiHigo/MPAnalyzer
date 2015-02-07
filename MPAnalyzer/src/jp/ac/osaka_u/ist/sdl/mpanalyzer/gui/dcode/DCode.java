@@ -26,7 +26,7 @@ import javax.swing.text.Element;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
@@ -47,7 +47,7 @@ public class DCode extends JTextArea implements Observer {
 	public final JScrollPane scrollPane;
 
 	private Long revision;
-	private CodeFragment codefragment;
+	private Code codefragment;
 	private List<Statement> statements;
 
 	public DCode() {

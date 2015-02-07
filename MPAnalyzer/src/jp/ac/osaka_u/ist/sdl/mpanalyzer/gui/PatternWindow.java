@@ -13,7 +13,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModifications.MLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mcode.MCode;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.mlist.MList;
@@ -72,7 +72,7 @@ public class PatternWindow extends JFrame implements Observer {
 			final ObservedModifications modifications = (ObservedModifications) o;
 			if (modifications.label.equals(MLABEL.SELECTED)) {
 				if (modifications.isSet()) {
-					final Modification m = modifications.get().first();
+					final Change m = modifications.get().first();
 					this.logDisplay.setText(m.revision.message);
 				} else {
 					this.logDisplay.setText("");

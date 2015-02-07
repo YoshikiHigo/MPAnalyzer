@@ -9,7 +9,7 @@ import java.util.Observer;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
 
 public class ObservedModifications extends Observable {
 
@@ -19,7 +19,7 @@ public class ObservedModifications extends Observable {
 
 	private static final Map<MLABEL, ObservedModifications> INSTANCES = new HashMap<MLABEL, ObservedModifications>();
 
-	private final SortedSet<Modification> modifications;
+	private final SortedSet<Change> modifications;
 	public final MLABEL label;
 	private Observer source;
 
@@ -29,7 +29,7 @@ public class ObservedModifications extends Observable {
 			throw new NullPointerException();
 		}
 
-		this.modifications = new TreeSet<Modification>();
+		this.modifications = new TreeSet<Change>();
 		this.source = null;
 		this.label = label;
 	}
@@ -43,7 +43,7 @@ public class ObservedModifications extends Observable {
 		return instance;
 	}
 
-	public boolean add(final Modification modification, final Observer source) {
+	public boolean add(final Change modification, final Observer source) {
 
 		if (null == modification) {
 			return false;
@@ -58,7 +58,7 @@ public class ObservedModifications extends Observable {
 		return true;
 	}
 
-	public boolean addAll(final Collection<Modification> modifications,
+	public boolean addAll(final Collection<Change> modifications,
 			final Observer source) {
 
 		if (null == modifications) {
@@ -74,7 +74,7 @@ public class ObservedModifications extends Observable {
 		return true;
 	}
 
-	public boolean remove(final Modification modification, final Observer source) {
+	public boolean remove(final Change modification, final Observer source) {
 
 		if (null == modification) {
 			return false;
@@ -89,7 +89,7 @@ public class ObservedModifications extends Observable {
 		return true;
 	}
 
-	public boolean removeAll(final Collection<Modification> modifications,
+	public boolean removeAll(final Collection<Change> modifications,
 			final Observer source) {
 
 		if (null == modifications) {
@@ -105,7 +105,7 @@ public class ObservedModifications extends Observable {
 		return true;
 	}
 
-	public boolean set(final Modification modification, final Observer source) {
+	public boolean set(final Change modification, final Observer source) {
 
 		if (null == modification) {
 			return false;
@@ -121,7 +121,7 @@ public class ObservedModifications extends Observable {
 		return true;
 	}
 
-	public boolean setAll(final Collection<Modification> modifications,
+	public boolean setAll(final Collection<Change> modifications,
 			final Observer source) {
 
 		if (null == modifications) {
@@ -151,7 +151,7 @@ public class ObservedModifications extends Observable {
 		this.notifyObservers(source);
 	}
 
-	public SortedSet<Modification> get() {
+	public SortedSet<Change> get() {
 		return Collections.unmodifiableSortedSet(this.modifications);
 	}
 

@@ -6,7 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 
 class MPListRenderer extends DefaultTableCellRenderer {
 
@@ -21,7 +21,7 @@ class MPListRenderer extends DefaultTableCellRenderer {
 		final int modelRow = table.convertRowIndexToModel(row);
 		final int modelColumn = table.convertColumnIndexToModel(column);
 		final MPListModel model = (MPListModel) table.getModel();
-		final ModificationPattern pattern = model.patterns[modelRow];
+		final ChangePattern pattern = model.patterns[modelRow];
 		switch (modelColumn) {
 		case 0:
 			renderer.setHorizontalAlignment(JLabel.RIGHT);
@@ -57,11 +57,11 @@ class MPListRenderer extends DefaultTableCellRenderer {
 			break;
 		case 8:
 			renderer.setHorizontalAlignment(JLabel.CENTER);
-			renderer.setText(pattern.modificationType.toString());
+			renderer.setText(pattern.changeType.toString());
 			break;
 		case 9:
 			renderer.setHorizontalAlignment(JLabel.CENTER);
-			renderer.setText(pattern.changeType.toString());
+			renderer.setText(pattern.diffType.toString());
 			break;
 		case 10:
 			renderer.setHorizontalAlignment(JLabel.CENTER);

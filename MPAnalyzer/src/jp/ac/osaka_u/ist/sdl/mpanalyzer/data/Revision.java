@@ -2,11 +2,14 @@ package jp.ac.osaka_u.ist.sdl.mpanalyzer.data;
 
 public class Revision implements Comparable<Revision> {
 
+	public final String software;
 	public final long number;
 	public final String date;
 	public final String message;
 
-	public Revision(final long number, final String date, final String message) {
+	public Revision(final String software, final long number,
+			final String date, final String message) {
+		this.software = software;
 		this.number = number;
 		this.date = date;
 		this.message = message;
@@ -14,7 +17,9 @@ public class Revision implements Comparable<Revision> {
 
 	@Override
 	public int compareTo(final Revision revision) {
-		return new Long(this.number).compareTo(revision.number);
+		final int softwareOrder = this.software.compareTo(revision.software);
+		return (0 != softwareOrder) ? softwareOrder : new Long(this.number)
+				.compareTo(revision.number);
 	}
 
 	@Override

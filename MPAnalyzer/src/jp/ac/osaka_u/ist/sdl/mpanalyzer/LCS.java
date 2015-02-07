@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ModificationType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change.ChangeType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change.DiffType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.lexer.token.Token;
@@ -18,17 +18,17 @@ public class LCS {
 
 	final private static int MAX = 3500;
 
-	public static List<Modification> getModifications(
-			final List<Statement> array1, final List<Statement> array2,
+	public static List<Change> getChanges(final List<Statement> array1,
+			final List<Statement> array2, final String software,
 			final String filepath, final Revision revision) {
 
 		if (array1.isEmpty() || array2.isEmpty()) {
-			return new ArrayList<Modification>();
+			return new ArrayList<Change>();
 		}
 
 		if (MAX < array1.size() || MAX < array2.size()) {
 			System.out.println("large file!");
-			return new ArrayList<Modification>();
+			return new ArrayList<Change>();
 		}
 
 		final Cell[][] table = new Cell[array1.size()][array2.size()];
@@ -68,7 +68,7 @@ public class LCS {
 			}
 		}
 
-		final List<Modification> modifications = new ArrayList<Modification>();
+		final List<Change> changes = new ArrayList<Change>();
 		Cell current = table[array1.size() - 1][array2.size() - 1];
 		final SortedSet<Integer> xdiff = new TreeSet<Integer>();
 		final SortedSet<Integer> ydiff = new TreeSet<Integer>();
@@ -85,20 +85,20 @@ public class LCS {
 							ydiff.first(), ydiff.last() + 1);
 					final List<Token> xTokens = getTokens(xStatements);
 					final List<Token> yTokens = getTokens(yStatements);
-					final ChangeType changeType = getType(xTokens, yTokens);
+					final DiffType diffType = getType(xTokens, yTokens);
 
-					final CodeFragment beforeCodeFragment = new CodeFragment(
+					final Code beforeCodeFragment = new Code(software,
 							xStatements);
-					final CodeFragment afterCodeFragment = new CodeFragment(
+					final Code afterCodeFragment = new Code(software,
 							yStatements);
-					final ModificationType modificationType = beforeCodeFragment.text
-							.isEmpty() ? ModificationType.ADD
-							: afterCodeFragment.text.isEmpty() ? ModificationType.DELETE
-									: ModificationType.CHANGE;
-					final Modification modification = new Modification(
-							filepath, beforeCodeFragment, afterCodeFragment,
-							revision, modificationType, changeType);
-					modifications.add(modification);
+					final ChangeType changeType = beforeCodeFragment.text
+							.isEmpty() ? ChangeType.ADD
+							: afterCodeFragment.text.isEmpty() ? ChangeType.DELETE
+									: ChangeType.REPLACE;
+					final Change change = new Change(software, filepath,
+							beforeCodeFragment, afterCodeFragment, revision,
+							changeType, diffType);
+					changes.add(change);
 					xdiff.clear();
 					ydiff.clear();
 				}
@@ -122,7 +122,7 @@ public class LCS {
 			}
 		}
 
-		return modifications;
+		return changes;
 	}
 
 	public static List<Token> getTokens(final List<Statement> statements) {
@@ -133,12 +133,12 @@ public class LCS {
 		return tokens;
 	}
 
-	public static ChangeType getType(final List<Token> tokens1,
+	public static DiffType getType(final List<Token> tokens1,
 			final List<Token> tokens2) {
 
 		if (tokens1.isEmpty() || tokens2.isEmpty()
 				|| tokens1.size() != tokens2.size()) {
-			return ChangeType.TYPE3;
+			return DiffType.TYPE3;
 		}
 
 		final Cell[][] table = new Cell[tokens1.size()][tokens2.size()];
@@ -187,7 +187,7 @@ public class LCS {
 				if (null != cell.base) {
 					Cell previous = cell.base;
 					if (previous.x == cell.x || previous.y == cell.y) {
-						return ChangeType.TYPE3;
+						return DiffType.TYPE3;
 					}
 					cell = previous;
 				} else {
@@ -239,7 +239,7 @@ public class LCS {
 				if (null != cell.base) {
 					Cell previous = cell.base;
 					if (previous.x == cell.x || previous.y == cell.y) {
-						return ChangeType.TYPE2;
+						return DiffType.TYPE2;
 					}
 					cell = previous;
 				} else {
@@ -248,7 +248,7 @@ public class LCS {
 			}
 		}
 
-		return ChangeType.TYPE1;
+		return DiffType.TYPE1;
 	}
 }
 

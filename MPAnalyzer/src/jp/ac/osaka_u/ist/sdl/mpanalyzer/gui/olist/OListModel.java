@@ -5,8 +5,8 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 
 public class OListModel extends AbstractTableModel {
 
@@ -34,14 +34,14 @@ public class OListModel extends AbstractTableModel {
 
 		switch (col) {
 		case 0:
-			final ModificationPattern pattern = (ModificationPattern) this.oCodefragments
+			final ChangePattern pattern = (ChangePattern) this.oCodefragments
 					.get(row)[0];
 			return pattern.id;
 		case 1:
 			final String path = (String) this.oCodefragments.get(row)[1];
 			return path;
 		case 2:
-			final CodeFragment cf = (CodeFragment) this.oCodefragments.get(row)[2];
+			final Code cf = (Code) this.oCodefragments.get(row)[2];
 			return cf.position;
 		default:
 			assert false : "Here sholdn't be reached!";

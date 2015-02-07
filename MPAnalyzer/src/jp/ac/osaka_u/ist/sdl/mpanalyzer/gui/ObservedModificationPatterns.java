@@ -9,7 +9,7 @@ import java.util.Observer;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 
 public class ObservedModificationPatterns extends Observable {
 
@@ -19,7 +19,7 @@ public class ObservedModificationPatterns extends Observable {
 
 	private static final Map<MPLABEL, ObservedModificationPatterns> INSTANCES = new HashMap<MPLABEL, ObservedModificationPatterns>();
 
-	private final SortedSet<ModificationPattern> patterns;
+	private final SortedSet<ChangePattern> patterns;
 	public final MPLABEL label;
 	private Observer source;
 
@@ -29,7 +29,7 @@ public class ObservedModificationPatterns extends Observable {
 			throw new NullPointerException();
 		}
 
-		this.patterns = new TreeSet<ModificationPattern>();
+		this.patterns = new TreeSet<ChangePattern>();
 		this.source = null;
 		this.label = label;
 	}
@@ -44,7 +44,7 @@ public class ObservedModificationPatterns extends Observable {
 		return instance;
 	}
 
-	public boolean add(final ModificationPattern pattern, final Observer source) {
+	public boolean add(final ChangePattern pattern, final Observer source) {
 
 		if (null == pattern) {
 			return false;
@@ -59,7 +59,7 @@ public class ObservedModificationPatterns extends Observable {
 		return true;
 	}
 
-	public boolean addAll(final Collection<ModificationPattern> patterns,
+	public boolean addAll(final Collection<ChangePattern> patterns,
 			final Observer source) {
 
 		if (null == patterns) {
@@ -75,7 +75,7 @@ public class ObservedModificationPatterns extends Observable {
 		return true;
 	}
 
-	public boolean remove(final ModificationPattern pattern,
+	public boolean remove(final ChangePattern pattern,
 			final Observer source) {
 
 		if (null == pattern) {
@@ -91,7 +91,7 @@ public class ObservedModificationPatterns extends Observable {
 		return true;
 	}
 
-	public boolean removeAll(final Collection<ModificationPattern> patterns,
+	public boolean removeAll(final Collection<ChangePattern> patterns,
 			final Observer source) {
 
 		if (null == patterns) {
@@ -107,7 +107,7 @@ public class ObservedModificationPatterns extends Observable {
 		return true;
 	}
 
-	public boolean set(final ModificationPattern pattern, final Observer source) {
+	public boolean set(final ChangePattern pattern, final Observer source) {
 
 		if (null == pattern) {
 			return false;
@@ -123,7 +123,7 @@ public class ObservedModificationPatterns extends Observable {
 		return true;
 	}
 
-	public boolean setAll(final Collection<ModificationPattern> patterns,
+	public boolean setAll(final Collection<ChangePattern> patterns,
 			final Observer source) {
 
 		if (null == patterns) {
@@ -153,7 +153,7 @@ public class ObservedModificationPatterns extends Observable {
 		this.notifyObservers(source);
 	}
 
-	public SortedSet<ModificationPattern> get() {
+	public SortedSet<ChangePattern> get() {
 		return Collections.unmodifiableSortedSet(this.patterns);
 	}
 

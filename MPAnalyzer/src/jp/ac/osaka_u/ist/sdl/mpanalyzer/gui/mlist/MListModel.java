@@ -4,17 +4,17 @@ import java.util.Collection;
 
 import javax.swing.table.AbstractTableModel;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
 
 public class MListModel extends AbstractTableModel {
 
 	static public final String[] TITLES = new String[] { "Revision", "Date",
 			"Path", "POSITION BEFORE", "POSITION AFTER" };
 
-	final public Modification[] modifications;
+	final public Change[] modifications;
 
-	public MListModel(final Collection<Modification> modifications) {
-		this.modifications = modifications.toArray(new Modification[] {});
+	public MListModel(final Collection<Change> modifications) {
+		this.modifications = modifications.toArray(new Change[] {});
 	}
 
 	@Override

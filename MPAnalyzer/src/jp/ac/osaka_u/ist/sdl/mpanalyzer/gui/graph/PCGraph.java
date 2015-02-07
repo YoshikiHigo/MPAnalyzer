@@ -18,7 +18,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
@@ -180,10 +180,10 @@ public class PCGraph extends JPanel implements Observer {
 			ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).clear(
 					PCGraph.this);
 
-			final Set<ModificationPattern> inPatterns = new HashSet<ModificationPattern>();
-			final Set<ModificationPattern> outPatterns = new HashSet<ModificationPattern>();
+			final Set<ChangePattern> inPatterns = new HashSet<ChangePattern>();
+			final Set<ChangePattern> outPatterns = new HashSet<ChangePattern>();
 
-			for (final ModificationPattern pattern : ObservedModificationPatterns
+			for (final ChangePattern pattern : ObservedModificationPatterns
 					.getInstance(MPLABEL.ALL).get()) {
 
 				if (pattern.support > PCGraph.this.maxSUPPORT * this.yRate[0]) {
@@ -398,9 +398,9 @@ public class PCGraph extends JPanel implements Observer {
 		this.maxNOF = 1;
 		this.maxLBM = 1;
 		this.maxLAM = 1;
-		this.minRevision = new Revision(Long.MAX_VALUE, "", "");
-		this.maxRevision = new Revision(Long.MIN_VALUE, "", "");
-		for (final ModificationPattern pattern : ObservedModificationPatterns
+		this.minRevision = new Revision("", Long.MAX_VALUE, "", "");
+		this.maxRevision = new Revision("", Long.MIN_VALUE, "", "");
+		for (final ChangePattern pattern : ObservedModificationPatterns
 				.getInstance(MPLABEL.ALL).get()) {
 			if (this.maxSUPPORT < pattern.support) {
 				this.maxSUPPORT = pattern.support;
@@ -478,20 +478,20 @@ public class PCGraph extends JPanel implements Observer {
 	private void drawModificationPatterns(final Graphics g) {
 
 		g.setColor(METRICS_UN_SELECTED_DATA_COLOR);
-		for (final ModificationPattern pattern : ObservedModificationPatterns
+		for (final ChangePattern pattern : ObservedModificationPatterns
 				.getInstance(MPLABEL.ALL).get()) {
 			this.drawModificationPattern(g, pattern);
 		}
 
 		g.setColor(METRICS_SELECTED_DATA_COLOR);
-		for (final ModificationPattern pattern : ObservedModificationPatterns
+		for (final ChangePattern pattern : ObservedModificationPatterns
 				.getInstance(MPLABEL.FILTERED).get()) {
 			this.drawModificationPattern(g, pattern);
 		}
 	}
 
 	private void drawModificationPattern(final Graphics g,
-			final ModificationPattern pattern) {
+			final ChangePattern pattern) {
 
 		final int[] y = new int[AXIS_TITLE.length];
 		y[0] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()

@@ -29,6 +29,15 @@ public class Config {
 		}
 
 		{
+			final Option option = new Option("soft", "software", true,
+					"software name");
+			option.setArgName("software");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
 			final Option option = new Option("repo", "repository", true,
 					"repository for mining");
 			option.setArgName("repository");
@@ -160,7 +169,7 @@ public class Config {
 	static public Config getInstance() {
 
 		if (null == SINGLETON) {
-			System.err.println("SINGLETON is not initialized.");
+			System.err.println("Config is not initialized.");
 			System.exit(0);
 		}
 
@@ -179,6 +188,14 @@ public class Config {
 			System.exit(0);
 		}
 		return this.commandLine.getOptionValue("lang");
+	}
+
+	public String getSOFTWARE() {
+		if (!this.commandLine.hasOption("soft")) {
+			System.err.println("option \"soft\" is not specified.");
+			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("soft");
 	}
 
 	public String getREPOSITORY_FOR_MINING() {

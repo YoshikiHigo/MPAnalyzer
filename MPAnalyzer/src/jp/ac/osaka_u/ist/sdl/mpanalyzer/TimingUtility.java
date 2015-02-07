@@ -23,10 +23,9 @@ public class TimingUtility {
 			text.append(minutes);
 			text.append(" minutes ");
 		}
-		if (0 < seconds) {
-			text.append(seconds);
-			text.append(" seconds ");
-		}
+		text.append(seconds);
+		text.append(" seconds ");
+
 		return text.toString();
 	}
 }

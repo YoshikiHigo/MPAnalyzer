@@ -1,21 +1,25 @@
 package jp.ac.osaka_u.ist.sdl.mpanalyzer.db;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ModificationType;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change.ChangeType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change.DiffType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 
-public class ReadOnlyDAO extends DAO {
+public class ReadOnlyDAO {
 
 	static private ReadOnlyDAO SINGLETON = null;
 
@@ -28,120 +32,130 @@ public class ReadOnlyDAO extends DAO {
 
 	static public void deleteInstance() throws Exception {
 		if (null != SINGLETON) {
-			SINGLETON.modificationStatement.close();
-			SINGLETON.patternStatement.close();
+			SINGLETON.clone();
 			SINGLETON = null;
 		}
 	}
 
-	final private PreparedStatement modificationStatement;
-	final private PreparedStatement patternStatement;
+	private Connection connector;
 
-	private ReadOnlyDAO() throws Exception {
+	private ReadOnlyDAO() {
 
-		super(false, false, false, false, false, false);
-
-		final StringBuilder patternSQL = new StringBuilder();
-		patternSQL
-				.append("select id, beforeHash, afterHash, type, support, confidence");
-		patternSQL
-				.append(" from pattern where ? <= support and ? <= confidence");
-		this.patternStatement = this.connector.prepareStatement(patternSQL
-				.toString());
-
-		final StringBuilder modificationSQL = new StringBuilder();
-		modificationSQL
-				.append("select T.id, T.filepath, T.beforeHash, T.beforeText, ");
-		modificationSQL
-				.append("T.beforeStart, T.beforeEnd, T.afterHash, T.afterText, ");
-		modificationSQL
-				.append("T.afterStart, T.afterEnd, T.revision, T.type, T.date, T.message from ");
-		modificationSQL
-				.append("(select M.id id, M.filepath filepath, M.beforeHash beforeHash, ");
-		modificationSQL
-				.append("(select C2.text from codefragment C2 where C2.id = M.beforeID) beforeText, ");
-		modificationSQL
-				.append("(select C3.start from codefragment C3 where C3.id = M.beforeID) beforeStart, ");
-		modificationSQL
-				.append("(select C4.end from codefragment C4 where C4.id = M.beforeID) beforeEnd, ");
-		modificationSQL.append("M.afterHash afterHash, ");
-		modificationSQL
-				.append("(select C6.text from codefragment C6 where C6.id = M.afterID) afterText, ");
-		modificationSQL
-				.append("(select C7.start from codefragment C7 where C7.id = M.afterID) afterStart, ");
-		modificationSQL
-				.append("(select C8.end from codefragment C8 where C8.id = M.afterID) afterEnd, ");
-		modificationSQL.append("M.revision revision, M.type type, ");
-		modificationSQL
-				.append("(select R1.date from revision R1 where R1.number = M.revision) date, ");
-		modificationSQL
-				.append("(select R2.message from revision R2 where R2.number = M.revision) message ");
-		modificationSQL
-				.append("from modification M) T where T.beforeHash=? and T.afterHash=?");
-		this.modificationStatement = this.connector
-				.prepareStatement(modificationSQL.toString());
+		try {
+			Class.forName("org.sqlite.JDBC");
+			final String database = Config.getInstance().getDATABASE();
+			this.connector = DriverManager.getConnection("jdbc:sqlite:"
+					+ database);
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
 	}
 
-	public List<Modification> getModifications(final int beforeHash,
-			final int afterHash) throws Exception {
+	public List<Change> getChanges(final int beforeHash, final int afterHash) {
 
-		this.modificationStatement.setInt(1, beforeHash);
-		this.modificationStatement.setInt(2, afterHash);
-		final ResultSet result = this.modificationStatement.executeQuery();
+		final List<Change> changes = new ArrayList<Change>();
 
-		final List<Modification> modifications = new ArrayList<Modification>();
-		while (result.next()) {
-			final int id = result.getInt(1);
-			final String filepath = result.getString(2);
-			final int beforeID = result.getInt(3);
-			final String beforeText = result.getString(4);
-			final int beforeStart = result.getInt(5);
-			final int beforeEnd = result.getInt(6);
-			final int afterID = result.getInt(7);
-			final String afterText = result.getString(8);
-			final int afterStart = result.getInt(9);
-			final int afterEnd = result.getInt(10);
-			final long number = result.getLong(11);
-			final ModificationType modificationType = beforeText.isEmpty() ? ModificationType.ADD
-					: afterText.isEmpty() ? ModificationType.DELETE
-							: ModificationType.CHANGE;
-			final ChangeType changeType = ChangeType.getType(result.getInt(12));
-			final String date = result.getString(13);
-			final String message = result.getString(14);
-			final Modification modification = new Modification(id, filepath,
-					new CodeFragment(beforeID, beforeText, beforeStart,
-							beforeEnd), new CodeFragment(afterID, afterText,
-							afterStart, afterEnd), new Revision(number, date,
-							message), modificationType, changeType);
-			modifications.add(modification);
+		try {
+			final StringBuilder text = new StringBuilder();
+			text.append("select T.software, T.id, T.filepath, T.beforeHash, T.beforeText, ");
+			text.append("T.beforeStart, T.beforeEnd, T.afterHash, T.afterText, ");
+			text.append("T.afterStart, T.afterEnd, T.revision, T.type, T.date, T.message from ");
+			text.append("(select M.software software, M.id id, M.filepath filepath, M.beforeHash beforeHash, ");
+			text.append("(select C2.text from codes C2 where C2.id = M.beforeID) beforeText, ");
+			text.append("(select C3.start from codes C3 where C3.id = M.beforeID) beforeStart, ");
+			text.append("(select C4.end from codes C4 where C4.id = M.beforeID) beforeEnd, ");
+			text.append("M.afterHash afterHash, ");
+			text.append("(select C6.text from codes C6 where C6.id = M.afterID) afterText, ");
+			text.append("(select C7.start from codes C7 where C7.id = M.afterID) afterStart, ");
+			text.append("(select C8.end from codes C8 where C8.id = M.afterID) afterEnd, ");
+			text.append("M.revision revision, ");
+			text.append("M.type type, ");
+			text.append("(select R1.date from revisions R1 where R1.number = M.revision) date, ");
+			text.append("(select R2.message from revisions R2 where R2.number = M.revision) message ");
+			text.append("from changes M) T where T.beforeHash=? and T.afterHash=?");
+			final PreparedStatement statement = this.connector
+					.prepareStatement(text.toString());
+
+			statement.setInt(1, beforeHash);
+			statement.setInt(2, afterHash);
+			final ResultSet result = statement.executeQuery();
+
+			while (result.next()) {
+				final String software = result.getString(1);
+				final int id = result.getInt(2);
+				final String filepath = result.getString(3);
+				final int beforeID = result.getInt(4);
+				final String beforeText = result.getString(5);
+				final int beforeStart = result.getInt(6);
+				final int beforeEnd = result.getInt(7);
+				final int afterID = result.getInt(8);
+				final String afterText = result.getString(9);
+				final int afterStart = result.getInt(10);
+				final int afterEnd = result.getInt(11);
+				final long number = result.getLong(12);
+				final ChangeType changeType = beforeText.isEmpty() ? ChangeType.ADD
+						: afterText.isEmpty() ? ChangeType.DELETE
+								: ChangeType.REPLACE;
+				final DiffType diffType = DiffType.getType(result.getInt(13));
+				final String date = result.getString(14);
+				final String message = result.getString(15);
+				final Change modification = new Change(software, id, filepath,
+						new Code(software, beforeID, beforeText, beforeStart,
+								beforeEnd), new Code(software, afterID,
+								afterText, afterStart, afterEnd), new Revision(
+								software, number, date, message), changeType,
+						diffType);
+				changes.add(modification);
+			}
+			statement.close();
 		}
 
-		return modifications;
+		catch (SQLException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+
+		return changes;
 	}
 
-	public List<ModificationPattern> getModificationPatterns(
-			final int supportThreshold, final float confidenceThreshold)
-			throws Exception {
+	public List<ChangePattern> getChangePatterns(final int supportThreshold,
+			final float confidenceThreshold) {
 
-		this.patternStatement.setInt(1, supportThreshold);
-		this.patternStatement.setFloat(2, confidenceThreshold);
-		final ResultSet result = this.patternStatement.executeQuery();
+		final List<ChangePattern> patterns = new ArrayList<ChangePattern>();
 
-		final List<ModificationPattern> patterns = new ArrayList<ModificationPattern>();
-		while (result.next()) {
-			final int id = result.getInt(1);
-			final int beforeHash = result.getInt(2);
-			final int afterHash = result.getInt(3);
-			final ModificationType modificationType = (0 == beforeHash) ? ModificationType.ADD
-					: (0 == afterHash) ? ModificationType.DELETE
-							: ModificationType.CHANGE;
-			final ChangeType changeType = ChangeType.getType(result.getInt(4));
-			final int support = result.getInt(5);
-			final float confidence = result.getFloat(6);
-			final ModificationPattern pattern = new ModificationPattern(id,
-					support, confidence, beforeHash, afterHash,
-					modificationType, changeType);
-			patterns.add(pattern);
+		try {
+			final StringBuilder text = new StringBuilder();
+			text.append("select id, beforeHash, afterHash, type, support, confidence");
+			text.append(" from patterns where ? <= support and ? <= confidence");
+			final PreparedStatement statement = this.connector
+					.prepareStatement(text.toString());
+
+			statement.setInt(1, supportThreshold);
+			statement.setFloat(2, confidenceThreshold);
+			final ResultSet result = statement.executeQuery();
+
+			while (result.next()) {
+				final int id = result.getInt(1);
+				final int beforeHash = result.getInt(2);
+				final int afterHash = result.getInt(3);
+				final ChangeType changeType = (0 == beforeHash) ? ChangeType.ADD
+						: (0 == afterHash) ? ChangeType.DELETE
+								: ChangeType.REPLACE;
+				final DiffType diffType = DiffType.getType(result.getInt(4));
+				final int support = result.getInt(5);
+				final float confidence = result.getFloat(6);
+				final ChangePattern pattern = new ChangePattern(id, support,
+						confidence, beforeHash, afterHash, changeType, diffType);
+				patterns.add(pattern);
+			}
+
+			statement.close();
+		}
+
+		catch (SQLException e) {
+			e.printStackTrace();
+			System.exit(0);
 		}
 
 		return patterns;
@@ -151,23 +165,28 @@ public class ReadOnlyDAO extends DAO {
 
 		final Statement revisionStatement = this.connector.createStatement();
 		final ResultSet result = revisionStatement
-				.executeQuery("select number, date, message from revision");
+				.executeQuery("select software, number, date, message from revision");
 
 		final SortedSet<Revision> revisions = new TreeSet<Revision>();
 		while (result.next()) {
-			final long number = result.getLong(1);
-			final String date = result.getString(2);
-			final String message = result.getString(3);
-			final Revision revision = new Revision(number, date, message);
+			final String software = result.getString(1);
+			final long number = result.getLong(2);
+			final String date = result.getString(3);
+			final String message = result.getString(4);
+			final Revision revision = new Revision(software, number, date,
+					message);
 			revisions.add(revision);
 		}
 
 		return revisions;
 	}
 
-	@Override
-	public void close() throws Exception {
-		super.close();
-		SINGLETON = null;
+	public void close() {
+		try {
+			this.connector.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
 	}
 }

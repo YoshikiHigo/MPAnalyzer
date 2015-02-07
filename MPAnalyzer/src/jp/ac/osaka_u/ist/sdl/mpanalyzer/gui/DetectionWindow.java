@@ -18,8 +18,8 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
@@ -62,7 +62,7 @@ public class DetectionWindow extends JFrame implements Observer {
 		final MCode afterCode = new MCode(CODE.AFTER);
 		mCodePane.add(beforeCode.scrollPane);
 		mCodePane.add(afterCode.scrollPane);
-		final ModificationPattern pattern = ObservedModificationPatterns
+		final ChangePattern pattern = ObservedModificationPatterns
 				.getInstance(MPLABEL.SELECTED).get().first();
 		beforeCode.setText(pattern.getModifications().get(0).before.text);
 		afterCode.setText(pattern.getModifications().get(0).after.text);
@@ -111,7 +111,7 @@ public class DetectionWindow extends JFrame implements Observer {
 				searchButton.setEnabled(false);
 
 				final long revision = rList.getSelectedRevision();
-				final CodeFragment codefragment = beforeButton.isSelected() ? pattern
+				final Code codefragment = beforeButton.isSelected() ? pattern
 						.getModifications().get(0).before : pattern
 						.getModifications().get(0).after;
 

@@ -30,7 +30,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.DetectionWindow;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
@@ -51,7 +51,7 @@ public class MPList extends JTable implements Observer {
 			final int firstIndex = e.getFirstIndex();
 			final int lastIndex = e.getLastIndex();
 
-			final SortedSet<ModificationPattern> patterns = new TreeSet<ModificationPattern>();
+			final SortedSet<ChangePattern> patterns = new TreeSet<ChangePattern>();
 			for (int index = firstIndex; index <= lastIndex; index++) {
 
 				if (!MPList.this.selectionModel.isSelectedIndex(index)) {
@@ -61,7 +61,7 @@ public class MPList extends JTable implements Observer {
 				final int modelIndex = MPList.this
 						.convertRowIndexToModel(index);
 				final MPListModel model = (MPListModel) MPList.this.getModel();
-				final ModificationPattern pattern = model.patterns[modelIndex];
+				final ChangePattern pattern = model.patterns[modelIndex];
 				patterns.add(pattern);
 			}
 
@@ -149,11 +149,11 @@ public class MPList extends JTable implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					final MPListModel model = (MPListModel) MPList.this
 							.getModel();
-					final SortedSet<ModificationPattern> mps = new TreeSet<ModificationPattern>();
+					final SortedSet<ChangePattern> mps = new TreeSet<ChangePattern>();
 					for (final int index : MPList.this.getSelectedRows()) {
 						final int modelIndex = MPList.this
 								.convertRowIndexToModel(index);
-						final ModificationPattern mp = model.patterns[modelIndex];
+						final ChangePattern mp = model.patterns[modelIndex];
 						mps.add(mp);
 					}
 					ObservedModificationPatterns.getInstance(MPLABEL.FILTERED)
@@ -273,7 +273,7 @@ public class MPList extends JTable implements Observer {
 	}
 
 	private void setModel() {
-		final SortedSet<ModificationPattern> patterns = ObservedModificationPatterns
+		final SortedSet<ChangePattern> patterns = ObservedModificationPatterns
 				.getInstance(MPLABEL.FILTERED).get();
 
 		final JComboBox[] comboBoxes = new JComboBox[patterns.size()];

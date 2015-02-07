@@ -6,7 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
 
 class MListRenderer extends DefaultTableCellRenderer {
 
@@ -21,7 +21,7 @@ class MListRenderer extends DefaultTableCellRenderer {
 		final int modelRow = table.convertRowIndexToModel(row);
 		final int modelColumn = table.convertColumnIndexToModel(column);
 		final MListModel model = (MListModel) table.getModel();
-		final Modification modification = model.modifications[modelRow];
+		final Change modification = model.modifications[modelRow];
 		switch (modelColumn) {
 		case 0: {
 			renderer.setHorizontalAlignment(JLabel.CENTER);

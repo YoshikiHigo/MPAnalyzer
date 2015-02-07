@@ -26,7 +26,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
@@ -125,7 +125,7 @@ public class DTree extends JTree implements Observer {
 		this.progressDialog = progressDialog;
 	}
 
-	public void update(final long revision, final CodeFragment codeFragment) {
+	public void update(final long revision, final Code codeFragment) {
 		final List<FileData> data = this.getFileData(revision, codeFragment);
 		final FileNode rootNode = this.makeTreeNode(data);
 		DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
@@ -187,7 +187,7 @@ public class DTree extends JTree implements Observer {
 	}
 
 	private List<FileData> getFileData(final long revision,
-			final CodeFragment codeFragment) {
+			final Code codeFragment) {
 
 		final List<FileData> data = new ArrayList<FileData>();
 

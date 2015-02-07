@@ -4,8 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.List;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Revision;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.ReadOnlyDAO;
 
@@ -28,9 +28,9 @@ public class MPCSVPrinter {
 			writer.write("ID, SUPPORT, CONFIDENCE, EREVISION, SREVISION, EDATE, SDATE, NOD, NOR, NOF, LBM, LAM");
 			writer.newLine();
 
-			final List<ModificationPattern> patterns = ReadOnlyDAO
-					.getInstance().getModificationPatterns(0, 0);
-			for (final ModificationPattern pattern : patterns) {
+			final List<ChangePattern> patterns = ReadOnlyDAO
+					.getInstance().getChangePatterns(0, 0);
+			for (final ChangePattern pattern : patterns) {
 
 				writer.write(Integer.toString(pattern.id));
 				writer.write(", ");
@@ -39,11 +39,11 @@ public class MPCSVPrinter {
 				writer.write(Float.toString(pattern.confidence));
 				writer.write(", ");
 
-				final List<Modification> modifications = pattern
+				final List<Change> modifications = pattern
 						.getModifications();
 				Revision sRevision = modifications.get(0).revision;
 				Revision eRevision = modifications.get(0).revision;
-				for (final Modification modification : modifications) {
+				for (final Change modification : modifications) {
 					if (sRevision.number > modification.revision.number) {
 						sRevision = modification.revision;
 					}

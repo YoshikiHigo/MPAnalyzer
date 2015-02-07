@@ -28,8 +28,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles;
@@ -59,9 +59,9 @@ public class OList extends JTable implements Observer {
 			final int firstIndex = e.getFirstIndex();
 			final int lastIndex = e.getLastIndex();
 
-			final SortedSet<CodeFragment> codefragments = new TreeSet<CodeFragment>();
+			final SortedSet<Code> codefragments = new TreeSet<Code>();
 			final SortedSet<String> paths = new TreeSet<String>();
-			final SortedSet<ModificationPattern> mps = new TreeSet<ModificationPattern>();
+			final SortedSet<ChangePattern> mps = new TreeSet<ChangePattern>();
 
 			for (int index = firstIndex; index <= lastIndex; index++) {
 
@@ -73,13 +73,13 @@ public class OList extends JTable implements Observer {
 				final OListModel model = (OListModel) OList.this.getModel();
 				final Object[] element = model.oCodefragments.get(modelIndex);
 
-				final ModificationPattern mp = (ModificationPattern) element[0];
+				final ChangePattern mp = (ChangePattern) element[0];
 				mps.add(mp);
 
 				final String path = (String) element[1];
 				paths.add(path);
 
-				final CodeFragment codefragment = (CodeFragment) element[2];
+				final Code codefragment = (Code) element[2];
 				codefragments.add(codefragment);
 			}
 
@@ -120,11 +120,11 @@ public class OList extends JTable implements Observer {
 				public void actionPerformed(ActionEvent e) {
 
 					final OListModel model = (OListModel) OList.this.getModel();
-					final SortedSet<ModificationPattern> mps = new TreeSet<ModificationPattern>();
+					final SortedSet<ChangePattern> mps = new TreeSet<ChangePattern>();
 					for (final int index : OList.this.getSelectedRows()) {
 						final int modelIndex = OList.this
 								.convertRowIndexToModel(index);
-						final ModificationPattern mp = (ModificationPattern) model.oCodefragments
+						final ChangePattern mp = (ChangePattern) model.oCodefragments
 								.get(modelIndex)[0];
 						mps.add(mp);
 					}
@@ -147,7 +147,7 @@ public class OList extends JTable implements Observer {
 		super();
 
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		this.setModel(new TreeMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>>());
+		this.setModel(new TreeMap<ChangePattern, SortedMap<String, SortedSet<Code>>>());
 
 		this.scrollPane = new JScrollPane();
 		this.scrollPane.setViewportView(this);
@@ -190,7 +190,7 @@ public class OList extends JTable implements Observer {
 	}
 
 	public void setModel(
-			final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments) {
+			final SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> oCodefragments) {
 
 		final List<Object[]> list = this.convertToList(oCodefragments);
 		final OListModel model = new OListModel(list);
@@ -212,20 +212,20 @@ public class OList extends JTable implements Observer {
 	}
 
 	private List<Object[]> convertToList(
-			final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments) {
+			final SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> oCodefragments) {
 
 		final List<Object[]> list = new ArrayList<Object[]>();
-		for (final Entry<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> mEntry : oCodefragments
+		for (final Entry<ChangePattern, SortedMap<String, SortedSet<Code>>> mEntry : oCodefragments
 				.entrySet()) {
-			final ModificationPattern pattern = mEntry.getKey();
-			final SortedMap<String, SortedSet<CodeFragment>> mCodefragments = mEntry
+			final ChangePattern pattern = mEntry.getKey();
+			final SortedMap<String, SortedSet<Code>> mCodefragments = mEntry
 					.getValue();
-			for (final Entry<String, SortedSet<CodeFragment>> pEntry : mCodefragments
+			for (final Entry<String, SortedSet<Code>> pEntry : mCodefragments
 					.entrySet()) {
 				final String path = pEntry.getKey();
-				final SortedSet<CodeFragment> pCodefragments = pEntry
+				final SortedSet<Code> pCodefragments = pEntry
 						.getValue();
-				for (final CodeFragment c : pCodefragments) {
+				for (final Code c : pCodefragments) {
 					final Object[] element = new Object[3];
 					element[0] = pattern;
 					element[1] = path;

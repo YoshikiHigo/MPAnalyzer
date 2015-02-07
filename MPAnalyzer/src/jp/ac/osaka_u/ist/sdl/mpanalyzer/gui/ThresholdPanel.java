@@ -19,9 +19,9 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ChangeType;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Modification.ModificationType;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change.ChangeType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Change.DiffType;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.db.ReadOnlyDAO;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 
@@ -353,12 +353,12 @@ public class ThresholdPanel extends JPanel implements Observer {
 				}
 
 				try {
-					final List<ModificationPattern> patterns = ReadOnlyDAO
-							.getInstance().getModificationPatterns(supportMin,
+					final List<ChangePattern> patterns = ReadOnlyDAO
+							.getInstance().getChangePatterns(supportMin,
 									confidenceMin);
-					for (final Iterator<ModificationPattern> iterator = patterns
+					for (final Iterator<ChangePattern> iterator = patterns
 							.iterator(); iterator.hasNext();) {
-						final ModificationPattern pattern = iterator.next();
+						final ChangePattern pattern = iterator.next();
 						if ((pattern.getNOD() < nodMin)
 								|| (pattern.getNOR() < norMin)
 								|| (pattern.getNOF() < nofMin)
@@ -378,35 +378,35 @@ public class ThresholdPanel extends JPanel implements Observer {
 						}
 
 						if (!type2checked
-								&& pattern.changeType.getValue() == ChangeType.TYPE2
+								&& pattern.diffType.getValue() == DiffType.TYPE2
 										.getValue()) {
 							iterator.remove();
 							continue;
 						}
 
 						if (!type3checked
-								&& pattern.changeType.getValue() == ChangeType.TYPE3
+								&& pattern.diffType.getValue() == DiffType.TYPE3
 										.getValue()) {
 							iterator.remove();
 							continue;
 						}
 
 						if (!changeChecked
-								&& pattern.modificationType.getValue() == ModificationType.CHANGE
+								&& pattern.changeType.getValue() == ChangeType.REPLACE
 										.getValue()) {
 							iterator.remove();
 							continue;
 						}
 
 						if (!addChecked
-								&& pattern.modificationType.getValue() == ModificationType.ADD
+								&& pattern.changeType.getValue() == ChangeType.ADD
 										.getValue()) {
 							iterator.remove();
 							continue;
 						}
 
 						if (!deleteChecked
-								&& pattern.modificationType.getValue() == ModificationType.DELETE
+								&& pattern.changeType.getValue() == ChangeType.DELETE
 										.getValue()) {
 							iterator.remove();
 							continue;

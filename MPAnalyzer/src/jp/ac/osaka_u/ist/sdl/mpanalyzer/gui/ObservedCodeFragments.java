@@ -9,7 +9,7 @@ import java.util.Observer;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
 
 public class ObservedCodeFragments extends Observable {
 
@@ -19,7 +19,7 @@ public class ObservedCodeFragments extends Observable {
 
 	private static final Map<CFLABEL, ObservedCodeFragments> INSTANCES = new HashMap<CFLABEL, ObservedCodeFragments>();
 
-	private final SortedSet<CodeFragment> codefragments;
+	private final SortedSet<Code> codefragments;
 	public final CFLABEL label;
 	private Observer source;
 
@@ -29,7 +29,7 @@ public class ObservedCodeFragments extends Observable {
 			throw new NullPointerException();
 		}
 
-		this.codefragments = new TreeSet<CodeFragment>();
+		this.codefragments = new TreeSet<Code>();
 		this.source = null;
 		this.label = label;
 	}
@@ -43,7 +43,7 @@ public class ObservedCodeFragments extends Observable {
 		return instance;
 	}
 
-	public boolean add(final CodeFragment codefragment, final Observer source) {
+	public boolean add(final Code codefragment, final Observer source) {
 
 		if (null == codefragment) {
 			return false;
@@ -58,7 +58,7 @@ public class ObservedCodeFragments extends Observable {
 		return true;
 	}
 
-	public boolean addAll(final Collection<CodeFragment> codefragments,
+	public boolean addAll(final Collection<Code> codefragments,
 			final Observer source) {
 
 		if (null == codefragments) {
@@ -74,7 +74,7 @@ public class ObservedCodeFragments extends Observable {
 		return true;
 	}
 
-	public boolean remove(final CodeFragment codefragment, final Observer source) {
+	public boolean remove(final Code codefragment, final Observer source) {
 
 		if (null == codefragment) {
 			return false;
@@ -89,7 +89,7 @@ public class ObservedCodeFragments extends Observable {
 		return true;
 	}
 
-	public boolean removeAll(final Collection<CodeFragment> codefragments,
+	public boolean removeAll(final Collection<Code> codefragments,
 			final Observer source) {
 
 		if (null == codefragments) {
@@ -105,7 +105,7 @@ public class ObservedCodeFragments extends Observable {
 		return true;
 	}
 
-	public boolean set(final CodeFragment codefragment, final Observer source) {
+	public boolean set(final Code codefragment, final Observer source) {
 
 		if (null == codefragment) {
 			return false;
@@ -121,7 +121,7 @@ public class ObservedCodeFragments extends Observable {
 		return true;
 	}
 
-	public boolean setAll(final Collection<CodeFragment> codefragments,
+	public boolean setAll(final Collection<Code> codefragments,
 			final Observer source) {
 
 		if (null == codefragments) {
@@ -151,7 +151,7 @@ public class ObservedCodeFragments extends Observable {
 		this.notifyObservers(source);
 	}
 
-	public SortedSet<CodeFragment> get() {
+	public SortedSet<Code> get() {
 		return Collections.unmodifiableSortedSet(this.codefragments);
 	}
 

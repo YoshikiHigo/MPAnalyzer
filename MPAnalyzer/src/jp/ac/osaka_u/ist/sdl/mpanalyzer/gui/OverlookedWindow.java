@@ -36,8 +36,8 @@ import javax.swing.border.LineBorder;
 
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.Config;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.StringUtility;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.CodeFragment;
-import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ModificationPattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.ChangePattern;
+import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Code;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.data.Statement;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import jp.ac.osaka_u.ist.sdl.mpanalyzer.gui.ObservedFiles.FLABEL;
@@ -183,7 +183,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 					@Override
 					protected Object doInBackground() throws Exception {
 						final long revision = rList.getSelectedRevision();
-						final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = OverlookedWindow.this
+						final SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> oCodefragments = OverlookedWindow.this
 								.detectOverlookedCode(revision, value);
 						oList.setModel(oCodefragments);
 						oList.repaint();
@@ -206,20 +206,19 @@ public class OverlookedWindow extends JFrame implements Observer {
 		});
 	}
 
-	private SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> detectOverlookedCode(
+	private SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> detectOverlookedCode(
 			final long revision, final int place) {
 		final Map<String, List<Statement>> files = this.getFiles(revision);
-		final SortedSet<ModificationPattern> MPs = ObservedModificationPatterns
+		final SortedSet<ChangePattern> MPs = ObservedModificationPatterns
 				.getInstance(MPLABEL.FILTERED).get();
-		final SortedMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>> oCodefragments = new TreeMap<ModificationPattern, SortedMap<String, SortedSet<CodeFragment>>>();
-		for (final ModificationPattern mp : MPs) {
+		final SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> oCodefragments = new TreeMap<ChangePattern, SortedMap<String, SortedSet<Code>>>();
+		for (final ChangePattern mp : MPs) {
 			final List<Statement> pattern = mp.getModifications().get(0).before.statements;
-			final SortedMap<String, SortedSet<CodeFragment>> oCodefragmentForAMP = this
+			final SortedMap<String, SortedSet<Code>> oCodefragmentForAMP = this
 					.getOverlookedCode(files, pattern);
 
-			final List<CodeFragment> cfForChecking = new ArrayList<CodeFragment>();
-			for (final SortedSet<CodeFragment> cfs : oCodefragmentForAMP
-					.values()) {
+			final List<Code> cfForChecking = new ArrayList<Code>();
+			for (final SortedSet<Code> cfs : oCodefragmentForAMP.values()) {
 				cfForChecking.addAll(cfs);
 			}
 			if ((0 < cfForChecking.size()) && (cfForChecking.size() <= place)) {
@@ -342,17 +341,17 @@ public class OverlookedWindow extends JFrame implements Observer {
 		return new HashMap<String, List<Statement>>();
 	}
 
-	private SortedMap<String, SortedSet<CodeFragment>> getOverlookedCode(
+	private SortedMap<String, SortedSet<Code>> getOverlookedCode(
 			final Map<String, List<Statement>> files,
 			final List<Statement> pattern) {
 
-		final SortedMap<String, SortedSet<CodeFragment>> oCodefragments = new TreeMap<String, SortedSet<CodeFragment>>();
+		final SortedMap<String, SortedSet<Code>> oCodefragments = new TreeMap<String, SortedSet<Code>>();
 
 		for (final Entry<String, List<Statement>> entry : files.entrySet()) {
 			final String path = entry.getKey();
 			final List<Statement> statements = entry.getValue();
 
-			final SortedSet<CodeFragment> oCodefragmentsInAFile = this
+			final SortedSet<Code> oCodefragmentsInAFile = this
 					.getOverookedCode(statements, pattern);
 			if (0 < oCodefragmentsInAFile.size()) {
 				oCodefragments.put(path, oCodefragmentsInAFile);
@@ -362,11 +361,11 @@ public class OverlookedWindow extends JFrame implements Observer {
 		return oCodefragments;
 	}
 
-	private SortedSet<CodeFragment> getOverookedCode(
-			final List<Statement> statements, final List<Statement> pattern) {
+	private SortedSet<Code> getOverookedCode(final List<Statement> statements,
+			final List<Statement> pattern) {
 
 		int pIndex = 0;
-		final SortedSet<CodeFragment> oCodefragments = new TreeSet<CodeFragment>();
+		final SortedSet<Code> oCodefragments = new TreeSet<Code>();
 		List<Statement> correspondence = new ArrayList<Statement>();
 		for (int index = 0; index < statements.size(); index++) {
 
@@ -374,8 +373,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 				pIndex++;
 				correspondence.add(statements.get(index));
 				if (pIndex == pattern.size()) {
-					final CodeFragment codefragment = new CodeFragment(
-							correspondence);
+					final Code codefragment = new Code("", correspondence);
 					oCodefragments.add(codefragment);
 					correspondence = new ArrayList<Statement>();
 					pIndex = 0;

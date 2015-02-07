@@ -119,7 +119,7 @@ public class RList extends JPanel {
 
 			final String repository = Config.getInstance()
 					.getREPOSITORY_FOR_TEST();
-			final String LANGUAGE = Config.getInstance().getLANGUAGE();
+			final String language = Config.getInstance().getLANGUAGE();
 
 			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
@@ -150,13 +150,13 @@ public class RList extends JPanel {
 								final String date = StringUtility
 										.getDateString(logEntry.getDate());
 								final String message = logEntry.getMessage();
-								final Revision revision = new Revision(number,
-										date, message);
-								if (LANGUAGE.equalsIgnoreCase("JAVA")
+								final Revision revision = new Revision("",
+										number, date, message);
+								if (language.equalsIgnoreCase("JAVA")
 										&& StringUtility.isJavaFile(path)) {
 									revisions.add(revision);
 									break;
-								} else if (LANGUAGE.equalsIgnoreCase("C")
+								} else if (language.equalsIgnoreCase("C")
 										&& StringUtility.isCFile(path)) {
 									revisions.add(revision);
 									break;
