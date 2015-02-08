@@ -25,9 +25,7 @@ public class ChangeWritingThread extends Thread {
 	public void run() {
 
 		try {
-
 			final ChangeDAO dao = new ChangeDAO();
-
 			dao.addRevisions(this.revisions);
 
 			final List<Change> changes = new ArrayList<Change>();
@@ -43,9 +41,14 @@ public class ChangeWritingThread extends Thread {
 			dao.addChanges(changes);
 			dao.flush();
 
-			dao.close();
+			System.out.print("making indices ... ");
+			dao.makeIndices();
+			System.out.println("done.");
 
-		} catch (final Exception e) {
+			dao.close();
+		}
+
+		catch (final Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}

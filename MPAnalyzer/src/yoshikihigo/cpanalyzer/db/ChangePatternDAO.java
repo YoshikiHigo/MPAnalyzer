@@ -85,6 +85,17 @@ public class ChangePatternDAO {
 			}
 			System.out.println(" done.");
 
+			{
+				final Statement statement = this.connector.createStatement();
+				statement
+						.executeUpdate("create index index_beforeHash_patterns on patterns(beforeHash)");
+				statement
+						.executeUpdate("create index index_afterHash_patterns on patterns(afterHash)");
+				statement
+						.executeUpdate("create index index_beforeHash_afterHash_patterns on patterns(beforeHash, afterHash)");
+				statement.close();
+			}
+
 			System.out.print("calculating metrics ...");
 			final List<int[]> hashpairs = new ArrayList<>();
 			{
@@ -99,7 +110,7 @@ public class ChangePatternDAO {
 				}
 				statement.close();
 			}
-			
+
 			{
 				final StringBuilder text = new StringBuilder();
 				text.append("update patterns set nos = (select count(distinct software) ");
@@ -107,7 +118,7 @@ public class ChangePatternDAO {
 				text.append("where beforeHash = ? and afterHash = ?");
 				final PreparedStatement statement = this.connector
 						.prepareStatement(text.toString());
-				
+
 				int number = 1;
 				for (final int[] hashpair : hashpairs) {
 					if (0 == number % 1000) {
