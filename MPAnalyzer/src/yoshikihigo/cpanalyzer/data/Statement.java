@@ -1,8 +1,12 @@
 package yoshikihigo.cpanalyzer.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.lexer.token.IDENTIFIER;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class Statement {
@@ -42,8 +46,25 @@ public class Statement {
 
 	public String toString() {
 		final StringBuilder text = new StringBuilder();
+		final Map<String, String> identifiers = new HashMap<>();
 		for (final Token token : this.tokens) {
-			text.append(token.value);
+
+			// normalize identifiers if "-normalize" is specified.
+			if (Config.getInstance().isNORMALIZATION()
+					&& (token instanceof IDENTIFIER)
+					&& Character.isLowerCase(token.value.charAt(0))) {
+				String normalizedValue = identifiers.get(token.value);
+				if (null == normalizedValue) {
+					normalizedValue = "$" + identifiers.size();
+					identifiers.put(token.value, normalizedValue);
+				}
+				text.append(normalizedValue);
+			}
+
+			else {
+				text.append(token.value);
+			}
+
 			text.append(" ");
 		}
 		text.deleteCharAt(text.length() - 1);

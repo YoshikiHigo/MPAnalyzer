@@ -139,8 +139,22 @@ public class Config {
 		}
 
 		{
+			final Option option = new Option("normalize", "normalization",
+					false, "normalizing text for mining");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
 			final Option option = new Option("onlycond", "onlycondition",
 					false, "extracting only condition");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("v", "verbose", false,
+					"verbose output for progressing");
 			option.setRequired(false);
 			options.addOption(option);
 		}
@@ -273,8 +287,16 @@ public class Config {
 		return !this.commandLine.hasOption("inginc");
 	}
 
+	public boolean isNORMALIZATION() {
+		return this.commandLine.hasOption("normalize");
+	}
+
 	public boolean isONLY_CONDITION() {
 		return this.commandLine.hasOption("onlycond");
+	}
+
+	public boolean isVERBOSE() {
+		return this.commandLine.hasOption("v");
 	}
 
 	public String getCSV_FILE() {

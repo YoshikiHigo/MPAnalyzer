@@ -2,6 +2,8 @@ package yoshikihigo.cpanalyzer.data;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import yoshikihigo.cpanalyzer.lexer.token.IMPORT;
+
 public class Change implements Comparable<Change> {
 
 	public static enum ChangeType {
@@ -162,6 +164,20 @@ public class Change implements Comparable<Change> {
 			final String text = s.toString();
 			if (text.startsWith("if ") || text.startsWith("while ")
 					|| text.startsWith("for ")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isImport() {
+		for (final Statement s : this.before.statements) {
+			if (s.tokens.get(0) instanceof IMPORT) {
+				return true;
+			}
+		}
+		for (final Statement s : this.after.statements) {
+			if (s.tokens.get(0) instanceof IMPORT) {
 				return true;
 			}
 		}

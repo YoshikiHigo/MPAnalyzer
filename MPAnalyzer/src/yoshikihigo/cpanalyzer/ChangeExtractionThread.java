@@ -49,6 +49,8 @@ public class ChangeExtractionThread extends Thread {
 			final String software = Config.getInstance().getSOFTWARE();
 			final boolean onlyCondition = Config.getInstance()
 					.isONLY_CONDITION();
+			final boolean ignoreImport = Config.getInstance().isIGNORE_IMPORT();
+			final boolean isVerbose = Config.getInstance().isVERBOSE();
 
 			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
@@ -72,7 +74,7 @@ public class ChangeExtractionThread extends Thread {
 
 				final StringBuilder progress = new StringBuilder();
 				progress.append(this.id);
-				progress.append(": checking revision ");
+				progress.append(": checking revisions ");
 				progress.append(beforeRevision.number);
 				progress.append(" and ");
 				progress.append(afterRevision.number);
@@ -100,11 +102,16 @@ public class ChangeExtractionThread extends Thread {
 								if (language.equalsIgnoreCase("JAVA")
 										&& StringUtility.isJavaFile(path)) {
 									changedFileList.add(path);
-									System.out.println(path);
+									if (isVerbose) {
+										System.out.println(path);
+									}
 								} else if (language.equalsIgnoreCase("C")
 										&& StringUtility.isCFile(path)) {
 									changedFileList.add(path);
-									System.out.println(path);
+									if (isVerbose) {
+										System.out.println(path);
+									}
+
 								}
 							}
 						});
@@ -150,10 +157,22 @@ public class ChangeExtractionThread extends Thread {
 								this.queue.add(change);
 							}
 						}
-					} else {
+					}
+
+					else if (ignoreImport) {
+						for (final Change change : changes) {
+							if (!change.isImport()) {
+								this.queue.add(change);
+							}
+						}
+					}
+
+					else {
 						this.queue.addAll(changes);
-						System.out.println("Number of Changes: "
-								+ changes.size());
+						if (isVerbose) {
+							System.out.println("Number of Changes: "
+									+ changes.size());
+						}
 					}
 				}
 			}

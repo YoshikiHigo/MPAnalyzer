@@ -26,7 +26,9 @@ public class ChangeExtractor {
 
 		final long startTime = System.nanoTime();
 
+		System.out.print("identifing revisions to be checked ... ");
 		final Revision[] revisions = getRevisions().toArray(new Revision[0]);
+		System.out.println("done.");
 
 		if (0 == revisions.length) {
 			System.out.println("no revision.");
@@ -68,6 +70,7 @@ public class ChangeExtractor {
 				.getREPOSITORY_FOR_MINING();
 		final String language = Config.getInstance().getLANGUAGE();
 		final String software = Config.getInstance().getSOFTWARE();
+		final boolean isVerbose = Config.getInstance().isVERBOSE();
 
 		long startRevision = Config.getInstance()
 				.getSTART_REVISION_FOR_MINING();
@@ -104,14 +107,20 @@ public class ChangeExtractor {
 										software, number, date, message);
 								if (language.equalsIgnoreCase("JAVA")
 										&& StringUtility.isJavaFile(path)) {
-									System.out.print(Integer.toString(number));
-									System.out.println(" is beging checked.");
+									if (isVerbose) {
+										System.out.print(Integer
+												.toString(number));
+										System.out.println(" is identified.");
+									}
 									revisions.add(revision);
 									break;
 								} else if (language.equalsIgnoreCase("C")
 										&& StringUtility.isCFile(path)) {
-									System.out.print(Integer.toString(number));
-									System.out.println(" is being checked.");
+									if (isVerbose) {
+										System.out.print(Integer
+												.toString(number));
+										System.out.println(" is identified.");
+									}
 									revisions.add(revision);
 									break;
 								}
