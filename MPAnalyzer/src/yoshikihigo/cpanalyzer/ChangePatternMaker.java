@@ -10,6 +10,7 @@ public class ChangePatternMaker {
 
 		Config.initialize(args);
 		final ChangePatternDAO dao = new ChangePatternDAO();
+		dao.makeIndicesOnCHANGES();
 		dao.makeChangePatterns();
 		dao.close();
 

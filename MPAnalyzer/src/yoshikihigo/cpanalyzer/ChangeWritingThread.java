@@ -40,11 +40,6 @@ public class ChangeWritingThread extends Thread {
 			this.queue.drainTo(changes);
 			dao.addChanges(changes);
 			dao.flush();
-
-			System.out.print("making indices ... ");
-			dao.makeIndices();
-			System.out.println("done.");
-
 			dao.close();
 		}
 

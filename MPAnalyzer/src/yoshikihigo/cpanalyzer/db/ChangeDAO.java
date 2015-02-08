@@ -142,25 +142,6 @@ public class ChangeDAO {
 		}
 	}
 
-	public void makeIndices() {
-
-		try {
-			final Statement statement = this.connector.createStatement();
-			statement
-					.executeUpdate("create index index_beforeHash_changes on changes(beforeHash)");
-			statement
-					.executeUpdate("create index index_afterHash_changes on changes(afterHash)");
-			statement
-					.executeUpdate("create index index_beforeHash_afterHash_changes on changes(beforeHash, afterHash)");
-			statement.close();
-		}
-
-		catch (SQLException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-	}
-
 	public void flush() {
 		try {
 			if (0 < this.numberOfCodePS) {
