@@ -7,16 +7,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import yoshikihigo.cpanalyzer.data.Change;
+import yoshikihigo.cpanalyzer.data.Change.ChangeType;
+import yoshikihigo.cpanalyzer.data.Change.DiffType;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
-import yoshikihigo.cpanalyzer.data.Change.ChangeType;
-import yoshikihigo.cpanalyzer.data.Change.DiffType;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class LCS {
-
-	final private static int MAX = 3500;
 
 	public static List<Change> getChanges(final List<Statement> array1,
 			final List<Statement> array2, final String software,
@@ -26,8 +24,10 @@ public class LCS {
 			return new ArrayList<Change>();
 		}
 
-		if (MAX < array1.size() || MAX < array2.size()) {
-			System.out.println("large file!");
+		final int large = Config.getInstance().getLARGE();
+		if (large < array1.size() || large < array2.size()) {
+			System.out.println("large file. (" + array1.size() + " x "
+					+ array2.size() + ")");
 			return new ArrayList<Change>();
 		}
 

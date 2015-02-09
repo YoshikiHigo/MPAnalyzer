@@ -6,7 +6,16 @@ import java.util.List;
 import java.util.Map;
 
 import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.lexer.token.CHARLITERAL;
+import yoshikihigo.cpanalyzer.lexer.token.FALSE;
+import yoshikihigo.cpanalyzer.lexer.token.FINAL;
 import yoshikihigo.cpanalyzer.lexer.token.IDENTIFIER;
+import yoshikihigo.cpanalyzer.lexer.token.NUMBERLITERAL;
+import yoshikihigo.cpanalyzer.lexer.token.PRIVATE;
+import yoshikihigo.cpanalyzer.lexer.token.PROTECTED;
+import yoshikihigo.cpanalyzer.lexer.token.PUBLIC;
+import yoshikihigo.cpanalyzer.lexer.token.STRINGLITERAL;
+import yoshikihigo.cpanalyzer.lexer.token.TRUE;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class Statement {
@@ -50,22 +59,42 @@ public class Statement {
 		for (final Token token : this.tokens) {
 
 			// normalize identifiers if "-normalize" is specified.
-			if (Config.getInstance().isNORMALIZATION()
-					&& (token instanceof IDENTIFIER)
-					&& Character.isLowerCase(token.value.charAt(0))) {
-				String normalizedValue = identifiers.get(token.value);
-				if (null == normalizedValue) {
-					normalizedValue = "$" + identifiers.size();
-					identifiers.put(token.value, normalizedValue);
+			if (Config.getInstance().isNORMALIZATION()) {
+
+				if ((token instanceof IDENTIFIER)
+						&& Character.isLowerCase(token.value.charAt(0))) {
+					String normalizedValue = identifiers.get(token.value);
+					if (null == normalizedValue) {
+						normalizedValue = "$" + identifiers.size();
+						identifiers.put(token.value, normalizedValue);
+					}
+					text.append(normalizedValue);
+					text.append(" ");
 				}
-				text.append(normalizedValue);
+
+				else if ((token instanceof CHARLITERAL)
+						|| (token instanceof NUMBERLITERAL)
+						|| (token instanceof STRINGLITERAL
+								|| (token instanceof TRUE) || (token instanceof FALSE))) {
+					text.append("$$");
+					text.append(" ");
+				}
+
+				else if (token instanceof PRIVATE || token instanceof PROTECTED
+						|| token instanceof PUBLIC || token instanceof FINAL) {
+					// do nothing
+				}
+
+				else {
+					text.append(token.value);
+					text.append(" ");
+				}
 			}
 
 			else {
 				text.append(token.value);
+				text.append(" ");
 			}
-
-			text.append(" ");
 		}
 		text.deleteCharAt(text.length() - 1);
 		return text.toString();

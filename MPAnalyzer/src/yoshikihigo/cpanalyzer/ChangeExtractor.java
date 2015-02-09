@@ -26,6 +26,8 @@ public class ChangeExtractor {
 
 		final long startTime = System.nanoTime();
 
+		System.out.println("working on software \""
+				+ Config.getInstance().getSOFTWARE() + "\"");
 		System.out.print("identifing revisions to be checked ... ");
 		final Revision[] revisions = getRevisions().toArray(new Revision[0]);
 		System.out.println("done.");

@@ -111,6 +111,15 @@ public class Config {
 		}
 
 		{
+			final Option option = new Option("large", "large", true,
+					"threshold for ignoring large files");
+			option.setArgName("size (number of statements)");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
 			final Option option = new Option("ignind", "ignoreindent", false,
 					"canceling ignoring indent");
 			option.setRequired(false);
@@ -269,6 +278,11 @@ public class Config {
 	public int getTHREAD() {
 		return this.commandLine.hasOption("thd") ? Integer
 				.parseInt(this.commandLine.getOptionValue("thd")) : 1;
+	}
+
+	public int getLARGE() {
+		return this.commandLine.hasOption("large") ? Integer
+				.parseInt(this.commandLine.getOptionValue("large")) : 5000;
 	}
 
 	public boolean isIGNORE_INDENT() {
