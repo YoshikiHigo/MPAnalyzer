@@ -56,6 +56,7 @@ public class Statement {
 	public String toString() {
 		final StringBuilder text = new StringBuilder();
 		final Map<String, String> identifiers = new HashMap<>();
+		final Map<String, String> types = new HashMap<>();
 		for (final Token token : this.tokens) {
 
 			// normalize identifiers if "-normalize" is specified.
@@ -65,8 +66,19 @@ public class Statement {
 						&& Character.isLowerCase(token.value.charAt(0))) {
 					String normalizedValue = identifiers.get(token.value);
 					if (null == normalizedValue) {
-						normalizedValue = "$" + identifiers.size();
+						normalizedValue = "$V" + identifiers.size();
 						identifiers.put(token.value, normalizedValue);
+					}
+					text.append(normalizedValue);
+					text.append(" ");
+				}
+
+				else if ((token instanceof IDENTIFIER)
+						&& Character.isUpperCase(token.value.charAt(0))) {
+					String normalizedValue = types.get(token.value);
+					if (null == normalizedValue) {
+						normalizedValue = "$T" + types.size();
+						types.put(token.value, normalizedValue);
 					}
 					text.append(normalizedValue);
 					text.append(" ");
@@ -76,7 +88,7 @@ public class Statement {
 						|| (token instanceof NUMBERLITERAL)
 						|| (token instanceof STRINGLITERAL
 								|| (token instanceof TRUE) || (token instanceof FALSE))) {
-					text.append("$$");
+					text.append("$L");
 					text.append(" ");
 				}
 
