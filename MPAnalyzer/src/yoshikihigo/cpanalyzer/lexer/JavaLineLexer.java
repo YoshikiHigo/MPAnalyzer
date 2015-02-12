@@ -80,9 +80,14 @@ import yoshikihigo.cpanalyzer.lexer.token.SUPER;
 import yoshikihigo.cpanalyzer.lexer.token.SWITCH;
 import yoshikihigo.cpanalyzer.lexer.token.SYNCHRONIZED;
 import yoshikihigo.cpanalyzer.lexer.token.THIS;
+import yoshikihigo.cpanalyzer.lexer.token.THROW;
+import yoshikihigo.cpanalyzer.lexer.token.THROWS;
 import yoshikihigo.cpanalyzer.lexer.token.TRUE;
 import yoshikihigo.cpanalyzer.lexer.token.TRY;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
+import yoshikihigo.cpanalyzer.lexer.token.VOID;
+import yoshikihigo.cpanalyzer.lexer.token.WHILE;
+
 import yoshikihigo.cpanalyzer.lexer.token.VOID;
 import yoshikihigo.cpanalyzer.lexer.token.WHILE;
 
@@ -365,6 +370,10 @@ public class JavaLineLexer implements LineLexer {
 				tokenList.add(new SYNCHRONIZED());
 			} else if (identifier.equals("this")) {
 				tokenList.add(new THIS());
+			} else if (identifier.equals("throw")) {
+				tokenList.add(new THROW());
+			} else if (identifier.equals("throws")) {
+				tokenList.add(new THROWS());
 			} else if (identifier.equals("true")) {
 				tokenList.add(new TRUE());
 			} else if (identifier.equals("try")) {
