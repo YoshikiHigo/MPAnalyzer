@@ -7,6 +7,7 @@ import java.util.List;
 
 import yoshikihigo.cpanalyzer.lexer.token.ABSTRACT;
 import yoshikihigo.cpanalyzer.lexer.token.AND;
+import yoshikihigo.cpanalyzer.lexer.token.ANNOTATION;
 import yoshikihigo.cpanalyzer.lexer.token.ASSERT;
 import yoshikihigo.cpanalyzer.lexer.token.ASSIGN;
 import yoshikihigo.cpanalyzer.lexer.token.BOOLEAN;
@@ -85,9 +86,6 @@ import yoshikihigo.cpanalyzer.lexer.token.THROWS;
 import yoshikihigo.cpanalyzer.lexer.token.TRUE;
 import yoshikihigo.cpanalyzer.lexer.token.TRY;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
-import yoshikihigo.cpanalyzer.lexer.token.VOID;
-import yoshikihigo.cpanalyzer.lexer.token.WHILE;
-
 import yoshikihigo.cpanalyzer.lexer.token.VOID;
 import yoshikihigo.cpanalyzer.lexer.token.WHILE;
 
@@ -385,6 +383,20 @@ public class JavaLineLexer implements LineLexer {
 			} else {
 				tokenList.add(new IDENTIFIER(identifier));
 			}
+		}
+
+		else if ('@' == string.charAt(0)) {
+
+			int index = 1;
+			while (index < string.length()) {
+				if (' ' == string.charAt(index) || ' ' == string.charAt(index)) {
+
+				}
+				index++;
+			}
+			text.delete(0, index);
+			final String value = string.substring(0, index);
+			tokenList.add(new ANNOTATION(value));
 		}
 
 		else if (' ' == string.charAt(0) || '\t' == string.charAt(0)) {

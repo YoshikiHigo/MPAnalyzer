@@ -27,18 +27,13 @@ public class Statement {
 
 		for (final Token token : tokens) {
 
+			tokensForaStatement.add(token);
+
 			if (token.value.equals("{") || token.value.equals("}")
-					|| token.value.equals(";")) {
-
-				if (!tokensForaStatement.isEmpty()) {
-					final Statement statement = new Statement(
-							tokensForaStatement);
-					statements.add(statement);
-					tokensForaStatement = new ArrayList<Token>();
-				}
-
-			} else {
-				tokensForaStatement.add(token);
+					|| token.value.equals(";") || token.value.startsWith("@")) {
+				final Statement statement = new Statement(tokensForaStatement);
+				statements.add(statement);
+				tokensForaStatement = new ArrayList<Token>();
 			}
 		}
 
