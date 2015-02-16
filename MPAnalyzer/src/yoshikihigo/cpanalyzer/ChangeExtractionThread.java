@@ -9,6 +9,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tmatesoft.svn.core.SVNDepth;
+import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
@@ -54,12 +55,12 @@ public class ChangeExtractionThread extends Thread {
 
 			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
-			final SVNWCClient wcClient = SVNClientManager.newInstance()
-					.getWCClient();
 			final SVNDiffClient diffClient = SVNClientManager.newInstance()
 					.getDiffClient();
+			final SVNWCClient wcClient = SVNClientManager.newInstance()
+					.getWCClient();
 
-			while (true) {
+			REVISION: while (true) {
 
 				final int targetIndex = this.index.getAndIncrement();
 				if (this.revisions.length <= targetIndex) {
@@ -81,66 +82,82 @@ public class ChangeExtractionThread extends Thread {
 				System.out.println(progress.toString());
 
 				final List<String> changedFileList = new ArrayList<String>();
+				try {
+					diffClient.doDiffStatus(url,
+							SVNRevision.create(beforeRevision.number), url,
+							SVNRevision.create(afterRevision.number),
+							SVNDepth.INFINITY, true,
+							new ISVNDiffStatusHandler() {
 
-				diffClient.doDiffStatus(url,
-						SVNRevision.create(beforeRevision.number), url,
-						SVNRevision.create(afterRevision.number),
-						SVNDepth.INFINITY, true, new ISVNDiffStatusHandler() {
+								@Override
+								public void handleDiffStatus(
+										final SVNDiffStatus diffStatus) {
 
-							@Override
-							public void handleDiffStatus(
-									final SVNDiffStatus diffStatus) {
+									final String path = diffStatus.getPath();
+									final SVNStatusType type = diffStatus
+											.getModificationType();
 
-								final String path = diffStatus.getPath();
-								final SVNStatusType type = diffStatus
-										.getModificationType();
-
-								if (!type.equals(SVNStatusType.STATUS_MODIFIED)) {
-									return;
-								}
-
-								if (language.equalsIgnoreCase("JAVA")
-										&& StringUtility.isJavaFile(path)) {
-									changedFileList.add(path);
-									if (isVerbose) {
-										System.out.println(path);
-									}
-								} else if (language.equalsIgnoreCase("C")
-										&& StringUtility.isCFile(path)) {
-									changedFileList.add(path);
-									if (isVerbose) {
-										System.out.println(path);
+									if (!type
+											.equals(SVNStatusType.STATUS_MODIFIED)) {
+										return;
 									}
 
-								}
-							}
-						});
+									if (language.equalsIgnoreCase("JAVA")
+											&& StringUtility.isJavaFile(path)) {
+										changedFileList.add(path);
+										if (isVerbose) {
+											System.out.println(path);
+										}
+									} else if (language.equalsIgnoreCase("C")
+											&& StringUtility.isCFile(path)) {
+										changedFileList.add(path);
+										if (isVerbose) {
+											System.out.println(path);
+										}
 
-				for (final String path : changedFileList) {
+									}
+								}
+							});
+				} catch (final SVNException e) {
+					e.printStackTrace();
+					continue REVISION;
+				}
+
+				FILE: for (final String path : changedFileList) {
 					final SVNURL fileurl = SVNURL.fromFile(new File(repository
 							+ System.getProperty("file.separator") + path));
 
 					final StringBuilder beforeText = new StringBuilder();
-					wcClient.doGetFileContents(fileurl,
-							SVNRevision.create(beforeRevision.number),
-							SVNRevision.create(beforeRevision.number), false,
-							new OutputStream() {
-								@Override
-								public void write(int b) throws IOException {
-									beforeText.append((char) b);
-								}
-							});
+					try {
+						wcClient.doGetFileContents(fileurl,
+								SVNRevision.create(beforeRevision.number),
+								SVNRevision.create(beforeRevision.number),
+								false, new OutputStream() {
+									@Override
+									public void write(int b) throws IOException {
+										beforeText.append((char) b);
+									}
+								});
+					} catch (SVNException e) {
+						e.printStackTrace();
+						continue FILE;
+					}
 
 					final StringBuilder afterText = new StringBuilder();
-					wcClient.doGetFileContents(fileurl,
-							SVNRevision.create(afterRevision.number),
-							SVNRevision.create(afterRevision.number), false,
-							new OutputStream() {
-								@Override
-								public void write(int b) throws IOException {
-									afterText.append((char) b);
-								}
-							});
+					try {
+						wcClient.doGetFileContents(fileurl,
+								SVNRevision.create(afterRevision.number),
+								SVNRevision.create(afterRevision.number),
+								false, new OutputStream() {
+									@Override
+									public void write(int b) throws IOException {
+										afterText.append((char) b);
+									}
+								});
+					} catch (SVNException e) {
+						e.printStackTrace();
+						continue FILE;
+					}
 
 					final List<Statement> beforeStatements = StringUtility
 							.splitToStatements(beforeText.toString(), language);
@@ -177,7 +194,7 @@ public class ChangeExtractionThread extends Thread {
 				}
 			}
 
-		} catch (final Exception e) {
+		} catch (final SVNException e) {
 			e.printStackTrace();
 		}
 	}

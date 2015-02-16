@@ -13,7 +13,7 @@ import yoshikihigo.cpanalyzer.Config;
 
 public class ChangePatternDAO {
 
-	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, beforeHash integer, afterHash integer, type integer, support integer, confidence real, nos integer";
+	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, beforeHash blob, afterHash blob, type integer, support integer, confidence real, nos integer";
 
 	private Connection connector;
 
@@ -61,7 +61,7 @@ public class ChangePatternDAO {
 		try {
 
 			System.out.print("making change patterns ...");
-			final List<Integer> hashs = new ArrayList<Integer>();
+			final List<byte[]> hashs = new ArrayList<>();
 			{
 				final Statement statement = this.connector.createStatement();
 				final StringBuilder text = new StringBuilder();
@@ -70,7 +70,7 @@ public class ChangePatternDAO {
 				final ResultSet result = statement
 						.executeQuery(text.toString());
 				while (result.next()) {
-					hashs.add(result.getInt(1));
+					hashs.add(result.getBytes(1));
 				}
 				statement.close();
 			}
@@ -86,7 +86,7 @@ public class ChangePatternDAO {
 						.prepareStatement(text.toString());
 
 				int number = 1;
-				for (final Integer beforeHash : hashs) {
+				for (final byte[] beforeHash : hashs) {
 					if (0 == number % 500) {
 						System.out.print(number);
 					} else if (0 == number % 100) {
@@ -95,8 +95,8 @@ public class ChangePatternDAO {
 					if (0 == number % 5000) {
 						System.out.println();
 					}
-					statement.setInt(1, beforeHash);
-					statement.setInt(2, beforeHash);
+					statement.setBytes(1, beforeHash);
+					statement.setBytes(2, beforeHash);
 					statement.executeUpdate();
 					number++;
 				}
@@ -116,15 +116,15 @@ public class ChangePatternDAO {
 			}
 
 			System.out.print("calculating metrics ...");
-			final List<int[]> hashpairs = new ArrayList<>();
+			final List<byte[][]> hashpairs = new ArrayList<>();
 			{
 				final Statement statement = this.connector.createStatement();
 				final ResultSet result = statement
 						.executeQuery("select beforeHash, afterHash from patterns");
 				while (result.next()) {
-					final int[] hashpair = new int[2];
-					hashpair[0] = result.getInt(1);
-					hashpair[1] = result.getInt(2);
+					final byte[][] hashpair = new byte[2][];
+					hashpair[0] = result.getBytes(1);
+					hashpair[1] = result.getBytes(2);
 					hashpairs.add(hashpair);
 				}
 				statement.close();
@@ -139,7 +139,7 @@ public class ChangePatternDAO {
 						.prepareStatement(text.toString());
 
 				int number = 1;
-				for (final int[] hashpair : hashpairs) {
+				for (final byte[][] hashpair : hashpairs) {
 					if (0 == number % 1000) {
 						System.out.print(number);
 					} else if (0 == number % 100) {
@@ -148,10 +148,10 @@ public class ChangePatternDAO {
 					if (0 == number % 5000) {
 						System.out.println();
 					}
-					statement.setInt(1, hashpair[0]);
-					statement.setInt(2, hashpair[1]);
-					statement.setInt(3, hashpair[0]);
-					statement.setInt(4, hashpair[1]);
+					statement.setBytes(1, hashpair[0]);
+					statement.setBytes(2, hashpair[1]);
+					statement.setBytes(3, hashpair[0]);
+					statement.setBytes(4, hashpair[1]);
 					statement.executeUpdate();
 					number++;
 				}

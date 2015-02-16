@@ -14,8 +14,8 @@ import yoshikihigo.cpanalyzer.data.Revision;
 public class ChangeDAO {
 
 	static public final String REVISIONS_SCHEMA = "software string, number integer, date string, message string, primary key(software, number)";
-	static public final String CODES_SCHEMA = "software string, id integer, text string, hash integer, start int, end int, primary key(software, id)";
-	static public final String CHANGES_SCHEMA = "software string, id integer, filepath string, beforeID integer, beforeHash integer, afterID integer, afterHash integer, revision integer, type integer, primary key(software, id)";
+	static public final String CODES_SCHEMA = "software string, id integer, text string, hash blob, start int, end int, primary key(software, id)";
+	static public final String CHANGES_SCHEMA = "software string, id integer, filepath string, beforeID integer, beforeHash blob, afterID integer, afterHash blob, revision integer, type integer, primary key(software, id)";
 
 	private Connection connector;
 	private PreparedStatement codePS;
@@ -80,7 +80,7 @@ public class ChangeDAO {
 			this.codePS.setString(1, change.before.software);
 			this.codePS.setInt(2, change.before.getID());
 			this.codePS.setString(3, change.before.text);
-			this.codePS.setInt(4, change.before.hash);
+			this.codePS.setBytes(4, change.before.hash);
 			final int beforeStart = change.before.statements.isEmpty() ? 0
 					: change.before.statements.get(0).getStartLine();
 			final int beforeEnd = change.before.statements.isEmpty() ? 0
@@ -94,7 +94,7 @@ public class ChangeDAO {
 			this.codePS.setString(1, change.after.software);
 			this.codePS.setInt(2, change.after.getID());
 			this.codePS.setString(3, change.after.text);
-			this.codePS.setInt(4, change.after.hash);
+			this.codePS.setBytes(4, change.after.hash);
 			final int afterStart = change.after.statements.isEmpty() ? 0
 					: change.after.statements.get(0).getStartLine();
 			final int afterEnd = change.after.statements.isEmpty() ? 0
@@ -109,9 +109,9 @@ public class ChangeDAO {
 			this.changePS.setInt(2, change.id);
 			this.changePS.setString(3, change.filepath);
 			this.changePS.setInt(4, change.before.getID());
-			this.changePS.setInt(5, change.before.hash);
+			this.changePS.setBytes(5, change.before.hash);
 			this.changePS.setInt(6, change.after.getID());
-			this.changePS.setInt(7, change.after.hash);
+			this.changePS.setBytes(7, change.after.hash);
 			this.changePS.setInt(8, (int) change.revision.number);
 			this.changePS.setInt(9, change.changeType.getValue());
 			this.changePS.addBatch();

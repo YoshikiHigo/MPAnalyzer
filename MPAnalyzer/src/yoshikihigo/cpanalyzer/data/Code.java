@@ -1,6 +1,9 @@
 package yoshikihigo.cpanalyzer.data;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,7 +19,7 @@ public class Code implements Comparable<Code> {
 	private int id;
 	public final String text;
 	public final String position;
-	public final int hash;
+	public final byte[] hash;
 
 	public Code(final String software, final List<Statement> statements) {
 		this.software = software;
@@ -43,7 +46,7 @@ public class Code implements Comparable<Code> {
 			}
 
 		}
-		this.hash = this.text.hashCode();
+		this.hash = this.getMD5(this.text);
 	}
 
 	public Code(final String software, final int id, final String text,
@@ -80,7 +83,7 @@ public class Code implements Comparable<Code> {
 
 	@Override
 	public int hashCode() {
-		return this.hash;
+		return Arrays.hashCode(this.hash);
 	}
 
 	@Override
@@ -117,5 +120,18 @@ public class Code implements Comparable<Code> {
 			tokens.addAll(statement.tokens);
 		}
 		return tokens;
+	}
+
+	private byte[] getMD5(final String text) {
+		try {
+			final MessageDigest md = MessageDigest.getInstance("MD5");
+			final byte[] data = text.getBytes();
+			md.update(data);
+			final byte[] digest = md.digest();
+			return digest;
+		} catch (final NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return new byte[0];
+		}
 	}
 }
