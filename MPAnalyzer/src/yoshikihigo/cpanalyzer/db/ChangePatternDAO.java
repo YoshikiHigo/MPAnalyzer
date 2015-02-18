@@ -13,7 +13,7 @@ import yoshikihigo.cpanalyzer.Config;
 
 public class ChangePatternDAO {
 
-	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, beforeHash blob, afterHash blob, type integer, support integer, confidence real, nos integer";
+	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, beforeHash blob, afterHash blob, type integer, support integer, confidence real, nos integer, adr string";
 
 	private Connection connector;
 
