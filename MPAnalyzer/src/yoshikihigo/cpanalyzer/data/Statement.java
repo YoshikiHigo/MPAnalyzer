@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import yoshikihigo.cpanalyzer.Config;
 import yoshikihigo.cpanalyzer.lexer.token.CHARLITERAL;
@@ -19,6 +21,9 @@ import yoshikihigo.cpanalyzer.lexer.token.TRUE;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class Statement {
+
+	final private static ConcurrentMap<Thread, Map<String, String>> IDENTIFIERS = new ConcurrentHashMap<>();
+	final private static ConcurrentMap<Thread, Map<String, String>> TYPES = new ConcurrentHashMap<>();
 
 	public static List<Statement> getStatements(final List<Token> tokens) {
 
@@ -50,8 +55,11 @@ public class Statement {
 
 	public String toString() {
 		final StringBuilder text = new StringBuilder();
-		final Map<String, String> identifiers = new HashMap<>();
-		final Map<String, String> types = new HashMap<>();
+		final Map<String, String> identifiers = this.getIdentifierPool();
+		final Map<String, String> types = this.getTypePool();
+		identifiers.clear();
+		types.clear();
+
 		for (final Token token : this.tokens) {
 
 			// normalize identifiers if "-normalize" is specified.
@@ -113,5 +121,25 @@ public class Statement {
 
 	public int getEndLine() {
 		return this.tokens.get(this.tokens.size() - 1).line;
+	}
+
+	private Map<String, String> getIdentifierPool() {
+		final Thread thread = Thread.currentThread();
+		Map<String, String> map = IDENTIFIERS.get(thread);
+		if (null == map) {
+			map = new HashMap<>();
+			IDENTIFIERS.put(thread, map);
+		}
+		return map;
+	}
+
+	private Map<String, String> getTypePool() {
+		final Thread thread = Thread.currentThread();
+		Map<String, String> map = TYPES.get(thread);
+		if (null == map) {
+			map = new HashMap<>();
+			TYPES.put(thread, map);
+		}
+		return map;
 	}
 }
