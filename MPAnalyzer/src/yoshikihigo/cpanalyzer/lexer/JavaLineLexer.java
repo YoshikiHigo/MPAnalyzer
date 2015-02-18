@@ -20,6 +20,7 @@ import yoshikihigo.cpanalyzer.lexer.token.CHARLITERAL;
 import yoshikihigo.cpanalyzer.lexer.token.CLASS;
 import yoshikihigo.cpanalyzer.lexer.token.COLON;
 import yoshikihigo.cpanalyzer.lexer.token.COMMA;
+import yoshikihigo.cpanalyzer.lexer.token.CONST;
 import yoshikihigo.cpanalyzer.lexer.token.CONTINUE;
 import yoshikihigo.cpanalyzer.lexer.token.DECREMENT;
 import yoshikihigo.cpanalyzer.lexer.token.DEFAULT;
@@ -34,8 +35,10 @@ import yoshikihigo.cpanalyzer.lexer.token.EQUAL;
 import yoshikihigo.cpanalyzer.lexer.token.EXTENDS;
 import yoshikihigo.cpanalyzer.lexer.token.FALSE;
 import yoshikihigo.cpanalyzer.lexer.token.FINAL;
+import yoshikihigo.cpanalyzer.lexer.token.FINALLY;
 import yoshikihigo.cpanalyzer.lexer.token.FLOAT;
 import yoshikihigo.cpanalyzer.lexer.token.FOR;
+import yoshikihigo.cpanalyzer.lexer.token.GOTO;
 import yoshikihigo.cpanalyzer.lexer.token.GREAT;
 import yoshikihigo.cpanalyzer.lexer.token.GREATEQUAL;
 import yoshikihigo.cpanalyzer.lexer.token.IDENTIFIER;
@@ -45,6 +48,7 @@ import yoshikihigo.cpanalyzer.lexer.token.IMPORT;
 import yoshikihigo.cpanalyzer.lexer.token.INCREMENT;
 import yoshikihigo.cpanalyzer.lexer.token.INSTANCEOF;
 import yoshikihigo.cpanalyzer.lexer.token.INT;
+import yoshikihigo.cpanalyzer.lexer.token.INTERFACE;
 import yoshikihigo.cpanalyzer.lexer.token.LEFTBRACKET;
 import yoshikihigo.cpanalyzer.lexer.token.LEFTPAREN;
 import yoshikihigo.cpanalyzer.lexer.token.LEFTSQUAREBRACKET;
@@ -55,6 +59,7 @@ import yoshikihigo.cpanalyzer.lexer.token.MINUS;
 import yoshikihigo.cpanalyzer.lexer.token.MINUSEQUAL;
 import yoshikihigo.cpanalyzer.lexer.token.MOD;
 import yoshikihigo.cpanalyzer.lexer.token.MODEQUAL;
+import yoshikihigo.cpanalyzer.lexer.token.NATIVE;
 import yoshikihigo.cpanalyzer.lexer.token.NEW;
 import yoshikihigo.cpanalyzer.lexer.token.NOT;
 import yoshikihigo.cpanalyzer.lexer.token.NULL;
@@ -76,6 +81,7 @@ import yoshikihigo.cpanalyzer.lexer.token.SHORT;
 import yoshikihigo.cpanalyzer.lexer.token.STAR;
 import yoshikihigo.cpanalyzer.lexer.token.STAREQUAL;
 import yoshikihigo.cpanalyzer.lexer.token.STATIC;
+import yoshikihigo.cpanalyzer.lexer.token.STRICTFP;
 import yoshikihigo.cpanalyzer.lexer.token.STRINGLITERAL;
 import yoshikihigo.cpanalyzer.lexer.token.SUPER;
 import yoshikihigo.cpanalyzer.lexer.token.SWITCH;
@@ -83,10 +89,12 @@ import yoshikihigo.cpanalyzer.lexer.token.SYNCHRONIZED;
 import yoshikihigo.cpanalyzer.lexer.token.THIS;
 import yoshikihigo.cpanalyzer.lexer.token.THROW;
 import yoshikihigo.cpanalyzer.lexer.token.THROWS;
+import yoshikihigo.cpanalyzer.lexer.token.TRANSIENT;
 import yoshikihigo.cpanalyzer.lexer.token.TRUE;
 import yoshikihigo.cpanalyzer.lexer.token.TRY;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
 import yoshikihigo.cpanalyzer.lexer.token.VOID;
+import yoshikihigo.cpanalyzer.lexer.token.VOLATILE;
 import yoshikihigo.cpanalyzer.lexer.token.WHILE;
 
 public class JavaLineLexer implements LineLexer {
@@ -308,6 +316,8 @@ public class JavaLineLexer implements LineLexer {
 				tokenList.add(new CHAR());
 			} else if (identifier.equals("class")) {
 				tokenList.add(new CLASS());
+			} else if (identifier.equals("const")) {
+				tokenList.add(new CONST());
 			} else if (identifier.equals("continue")) {
 				tokenList.add(new CONTINUE());
 			} else if (identifier.equals("default")) {
@@ -326,10 +336,14 @@ public class JavaLineLexer implements LineLexer {
 				tokenList.add(new FALSE());
 			} else if (identifier.equals("final")) {
 				tokenList.add(new FINAL());
+			} else if (identifier.equals("finally")) {
+				tokenList.add(new FINALLY());
 			} else if (identifier.equals("float")) {
 				tokenList.add(new FLOAT());
 			} else if (identifier.equals("for")) {
 				tokenList.add(new FOR());
+			} else if (identifier.equals("goto")) {
+				tokenList.add(new GOTO());
 			} else if (identifier.equals("if")) {
 				tokenList.add(new IF());
 			} else if (identifier.equals("implements")) {
@@ -340,8 +354,12 @@ public class JavaLineLexer implements LineLexer {
 				tokenList.add(new INSTANCEOF());
 			} else if (identifier.equals("int")) {
 				tokenList.add(new INT());
+			} else if (identifier.equals("interface")) {
+				tokenList.add(new INTERFACE());
 			} else if (identifier.equals("long")) {
 				tokenList.add(new LONG());
+			} else if (identifier.equals("native")) {
+				tokenList.add(new NATIVE());
 			} else if (identifier.equals("new")) {
 				tokenList.add(new NEW());
 			} else if (identifier.equals("null")) {
@@ -360,6 +378,8 @@ public class JavaLineLexer implements LineLexer {
 				tokenList.add(new SHORT());
 			} else if (identifier.equals("static")) {
 				tokenList.add(new STATIC());
+			} else if (identifier.equals("strictfp")) {
+				tokenList.add(new STRICTFP());
 			} else if (identifier.equals("super")) {
 				tokenList.add(new SUPER());
 			} else if (identifier.equals("switch")) {
@@ -372,12 +392,16 @@ public class JavaLineLexer implements LineLexer {
 				tokenList.add(new THROW());
 			} else if (identifier.equals("throws")) {
 				tokenList.add(new THROWS());
+			} else if (identifier.equals("transient")) {
+				tokenList.add(new TRANSIENT());
 			} else if (identifier.equals("true")) {
 				tokenList.add(new TRUE());
 			} else if (identifier.equals("try")) {
 				tokenList.add(new TRY());
 			} else if (identifier.equals("void")) {
 				tokenList.add(new VOID());
+			} else if (identifier.equals("volatile")) {
+				tokenList.add(new VOLATILE());
 			} else if (identifier.equals("while")) {
 				tokenList.add(new WHILE());
 			} else {
