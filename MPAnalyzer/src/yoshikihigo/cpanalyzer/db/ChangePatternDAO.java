@@ -42,9 +42,9 @@ public class ChangePatternDAO {
 		try {
 			final Statement statement = this.connector.createStatement();
 			statement
-					.executeUpdate("create index index_hash_codes on changes(hash)");
+					.executeUpdate("create index index_hash_codes on codes(hash)");
 			statement
-					.executeUpdate("create index index_text_codes on changes(tex)");
+					.executeUpdate("create index index_text_codes on codes(text)");
 			statement.close();
 		}
 
