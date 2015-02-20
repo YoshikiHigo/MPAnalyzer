@@ -26,9 +26,30 @@ public class ChangePatternDAO {
 			this.connector = DriverManager.getConnection("jdbc:sqlite:"
 					+ database);
 			final Statement statement = connector.createStatement();
+			statement
+					.executeUpdate("drop index if exists index_beforeHash_patterns");
+			statement
+					.executeUpdate("drop index if exists index_afterHash_patterns");
+			statement
+					.executeUpdate("drop index if exists index_beforeHash_afterHash_patterns");
+			statement
+					.executeUpdate("drop index if exists index_support_patterns");
+			statement
+					.executeUpdate("drop index if exists index_confidence_patterns");
+			statement.executeUpdate("drop index if exists index_nos_patterns");
+
 			statement.executeUpdate("drop table if exists patterns");
 			statement.executeUpdate("create table patterns (" + PATTERNS_SCHEMA
 					+ ")");
+
+			statement.executeUpdate("drop index if exists index_hash_codes");
+			statement.executeUpdate("drop index if exists index_text_codes");
+			statement
+					.executeUpdate("drop index if exists index_beforeHash_changes");
+			statement
+					.executeUpdate("drop index if exists index_afterHash_changes");
+			statement
+					.executeUpdate("drop index if exists index_beforeHash_afterHash_changes");
 			statement.close();
 
 		} catch (ClassNotFoundException | SQLException e) {
