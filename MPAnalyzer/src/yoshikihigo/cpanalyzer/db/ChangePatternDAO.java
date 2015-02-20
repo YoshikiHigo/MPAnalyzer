@@ -37,6 +37,23 @@ public class ChangePatternDAO {
 		}
 	}
 
+	public void makeIndicesOnCODES() {
+
+		try {
+			final Statement statement = this.connector.createStatement();
+			statement
+					.executeUpdate("create index index_hash_codes on changes(hash)");
+			statement
+					.executeUpdate("create index index_text_codes on changes(tex)");
+			statement.close();
+		}
+
+		catch (SQLException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+	}
+
 	public void makeIndicesOnCHANGES() {
 
 		try {
@@ -102,8 +119,6 @@ public class ChangePatternDAO {
 				}
 				statement.close();
 			}
-			System.out.println(" done.");
-
 			{
 				final Statement statement = this.connector.createStatement();
 				statement
@@ -114,6 +129,7 @@ public class ChangePatternDAO {
 						.executeUpdate("create index index_beforeHash_afterHash_patterns on patterns(beforeHash, afterHash)");
 				statement.close();
 			}
+			System.out.println(" done.");
 
 			System.out.print("calculating metrics ...");
 			final List<byte[][]> hashpairs = new ArrayList<>();
@@ -155,6 +171,16 @@ public class ChangePatternDAO {
 					statement.executeUpdate();
 					number++;
 				}
+				statement.close();
+			}
+			{
+				final Statement statement = this.connector.createStatement();
+				statement
+						.executeUpdate("create index index_support_patterns on patterns(support)");
+				statement
+						.executeUpdate("create index index_confidence_patterns on patterns(confidence)");
+				statement
+						.executeUpdate("create index index_nos_patterns on patterns(nos)");
 				statement.close();
 			}
 			System.out.println(" done.");
