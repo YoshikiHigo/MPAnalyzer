@@ -12,6 +12,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import yoshikihigo.cpanalyzer.Config;
 import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
 import yoshikihigo.cpanalyzer.gui.clpanel.CLPanel;
 import yoshikihigo.cpanalyzer.gui.graph.PCGraph;
@@ -27,6 +28,8 @@ public class MainWindow extends JFrame {
 		} catch (final Exception e) {
 		}
 
+
+		Config.initialize(args);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				new MainWindow();
