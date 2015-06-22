@@ -17,16 +17,17 @@ public class ChangePattern implements Comparable<ChangePattern> {
 	public final int id;
 	public final int support;
 	public final float confidence;
-	public final int beforeHash;
-	public final int afterHash;
+	public final byte[] beforeHash;
+	public final byte[] afterHash;
 	public final ChangeType changeType;
 	public final DiffType diffType;
 
 	private final List<Change> changes;
 
 	public ChangePattern(final int id, final int support,
-			final float confidence, final int beforeHash, final int afterHash,
-			final ChangeType changeType, final DiffType diffType) {
+			final float confidence, final byte[] beforeHash,
+			final byte[] afterHash, final ChangeType changeType,
+			final DiffType diffType) {
 		this.id = id;
 		this.support = support;
 		this.confidence = confidence;
@@ -100,8 +101,7 @@ public class ChangePattern implements Comparable<ChangePattern> {
 			this.setModifications();
 		}
 		final Revision firstRevision = this.changes.get(0).revision;
-		final Revision lastRevision = this.changes.get(this.changes
-				.size() - 1).revision;
+		final Revision lastRevision = this.changes.get(this.changes.size() - 1).revision;
 		final Date firstDate = StringUtility.getDateObject(firstRevision.date);
 		final Date lastDate = StringUtility.getDateObject(lastRevision.date);
 		final long day = (lastDate.getTime() - firstDate.getTime())
@@ -114,8 +114,7 @@ public class ChangePattern implements Comparable<ChangePattern> {
 			this.setModifications();
 		}
 		final Revision firstRevision = this.changes.get(0).revision;
-		final Revision lastRevision = this.changes.get(this.changes
-				.size() - 1).revision;
+		final Revision lastRevision = this.changes.get(this.changes.size() - 1).revision;
 		return (int) (lastRevision.number - firstRevision.number);
 	}
 

@@ -13,11 +13,11 @@ import java.util.TreeSet;
 
 import yoshikihigo.cpanalyzer.Config;
 import yoshikihigo.cpanalyzer.data.Change;
+import yoshikihigo.cpanalyzer.data.Change.ChangeType;
+import yoshikihigo.cpanalyzer.data.Change.DiffType;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Revision;
-import yoshikihigo.cpanalyzer.data.Change.ChangeType;
-import yoshikihigo.cpanalyzer.data.Change.DiffType;
 
 public class ReadOnlyDAO {
 
@@ -52,7 +52,7 @@ public class ReadOnlyDAO {
 		}
 	}
 
-	public List<Change> getChanges(final int beforeHash, final int afterHash) {
+	public List<Change> getChanges(final byte[] beforeHash, final byte[] afterHash) {
 
 		final List<Change> changes = new ArrayList<Change>();
 
@@ -77,8 +77,8 @@ public class ReadOnlyDAO {
 			final PreparedStatement statement = this.connector
 					.prepareStatement(text.toString());
 
-			statement.setInt(1, beforeHash);
-			statement.setInt(2, afterHash);
+			statement.setBytes(1, beforeHash);
+			statement.setBytes(2, afterHash);
 			final ResultSet result = statement.executeQuery();
 
 			while (result.next()) {
@@ -126,7 +126,7 @@ public class ReadOnlyDAO {
 
 		try {
 			final StringBuilder text = new StringBuilder();
-			text.append("select id, beforeHash, afterHash, type, support, confidence");
+			text.append("select id, beforeHash, afterHash, type, support, confidence, adr");
 			text.append(" from patterns where ? <= support and ? <= confidence");
 			final PreparedStatement statement = this.connector
 					.prepareStatement(text.toString());
@@ -137,14 +137,15 @@ public class ReadOnlyDAO {
 
 			while (result.next()) {
 				final int id = result.getInt(1);
-				final int beforeHash = result.getInt(2);
-				final int afterHash = result.getInt(3);
-				final ChangeType changeType = (0 == beforeHash) ? ChangeType.ADD
-						: (0 == afterHash) ? ChangeType.DELETE
-								: ChangeType.REPLACE;
+				final byte[] beforeHash = result.getBytes(2);
+				final byte[] afterHash = result.getBytes(3);
 				final DiffType diffType = DiffType.getType(result.getInt(4));
 				final int support = result.getInt(5);
 				final float confidence = result.getFloat(6);
+				final String adr = result.getString(7);
+				final ChangeType changeType = adr.equals("add") ? ChangeType.ADD
+						: adr.equalsIgnoreCase("delete") ? ChangeType.DELETE
+								: ChangeType.DELETE;
 				final ChangePattern pattern = new ChangePattern(id, support,
 						confidence, beforeHash, afterHash, changeType, diffType);
 				patterns.add(pattern);
