@@ -52,7 +52,8 @@ public class ReadOnlyDAO {
 		}
 	}
 
-	public List<Change> getChanges(final byte[] beforeHash, final byte[] afterHash) {
+	public List<Change> getChanges(final byte[] beforeHash,
+			final byte[] afterHash) {
 
 		final List<Change> changes = new ArrayList<Change>();
 
@@ -60,7 +61,7 @@ public class ReadOnlyDAO {
 			final StringBuilder text = new StringBuilder();
 			text.append("select T.software, T.id, T.filepath, T.beforeHash, T.beforeText, ");
 			text.append("T.beforeStart, T.beforeEnd, T.afterHash, T.afterText, ");
-			text.append("T.afterStart, T.afterEnd, T.revision, T.type, T.date, T.message from ");
+			text.append("T.afterStart, T.afterEnd, T.revision, T.changetype, T.difftype, T.date, T.message from ");
 			text.append("(select M.software software, M.id id, M.filepath filepath, M.beforeHash beforeHash, ");
 			text.append("(select C2.text from codes C2 where C2.id = M.beforeID) beforeText, ");
 			text.append("(select C3.start from codes C3 where C3.id = M.beforeID) beforeStart, ");
@@ -70,7 +71,8 @@ public class ReadOnlyDAO {
 			text.append("(select C7.start from codes C7 where C7.id = M.afterID) afterStart, ");
 			text.append("(select C8.end from codes C8 where C8.id = M.afterID) afterEnd, ");
 			text.append("M.revision revision, ");
-			text.append("M.type type, ");
+			text.append("M.changetype changetype, ");
+			text.append("M.difftype difftype, ");
 			text.append("(select R1.date from revisions R1 where R1.number = M.revision) date, ");
 			text.append("(select R2.message from revisions R2 where R2.number = M.revision) message ");
 			text.append("from changes M) T where T.beforeHash=? and T.afterHash=?");
@@ -94,12 +96,11 @@ public class ReadOnlyDAO {
 				final int afterStart = result.getInt(10);
 				final int afterEnd = result.getInt(11);
 				final long number = result.getLong(12);
-				final ChangeType changeType = beforeText.isEmpty() ? ChangeType.ADD
-						: afterText.isEmpty() ? ChangeType.DELETE
-								: ChangeType.REPLACE;
-				final DiffType diffType = DiffType.getType(result.getInt(13));
-				final String date = result.getString(14);
-				final String message = result.getString(15);
+				final ChangeType changeType = ChangeType.getType(result
+						.getInt(13));
+				final DiffType diffType = DiffType.getType(result.getInt(14));
+				final String date = result.getString(15);
+				final String message = result.getString(16);
 				final Change modification = new Change(software, id, filepath,
 						new Code(software, beforeID, beforeText, beforeStart,
 								beforeEnd), new Code(software, afterID,
@@ -126,7 +127,7 @@ public class ReadOnlyDAO {
 
 		try {
 			final StringBuilder text = new StringBuilder();
-			text.append("select id, beforeHash, afterHash, type, support, confidence, adr");
+			text.append("select id, beforeHash, afterHash, changetype, difftype, support, confidence");
 			text.append(" from patterns where ? <= support and ? <= confidence");
 			final PreparedStatement statement = this.connector
 					.prepareStatement(text.toString());
@@ -139,13 +140,11 @@ public class ReadOnlyDAO {
 				final int id = result.getInt(1);
 				final byte[] beforeHash = result.getBytes(2);
 				final byte[] afterHash = result.getBytes(3);
-				final DiffType diffType = DiffType.getType(result.getInt(4));
-				final int support = result.getInt(5);
-				final float confidence = result.getFloat(6);
-				final String adr = result.getString(7);
-				final ChangeType changeType = adr.equals("add") ? ChangeType.ADD
-						: adr.equalsIgnoreCase("delete") ? ChangeType.DELETE
-								: ChangeType.DELETE;
+				final ChangeType changeType = ChangeType.getType(result
+						.getInt(4));
+				final DiffType diffType = DiffType.getType(result.getInt(5));
+				final int support = result.getInt(6);
+				final float confidence = result.getFloat(7);
 				final ChangePattern pattern = new ChangePattern(id, support,
 						confidence, beforeHash, afterHash, changeType, diffType);
 				patterns.add(pattern);

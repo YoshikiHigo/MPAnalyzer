@@ -47,6 +47,19 @@ public class Change implements Comparable<Change> {
 
 		@Override
 		abstract public String toString();
+		
+		public static ChangeType getType(final int value) {
+			switch(value){	
+			case 1:
+				return ChangeType.REPLACE;
+			case 2:
+				return ChangeType.ADD;
+			case 3:
+				return ChangeType.DELETE;
+			default:
+				return null;
+			}
+		}
 	}
 
 	public static enum DiffType {

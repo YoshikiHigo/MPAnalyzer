@@ -15,7 +15,7 @@ public class ChangeDAO {
 
 	static public final String REVISIONS_SCHEMA = "software string, number integer, date string, message string, primary key(software, number)";
 	static public final String CODES_SCHEMA = "software string, id integer, text string, hash blob, start int, end int, primary key(software, id)";
-	static public final String CHANGES_SCHEMA = "software string, id integer, filepath string, beforeID integer, beforeHash blob, afterID integer, afterHash blob, revision integer, type integer, primary key(software, id)";
+	static public final String CHANGES_SCHEMA = "software string, id integer, filepath string, beforeID integer, beforeHash blob, afterID integer, afterHash blob, revision integer, changetype integer, difftype integer, primary key(software, id)";
 
 	private Connection connector;
 	private PreparedStatement codePS;
@@ -43,7 +43,7 @@ public class ChangeDAO {
 			this.codePS = this.connector
 					.prepareStatement("insert into codes values (?, ?, ?, ?, ?, ?)");
 			this.changePS = this.connector
-					.prepareStatement("insert into changes values(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+					.prepareStatement("insert into changes values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 			this.numberOfCodePS = 0;
 			this.numberOfChangePS = 0;
@@ -114,6 +114,7 @@ public class ChangeDAO {
 			this.changePS.setBytes(7, change.after.hash);
 			this.changePS.setInt(8, (int) change.revision.number);
 			this.changePS.setInt(9, change.changeType.getValue());
+			this.changePS.setInt(10, change.diffType.getValue());
 			this.changePS.addBatch();
 			this.numberOfChangePS++;
 

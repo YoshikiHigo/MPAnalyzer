@@ -13,7 +13,7 @@ import yoshikihigo.cpanalyzer.Config;
 
 public class ChangePatternDAO {
 
-	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, beforeHash blob, afterHash blob, type integer, support integer, confidence real, nos integer, adr string";
+	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, beforeHash blob, afterHash blob, changetype integer, difftype integer, support integer, confidence real, nos integer";
 
 	private Connection connector;
 
@@ -115,10 +115,10 @@ public class ChangePatternDAO {
 
 			{
 				final StringBuilder text = new StringBuilder();
-				text.append("insert into patterns (beforeHash, afterHash, type, support, confidence) ");
-				text.append("select A.beforeHash, A.afterHash, A.type, A.times, ");
+				text.append("insert into patterns (beforeHash, afterHash, changetype, difftype, support, confidence) ");
+				text.append("select A.beforeHash, A.afterHash, A.changetype, A.difftype, A.times, ");
 				text.append("CAST(A.times AS REAL)/(select count(*) from changes where beforeHash=?)");
-				text.append("from (select beforeHash, afterHash, type, count(*) times ");
+				text.append("from (select beforeHash, afterHash, changetype, difftype, count(*) times ");
 				text.append("from changes where beforeHash=? group by afterHash) A");
 				final PreparedStatement statement = this.connector
 						.prepareStatement(text.toString());
