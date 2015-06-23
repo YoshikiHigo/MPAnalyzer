@@ -11,19 +11,19 @@ import java.util.TreeSet;
 
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 
-public class ObservedModificationPatterns extends Observable {
+public class ObservedChangePatterns extends Observable {
 
 	public enum MPLABEL {
 		ALL, FILTERED, SELECTED, OVERLOOKED;
 	}
 
-	private static final Map<MPLABEL, ObservedModificationPatterns> INSTANCES = new HashMap<MPLABEL, ObservedModificationPatterns>();
+	private static final Map<MPLABEL, ObservedChangePatterns> INSTANCES = new HashMap<MPLABEL, ObservedChangePatterns>();
 
 	private final SortedSet<ChangePattern> patterns;
 	public final MPLABEL label;
 	private Observer source;
 
-	private ObservedModificationPatterns(final MPLABEL label) {
+	private ObservedChangePatterns(final MPLABEL label) {
 
 		if (null == label) {
 			throw new NullPointerException();
@@ -34,11 +34,11 @@ public class ObservedModificationPatterns extends Observable {
 		this.label = label;
 	}
 
-	public static final ObservedModificationPatterns getInstance(
+	public static final ObservedChangePatterns getInstance(
 			final MPLABEL label) {
-		ObservedModificationPatterns instance = INSTANCES.get(label);
+		ObservedChangePatterns instance = INSTANCES.get(label);
 		if (null == instance) {
-			instance = new ObservedModificationPatterns(label);
+			instance = new ObservedChangePatterns(label);
 			INSTANCES.put(label, instance);
 		}
 		return instance;

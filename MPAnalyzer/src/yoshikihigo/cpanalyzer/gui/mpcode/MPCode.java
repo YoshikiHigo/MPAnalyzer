@@ -12,8 +12,8 @@ import javax.swing.border.TitledBorder;
 
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.gui.CODE;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
 
 public class MPCode extends JTextArea implements Observer {
 
@@ -42,11 +42,11 @@ public class MPCode extends JTextArea implements Observer {
 		switch (code) {
 		case BEFORE:
 			this.scrollPane.setBorder(new TitledBorder(new LineBorder(
-					Color.black), "Code BEFORE Modification"));
+					Color.black), "Code BEFORE Change"));
 			break;
 		case AFTER:
 			this.scrollPane.setBorder(new TitledBorder(new LineBorder(
-					Color.black), "Code AFTER Modification"));
+					Color.black), "Code AFTER Change"));
 			break;
 		default:
 			assert false : "here shouldn't be reached!";
@@ -59,8 +59,8 @@ public class MPCode extends JTextArea implements Observer {
 	@Override
 	public void update(final Observable o, final Object arg) {
 
-		if (o instanceof ObservedModificationPatterns) {
-			final ObservedModificationPatterns patterns = (ObservedModificationPatterns) o;
+		if (o instanceof ObservedChangePatterns) {
+			final ObservedChangePatterns patterns = (ObservedChangePatterns) o;
 			if (patterns.label.equals(MPLABEL.SELECTED)) {
 
 				this.setText("");
@@ -68,8 +68,8 @@ public class MPCode extends JTextArea implements Observer {
 				if (patterns.isSet()) {
 					final ChangePattern pattern = patterns.get().first();
 					final String text = this.code == CODE.BEFORE ? pattern
-							.getModifications().get(0).before.text : pattern
-							.getModifications().get(0).after.text;
+							.getChanges().get(0).before.text : pattern
+							.getChanges().get(0).after.text;
 					if (!text.isEmpty()) {
 						this.setText(text);
 					} else {
@@ -84,7 +84,7 @@ public class MPCode extends JTextArea implements Observer {
 
 				if (patterns.isSet()) {
 					final ChangePattern pattern = patterns.get().first();
-					final String text = pattern.getModifications().get(0).after.text;
+					final String text = pattern.getChanges().get(0).after.text;
 					if (!text.isEmpty()) {
 						this.setText(text);
 					} else {

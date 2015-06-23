@@ -21,7 +21,7 @@ class MListRenderer extends DefaultTableCellRenderer {
 		final int modelRow = table.convertRowIndexToModel(row);
 		final int modelColumn = table.convertColumnIndexToModel(column);
 		final MListModel model = (MListModel) table.getModel();
-		final Change modification = model.modifications[modelRow];
+		final Change modification = model.changes[modelRow];
 		switch (modelColumn) {
 		case 0: {
 			renderer.setHorizontalAlignment(JLabel.CENTER);

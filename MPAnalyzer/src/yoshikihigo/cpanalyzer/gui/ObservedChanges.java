@@ -11,33 +11,33 @@ import java.util.TreeSet;
 
 import yoshikihigo.cpanalyzer.data.Change;
 
-public class ObservedModifications extends Observable {
+public class ObservedChanges extends Observable {
 
 	public enum MLABEL {
 		SELECTED;
 	}
 
-	private static final Map<MLABEL, ObservedModifications> INSTANCES = new HashMap<MLABEL, ObservedModifications>();
+	private static final Map<MLABEL, ObservedChanges> INSTANCES = new HashMap<MLABEL, ObservedChanges>();
 
-	private final SortedSet<Change> modifications;
+	private final SortedSet<Change> changes;
 	public final MLABEL label;
 	private Observer source;
 
-	private ObservedModifications(final MLABEL label) {
+	private ObservedChanges(final MLABEL label) {
 
 		if (null == label) {
 			throw new NullPointerException();
 		}
 
-		this.modifications = new TreeSet<Change>();
+		this.changes = new TreeSet<Change>();
 		this.source = null;
 		this.label = label;
 	}
 
-	public static final ObservedModifications getInstance(final MLABEL label) {
-		ObservedModifications instance = INSTANCES.get(label);
+	public static final ObservedChanges getInstance(final MLABEL label) {
+		ObservedChanges instance = INSTANCES.get(label);
 		if (null == instance) {
-			instance = new ObservedModifications(label);
+			instance = new ObservedChanges(label);
 			INSTANCES.put(label, instance);
 		}
 		return instance;
@@ -49,7 +49,7 @@ public class ObservedModifications extends Observable {
 			return false;
 		}
 
-		this.modifications.add(modification);
+		this.changes.add(modification);
 		this.source = source;
 
 		this.setChanged();
@@ -65,7 +65,7 @@ public class ObservedModifications extends Observable {
 			return false;
 		}
 
-		this.modifications.addAll(modifications);
+		this.changes.addAll(modifications);
 		this.source = source;
 
 		this.setChanged();
@@ -80,7 +80,7 @@ public class ObservedModifications extends Observable {
 			return false;
 		}
 
-		this.modifications.remove(modification);
+		this.changes.remove(modification);
 		this.source = source;
 
 		this.setChanged();
@@ -96,7 +96,7 @@ public class ObservedModifications extends Observable {
 			return false;
 		}
 
-		this.modifications.removeAll(modifications);
+		this.changes.removeAll(modifications);
 		this.source = source;
 
 		this.setChanged();
@@ -111,8 +111,8 @@ public class ObservedModifications extends Observable {
 			return false;
 		}
 
-		this.modifications.clear();
-		this.modifications.add(modification);
+		this.changes.clear();
+		this.changes.add(modification);
 		this.source = source;
 
 		this.setChanged();
@@ -128,8 +128,8 @@ public class ObservedModifications extends Observable {
 			return false;
 		}
 
-		this.modifications.clear();
-		this.modifications.addAll(modifications);
+		this.changes.clear();
+		this.changes.addAll(modifications);
 		this.source = source;
 
 		this.setChanged();
@@ -139,12 +139,12 @@ public class ObservedModifications extends Observable {
 	}
 
 	public boolean isSet() {
-		return !this.modifications.isEmpty();
+		return !this.changes.isEmpty();
 	}
 
 	public void clear(final Observer source) {
 
-		this.modifications.clear();
+		this.changes.clear();
 		this.source = source;
 
 		this.setChanged();
@@ -152,7 +152,7 @@ public class ObservedModifications extends Observable {
 	}
 
 	public SortedSet<Change> get() {
-		return Collections.unmodifiableSortedSet(this.modifications);
+		return Collections.unmodifiableSortedSet(this.changes);
 	}
 
 	public Observer getSource() {

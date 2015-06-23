@@ -16,8 +16,8 @@ import javax.swing.border.TitledBorder;
 
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
 
 public class CLPanel extends JTextArea implements Observer {
 
@@ -95,8 +95,8 @@ public class CLPanel extends JTextArea implements Observer {
 	@Override
 	public void update(final Observable o, final Object arg) {
 
-		if (o instanceof ObservedModificationPatterns) {
-			final ObservedModificationPatterns observedModificationPatterns = (ObservedModificationPatterns) o;
+		if (o instanceof ObservedChangePatterns) {
+			final ObservedChangePatterns observedModificationPatterns = (ObservedChangePatterns) o;
 			if (observedModificationPatterns.label.equals(MPLABEL.SELECTED)) {
 				this.setText("");
 				if (observedModificationPatterns.isSet()) {
@@ -104,7 +104,7 @@ public class CLPanel extends JTextArea implements Observer {
 							.get().first();
 					this.messages = new TreeMap<Long, String>();
 					this.dates = new TreeMap<Long, String>();
-					for (final Change m : pattern.getModifications()) {
+					for (final Change m : pattern.getChanges()) {
 						final long revision = m.revision.number;
 						final String date = m.revision.date;
 						final String message = m.revision.message;
@@ -136,7 +136,7 @@ public class CLPanel extends JTextArea implements Observer {
 							.get().first();
 					this.messages = new TreeMap<Long, String>();
 					this.dates = new TreeMap<Long, String>();
-					for (final Change m : pattern.getModifications()) {
+					for (final Change m : pattern.getChanges()) {
 						final long revision = m.revision.number;
 						final String date = m.revision.date;
 						final String message = m.revision.message;

@@ -32,10 +32,10 @@ import javax.swing.table.TableRowSorter;
 
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.gui.DetectionWindow;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
 import yoshikihigo.cpanalyzer.gui.OverlookedWindow;
 import yoshikihigo.cpanalyzer.gui.PatternWindow;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
 
 public class MPList extends JTable implements Observer {
 
@@ -66,10 +66,10 @@ public class MPList extends JTable implements Observer {
 			}
 
 			if (!patterns.isEmpty()) {
-				ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+				ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
 						.setAll(patterns, MPList.this);
 			} else {
-				ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+				ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
 						.clear(MPList.this);
 			}
 		}
@@ -101,7 +101,7 @@ public class MPList extends JTable implements Observer {
 			add(removeMenu);
 			add(analyzeMenu);
 
-			if (!ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+			if (!ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
 					.isSet()) {
 				removeMPItem.setEnabled(false);
 				analyzeMPItem.setEnabled(false);
@@ -156,7 +156,7 @@ public class MPList extends JTable implements Observer {
 						final ChangePattern mp = model.patterns[modelIndex];
 						mps.add(mp);
 					}
-					ObservedModificationPatterns.getInstance(MPLABEL.FILTERED)
+					ObservedChangePatterns.getInstance(MPLABEL.FILTERED)
 							.removeAll(mps, MPList.this);
 				}
 			});
@@ -223,7 +223,7 @@ public class MPList extends JTable implements Observer {
 		this.scrollPane
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"Modification Pattern List"));
+				"Change Pattern List"));
 
 		this.selectionHandler = new MPSelectionHandler();
 		this.getSelectionModel()
@@ -259,8 +259,8 @@ public class MPList extends JTable implements Observer {
 	@Override
 	public void update(final Observable o, final Object arg) {
 
-		if (o instanceof ObservedModificationPatterns) {
-			final ObservedModificationPatterns patterns = (ObservedModificationPatterns) o;
+		if (o instanceof ObservedChangePatterns) {
+			final ObservedChangePatterns patterns = (ObservedChangePatterns) o;
 			if (patterns.label.equals(MPLABEL.FILTERED)) {
 
 				this.getSelectionModel().removeListSelectionListener(
@@ -273,7 +273,7 @@ public class MPList extends JTable implements Observer {
 	}
 
 	private void setModel() {
-		final SortedSet<ChangePattern> patterns = ObservedModificationPatterns
+		final SortedSet<ChangePattern> patterns = ObservedChangePatterns
 				.getInstance(MPLABEL.FILTERED).get();
 
 		final JComboBox[] comboBoxes = new JComboBox[patterns.size()];

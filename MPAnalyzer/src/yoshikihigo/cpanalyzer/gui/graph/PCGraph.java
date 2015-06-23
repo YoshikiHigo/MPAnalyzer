@@ -20,8 +20,8 @@ import javax.swing.border.TitledBorder;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Revision;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
 
 public class PCGraph extends JPanel implements Observer {
 
@@ -104,7 +104,7 @@ public class PCGraph extends JPanel implements Observer {
 					this.update();
 					this.draggingPolygonalIndex = -1;
 
-					ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+					ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
 							.clear(PCGraph.this);
 				}
 			}
@@ -177,13 +177,13 @@ public class PCGraph extends JPanel implements Observer {
 
 		void update() {
 
-			ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).clear(
+			ObservedChangePatterns.getInstance(MPLABEL.SELECTED).clear(
 					PCGraph.this);
 
 			final Set<ChangePattern> inPatterns = new HashSet<ChangePattern>();
 			final Set<ChangePattern> outPatterns = new HashSet<ChangePattern>();
 
-			for (final ChangePattern pattern : ObservedModificationPatterns
+			for (final ChangePattern pattern : ObservedChangePatterns
 					.getInstance(MPLABEL.ALL).get()) {
 
 				if (pattern.support > PCGraph.this.maxSUPPORT * this.yRate[0]) {
@@ -244,9 +244,9 @@ public class PCGraph extends JPanel implements Observer {
 				}
 			}
 
-			ObservedModificationPatterns.getInstance(MPLABEL.SELECTED).clear(
+			ObservedChangePatterns.getInstance(MPLABEL.SELECTED).clear(
 					PCGraph.this);
-			ObservedModificationPatterns.getInstance(MPLABEL.FILTERED).setAll(
+			ObservedChangePatterns.getInstance(MPLABEL.FILTERED).setAll(
 					inPatterns, PCGraph.this);
 		}
 
@@ -349,19 +349,19 @@ public class PCGraph extends JPanel implements Observer {
 		this.drawBackGround(g);
 		this.drawStatus(g);
 		this.drawAxis(g);
-		this.drawModificationPatterns(g);
+		this.drawChangePatterns(g);
 		this.drawLabel(g);
 		this.filter.draw(g);
 
 		this.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"Parallel Coordinate Graph of Modification Patterns"));
+				"Parallel Coordinate Graph of Change Patterns"));
 	}
 
 	@Override
 	public void update(final Observable o, final Object arg) {
 
-		if (o instanceof ObservedModificationPatterns) {
-			final ObservedModificationPatterns patterns = (ObservedModificationPatterns) o;
+		if (o instanceof ObservedChangePatterns) {
+			final ObservedChangePatterns patterns = (ObservedChangePatterns) o;
 			if (patterns.label.equals(MPLABEL.ALL)) {
 				this.resetMaxValues();
 				this.filter.reset();
@@ -400,7 +400,7 @@ public class PCGraph extends JPanel implements Observer {
 		this.maxLAM = 1;
 		this.minRevision = new Revision("", Long.MAX_VALUE, "", "");
 		this.maxRevision = new Revision("", Long.MIN_VALUE, "", "");
-		for (final ChangePattern pattern : ObservedModificationPatterns
+		for (final ChangePattern pattern : ObservedChangePatterns
 				.getInstance(MPLABEL.ALL).get()) {
 			if (this.maxSUPPORT < pattern.support) {
 				this.maxSUPPORT = pattern.support;
@@ -446,9 +446,9 @@ public class PCGraph extends JPanel implements Observer {
 
 	private void drawStatus(final Graphics g) {
 
-		final int allNumber = ObservedModificationPatterns
+		final int allNumber = ObservedChangePatterns
 				.getInstance(MPLABEL.ALL).get().size();
-		final int filteredNumber = ObservedModificationPatterns
+		final int filteredNumber = ObservedChangePatterns
 				.getInstance(MPLABEL.FILTERED).get().size();
 
 		g.setColor(METRIC_GRAPH_STATUS_COLOR);
@@ -475,16 +475,16 @@ public class PCGraph extends JPanel implements Observer {
 		}
 	}
 
-	private void drawModificationPatterns(final Graphics g) {
+	private void drawChangePatterns(final Graphics g) {
 
 		g.setColor(METRICS_UN_SELECTED_DATA_COLOR);
-		for (final ChangePattern pattern : ObservedModificationPatterns
+		for (final ChangePattern pattern : ObservedChangePatterns
 				.getInstance(MPLABEL.ALL).get()) {
 			this.drawModificationPattern(g, pattern);
 		}
 
 		g.setColor(METRICS_SELECTED_DATA_COLOR);
-		for (final ChangePattern pattern : ObservedModificationPatterns
+		for (final ChangePattern pattern : ObservedChangePatterns
 				.getInstance(MPLABEL.FILTERED).get()) {
 			this.drawModificationPattern(g, pattern);
 		}

@@ -62,9 +62,9 @@ public class ChangePattern implements Comparable<ChangePattern> {
 		return this.hashCode() == obj.hashCode();
 	}
 
-	public List<Change> getModifications() {
+	public List<Change> getChanges() {
 		if (0 == this.changes.size()) {
-			this.setModifications();
+			this.setChanges();
 		}
 		return Collections.unmodifiableList(this.changes);
 	}
@@ -72,7 +72,7 @@ public class ChangePattern implements Comparable<ChangePattern> {
 	public SortedSet<String> getFilePaths() {
 		final SortedSet<String> paths = new TreeSet<String>();
 		if (0 == this.changes.size()) {
-			this.setModifications();
+			this.setChanges();
 		}
 		for (final Change modification : this.changes) {
 			paths.add(modification.filepath);
@@ -83,7 +83,7 @@ public class ChangePattern implements Comparable<ChangePattern> {
 	public SortedSet<Revision> getRevisions() {
 		final SortedSet<Revision> revisions = new TreeSet<Revision>();
 		if (0 == this.changes.size()) {
-			this.setModifications();
+			this.setChanges();
 		}
 		for (final Change modification : this.changes) {
 			revisions.add(modification.revision);
@@ -98,7 +98,7 @@ public class ChangePattern implements Comparable<ChangePattern> {
 	public int getNOD() {
 
 		if (0 == this.changes.size()) {
-			this.setModifications();
+			this.setChanges();
 		}
 		final Revision firstRevision = this.changes.get(0).revision;
 		final Revision lastRevision = this.changes.get(this.changes.size() - 1).revision;
@@ -111,7 +111,7 @@ public class ChangePattern implements Comparable<ChangePattern> {
 
 	public int getNOR() {
 		if (0 == this.changes.size()) {
-			this.setModifications();
+			this.setChanges();
 		}
 		final Revision firstRevision = this.changes.get(0).revision;
 		final Revision lastRevision = this.changes.get(this.changes.size() - 1).revision;
@@ -120,19 +120,19 @@ public class ChangePattern implements Comparable<ChangePattern> {
 
 	public int getLBM() {
 		if (0 == this.changes.size()) {
-			this.setModifications();
+			this.setChanges();
 		}
 		return this.changes.get(0).before.statements.size();
 	}
 
 	public int getLAM() {
 		if (0 == this.changes.size()) {
-			this.setModifications();
+			this.setChanges();
 		}
 		return this.changes.get(0).after.statements.size();
 	}
 
-	private void setModifications() {
+	private void setChanges() {
 		this.changes.clear();
 		try {
 

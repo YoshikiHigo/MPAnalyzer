@@ -53,7 +53,7 @@ import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedRevisions.RLABEL;
 import yoshikihigo.cpanalyzer.gui.clpanel.CLPanel;
 import yoshikihigo.cpanalyzer.gui.mpcode.MPCode;
@@ -95,7 +95,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 		final OList oList = new OList();
 		listPanel.setTopComponent(oList.scrollPane);
 		final CLPanel clPanel = new CLPanel();
-		ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+		ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
 				.addObserver(clPanel);
 		listPanel.setBottomComponent(clPanel.scrollPane);
 
@@ -107,7 +107,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(oCode);
 		codePanel.setTopComponent(oCode.scrollPane);
 		final MPCode mpCode = new MPCode(CODE.AFTER);
-		ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+		ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
 				.addObserver(mpCode);
 		codePanel.setBottomComponent(mpCode.scrollPane);
 
@@ -118,7 +118,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 
 		ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).addObserver(this);
 		ObservedFiles.getInstance(FLABEL.OVERLOOKED).addObserver(this);
-		ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+		ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
 				.addObserver(this);
 		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(this);
 
@@ -137,7 +137,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 						OverlookedWindow.this);
 				ObservedFiles.getInstance(FLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
-				ObservedModificationPatterns.getInstance(MPLABEL.OVERLOOKED)
+				ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
 						.clear(OverlookedWindow.this);
 				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
@@ -209,11 +209,11 @@ public class OverlookedWindow extends JFrame implements Observer {
 	private SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> detectOverlookedCode(
 			final long revision, final int place) {
 		final Map<String, List<Statement>> files = this.getFiles(revision);
-		final SortedSet<ChangePattern> MPs = ObservedModificationPatterns
+		final SortedSet<ChangePattern> MPs = ObservedChangePatterns
 				.getInstance(MPLABEL.FILTERED).get();
 		final SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> oCodefragments = new TreeMap<ChangePattern, SortedMap<String, SortedSet<Code>>>();
 		for (final ChangePattern mp : MPs) {
-			final List<Statement> pattern = mp.getModifications().get(0).before.statements;
+			final List<Statement> pattern = mp.getChanges().get(0).before.statements;
 			final SortedMap<String, SortedSet<Code>> oCodefragmentForAMP = this
 					.getOverlookedCode(files, pattern);
 

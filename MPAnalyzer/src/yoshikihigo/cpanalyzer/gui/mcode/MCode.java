@@ -32,8 +32,8 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 import yoshikihigo.cpanalyzer.Config;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.gui.CODE;
-import yoshikihigo.cpanalyzer.gui.ObservedModifications;
-import yoshikihigo.cpanalyzer.gui.ObservedModifications.MLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChanges;
+import yoshikihigo.cpanalyzer.gui.ObservedChanges.MLABEL;
 
 public class MCode extends JTextArea implements Observer {
 
@@ -42,7 +42,7 @@ public class MCode extends JTextArea implements Observer {
 	public final JScrollPane scrollPane;
 	public final CODE code;
 
-	private Change modification;
+	private Change change;
 
 	public MCode(final CODE code) {
 
@@ -64,11 +64,11 @@ public class MCode extends JTextArea implements Observer {
 		switch (code) {
 		case BEFORE:
 			this.scrollPane.setBorder(new TitledBorder(new LineBorder(
-					Color.black), "File BEFORE Modification"));
+					Color.black), "File BEFORE Change"));
 			break;
 		case AFTER:
 			this.scrollPane.setBorder(new TitledBorder(new LineBorder(
-					Color.black), "File AFTER Modification"));
+					Color.black), "File AFTER Change"));
 			break;
 		default:
 			assert false : "here shouldn't be reached!";
@@ -76,7 +76,7 @@ public class MCode extends JTextArea implements Observer {
 		}
 
 		this.code = code;
-		this.modification = null;
+		this.change = null;
 
 		this.addMouseListener(new MouseAdapter() {
 			@Override
@@ -109,8 +109,8 @@ public class MCode extends JTextArea implements Observer {
 	@Override
 	public void update(final Observable o, final Object arg) {
 
-		if (o instanceof ObservedModifications) {
-			final ObservedModifications observedModifications = (ObservedModifications) o;
+		if (o instanceof ObservedChanges) {
+			final ObservedChanges observedModifications = (ObservedChanges) o;
 			if (observedModifications.label.equals(MLABEL.SELECTED)) {
 
 				this.setText("");
@@ -119,9 +119,9 @@ public class MCode extends JTextArea implements Observer {
 
 					try {
 
-						this.modification = observedModifications.get().first();
-						final long revision = this.modification.revision.number;
-						final String filepath = this.modification.filepath;
+						this.change = observedModifications.get().first();
+						final long revision = this.change.revision.number;
+						final String filepath = this.change.filepath;
 						final String REPOSITORY_FOR_MINING = Config
 								.getInstance()
 								.getREPOSITORY_FOR_MINING();
@@ -153,7 +153,7 @@ public class MCode extends JTextArea implements Observer {
 									}
 								});
 
-						final Set<Integer> lines = this.getModifiedLines();
+						final Set<Integer> lines = this.getChangedLines();
 						final Insets margin = new Insets(5, 50, 5, 5);
 						this.setMargin(margin);
 						this.setUI(new MCodeUI(this.code, lines, this, margin));
@@ -179,18 +179,18 @@ public class MCode extends JTextArea implements Observer {
 		}
 	}
 
-	private SortedSet<Integer> getModifiedLines() {
+	private SortedSet<Integer> getChangedLines() {
 		final SortedSet<Integer> lines = new TreeSet<Integer>();
 		switch (this.code) {
 		case BEFORE: {
-			for (int line = this.modification.before.getStartLine(); line <= this.modification.before
+			for (int line = this.change.before.getStartLine(); line <= this.change.before
 					.getEndLine(); line++) {
 				lines.add(line - 1);
 			}
 			break;
 		}
 		case AFTER: {
-			for (int line = this.modification.after.getStartLine(); line <= this.modification.after
+			for (int line = this.change.after.getStartLine(); line <= this.change.after
 					.getEndLine(); line++) {
 				lines.add(line - 1);
 			}
@@ -208,7 +208,7 @@ public class MCode extends JTextArea implements Observer {
 		final Document doc = this.getDocument();
 		final Element root = doc.getDefaultRootElement();
 
-		final SortedSet<Integer> lines = this.getModifiedLines();
+		final SortedSet<Integer> lines = this.getChangedLines();
 		if (lines.isEmpty()) {
 			return;
 		}

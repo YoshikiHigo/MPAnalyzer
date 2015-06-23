@@ -14,7 +14,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import yoshikihigo.cpanalyzer.data.Change;
-import yoshikihigo.cpanalyzer.gui.ObservedModifications.MLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChanges.MLABEL;
 import yoshikihigo.cpanalyzer.gui.mcode.MCode;
 import yoshikihigo.cpanalyzer.gui.mlist.MList;
 
@@ -29,10 +29,10 @@ public class PatternWindow extends JFrame implements Observer {
 		this.setSize(new Dimension(d.width - 5, d.height - 27));
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-		ObservedModifications.getInstance(MLABEL.SELECTED).addObserver(this);
+		ObservedChanges.getInstance(MLABEL.SELECTED).addObserver(this);
 
 		final MList list = new MList();
-		ObservedModifications.getInstance(MLABEL.SELECTED).addObserver(list);
+		ObservedChanges.getInstance(MLABEL.SELECTED).addObserver(list);
 		this.logDisplay = new JTextArea();
 		this.logDisplay.setEditable(false);
 		this.logDisplay.setLineWrap(true);
@@ -43,10 +43,10 @@ public class PatternWindow extends JFrame implements Observer {
 		topPane.setRightComponent(this.logDisplay);
 
 		final MCode beforeCode = new MCode(CODE.BEFORE);
-		ObservedModifications.getInstance(MLABEL.SELECTED).addObserver(
+		ObservedChanges.getInstance(MLABEL.SELECTED).addObserver(
 				beforeCode);
 		final MCode afterCode = new MCode(CODE.AFTER);
-		ObservedModifications.getInstance(MLABEL.SELECTED).addObserver(
+		ObservedChanges.getInstance(MLABEL.SELECTED).addObserver(
 				afterCode);
 		final JSplitPane codePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		codePane.add(beforeCode.scrollPane, JSplitPane.LEFT);
@@ -68,8 +68,8 @@ public class PatternWindow extends JFrame implements Observer {
 
 	@Override
 	public void update(final Observable o, final Object arg) {
-		if (o instanceof ObservedModifications) {
-			final ObservedModifications modifications = (ObservedModifications) o;
+		if (o instanceof ObservedChanges) {
+			final ObservedChanges modifications = (ObservedChanges) o;
 			if (modifications.label.equals(MLABEL.SELECTED)) {
 				if (modifications.isSet()) {
 					final Change m = modifications.get().first();

@@ -19,10 +19,10 @@ import javax.swing.table.TableRowSorter;
 
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns;
-import yoshikihigo.cpanalyzer.gui.ObservedModifications;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
-import yoshikihigo.cpanalyzer.gui.ObservedModifications.MLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
+import yoshikihigo.cpanalyzer.gui.ObservedChanges;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChanges.MLABEL;
 
 public class MList extends JTable implements Observer {
 
@@ -47,12 +47,12 @@ public class MList extends JTable implements Observer {
 
 				final int modelIndex = MList.this.convertRowIndexToModel(index);
 				final MListModel model = (MListModel) MList.this.getModel();
-				final Change modification = model.modifications[modelIndex];
+				final Change modification = model.changes[modelIndex];
 				modifications.add(modification);
 
 			}
 
-			ObservedModifications.getInstance(MLABEL.SELECTED).setAll(
+			ObservedChanges.getInstance(MLABEL.SELECTED).setAll(
 					modifications, MList.this);
 		}
 	}
@@ -81,7 +81,7 @@ public class MList extends JTable implements Observer {
 		this.scrollPane
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"Modifications in a Specified Pattern"));
+				"Changes in a Specified Pattern"));
 
 		this.selectionHandler = new MPSelectionHandler();
 		this.getSelectionModel()
@@ -91,8 +91,8 @@ public class MList extends JTable implements Observer {
 	@Override
 	public void update(final Observable o, final Object arg) {
 
-		if (o instanceof ObservedModificationPatterns) {
-			final ObservedModificationPatterns patterns = (ObservedModificationPatterns) o;
+		if (o instanceof ObservedChangePatterns) {
+			final ObservedChangePatterns patterns = (ObservedChangePatterns) o;
 			if (patterns.label.equals(MPLABEL.FILTERED)) {
 
 				this.getSelectionModel().removeListSelectionListener(
@@ -111,18 +111,18 @@ public class MList extends JTable implements Observer {
 		if (1 == column || 2 == column) {
 			return (String) this.getModel().getValueAt(row, column);
 		} else {
-			return ((MListModel) this.getModel()).modifications[row].revision.message;
+			return ((MListModel) this.getModel()).changes[row].revision.message;
 		}
 	}
 
 	private void setModel() {
 
-		final SortedSet<ChangePattern> patterns = ObservedModificationPatterns
+		final SortedSet<ChangePattern> patterns = ObservedChangePatterns
 				.getInstance(MPLABEL.SELECTED).get();
 		assert !patterns.isEmpty() : "Condition is unsatisfied.";
 		final ChangePattern pattern = patterns.first();
 
-		final MListModel model = new MListModel(pattern.getModifications());
+		final MListModel model = new MListModel(pattern.getChanges());
 		this.setModel(model);
 		final RowSorter<MListModel> sorter = new TableRowSorter<MListModel>(
 				model);

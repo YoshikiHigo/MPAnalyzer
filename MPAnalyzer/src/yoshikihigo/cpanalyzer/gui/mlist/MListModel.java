@@ -11,15 +11,15 @@ public class MListModel extends AbstractTableModel {
 	static public final String[] TITLES = new String[] { "Revision", "Date",
 			"Path", "POSITION BEFORE", "POSITION AFTER" };
 
-	final public Change[] modifications;
+	final public Change[] changes;
 
-	public MListModel(final Collection<Change> modifications) {
-		this.modifications = modifications.toArray(new Change[] {});
+	public MListModel(final Collection<Change> changes) {
+		this.changes = changes.toArray(new Change[] {});
 	}
 
 	@Override
 	public int getRowCount() {
-		return this.modifications.length;
+		return this.changes.length;
 	}
 
 	@Override
@@ -32,15 +32,15 @@ public class MListModel extends AbstractTableModel {
 
 		switch (col) {
 		case 0:
-			return this.modifications[row].revision.number;
+			return this.changes[row].revision.number;
 		case 1:
-			return this.modifications[row].revision.date;
+			return this.changes[row].revision.date;
 		case 2:
-			return this.modifications[row].filepath;
+			return this.changes[row].filepath;
 		case 3:
-			return this.modifications[row].before.position;
+			return this.changes[row].before.position;
 		case 4:
-			return this.modifications[row].after.position;
+			return this.changes[row].after.position;
 		default:
 			assert false : "Here sholdn't be reached!";
 			return null;

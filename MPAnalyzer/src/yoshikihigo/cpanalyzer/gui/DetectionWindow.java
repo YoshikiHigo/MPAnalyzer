@@ -22,7 +22,7 @@ import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedRevisions.RLABEL;
 import yoshikihigo.cpanalyzer.gui.dcode.DCode;
 import yoshikihigo.cpanalyzer.gui.dtree.DTree;
@@ -62,10 +62,10 @@ public class DetectionWindow extends JFrame implements Observer {
 		final MCode afterCode = new MCode(CODE.AFTER);
 		mCodePane.add(beforeCode.scrollPane);
 		mCodePane.add(afterCode.scrollPane);
-		final ChangePattern pattern = ObservedModificationPatterns
+		final ChangePattern pattern = ObservedChangePatterns
 				.getInstance(MPLABEL.SELECTED).get().first();
-		beforeCode.setText(pattern.getModifications().get(0).before.text);
-		afterCode.setText(pattern.getModifications().get(0).after.text);
+		beforeCode.setText(pattern.getChanges().get(0).before.text);
+		afterCode.setText(pattern.getChanges().get(0).after.text);
 
 		final JPanel topMainPanl = new JPanel();
 		topMainPanl.setLayout(new BorderLayout());
@@ -112,8 +112,8 @@ public class DetectionWindow extends JFrame implements Observer {
 
 				final long revision = rList.getSelectedRevision();
 				final Code codefragment = beforeButton.isSelected() ? pattern
-						.getModifications().get(0).before : pattern
-						.getModifications().get(0).after;
+						.getChanges().get(0).before : pattern
+						.getChanges().get(0).after;
 
 				ObservedRevisions.getInstance(RLABEL.DETECTION).set(revision,
 						DetectionWindow.this);

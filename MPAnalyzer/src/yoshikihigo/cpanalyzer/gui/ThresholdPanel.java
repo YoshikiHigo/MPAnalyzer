@@ -23,7 +23,7 @@ import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.Change.DiffType;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
-import yoshikihigo.cpanalyzer.gui.ObservedModificationPatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
 
 public class ThresholdPanel extends JPanel implements Observer {
 
@@ -141,7 +141,7 @@ public class ThresholdPanel extends JPanel implements Observer {
 			final JPanel lbmPanel = new JPanel(new FlowLayout(
 					FlowLayout.CENTER, 5, 0));
 			lbmPanel.setBorder(new TitledBorder(new LineBorder(Color.black),
-					"LBM (Length Before Modification)"));
+					"LBM (Length Before Change)"));
 			lbmPanel.add(new JLabel("Min: "));
 			lbmPanel.add(lbmMinField);
 			lbmPanel.add(new JPanel());
@@ -154,7 +154,7 @@ public class ThresholdPanel extends JPanel implements Observer {
 			final JPanel lamPanel = new JPanel(new FlowLayout(
 					FlowLayout.CENTER, 5, 0));
 			lamPanel.setBorder(new TitledBorder(new LineBorder(Color.black),
-					"LAM (Length After Modification)"));
+					"LAM (Length After Change)"));
 			lamPanel.add(new JLabel("Min: "));
 			lamPanel.add(lamMinField);
 			lamPanel.add(new JPanel());
@@ -167,7 +167,7 @@ public class ThresholdPanel extends JPanel implements Observer {
 			final JPanel changePanel = new JPanel(new FlowLayout(
 					FlowLayout.CENTER, 3, 0));
 			changePanel.setBorder(new TitledBorder(new LineBorder(Color.black),
-					"Modification Type"));
+					"REPLACE/ADD/DELETE"));
 			changePanel.add(changeCheckBox);
 			changePanel.add(addCheckBox);
 			changePanel.add(deleteCheckBox);
@@ -178,7 +178,7 @@ public class ThresholdPanel extends JPanel implements Observer {
 			final JPanel typePanel = new JPanel(new FlowLayout(
 					FlowLayout.CENTER, 2, 0));
 			typePanel.setBorder(new TitledBorder(new LineBorder(Color.black),
-					"Change Type"));
+					"TYPE-2/TYPE-3"));
 			typePanel.add(type2CheckBox);
 			typePanel.add(type3CheckBox);
 			this.add(typePanel);
@@ -413,11 +413,11 @@ public class ThresholdPanel extends JPanel implements Observer {
 						}
 					}
 
-					ObservedModificationPatterns.getInstance(MPLABEL.ALL)
+					ObservedChangePatterns.getInstance(MPLABEL.ALL)
 							.setAll(patterns, ThresholdPanel.this);
-					ObservedModificationPatterns.getInstance(MPLABEL.FILTERED)
+					ObservedChangePatterns.getInstance(MPLABEL.FILTERED)
 							.setAll(patterns, ThresholdPanel.this);
-					ObservedModificationPatterns.getInstance(MPLABEL.SELECTED)
+					ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
 							.clear(ThresholdPanel.this);
 
 				} catch (final Exception databaseException) {

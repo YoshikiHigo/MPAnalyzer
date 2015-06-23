@@ -40,7 +40,7 @@ public class MPCSVPrinter {
 				writer.write(", ");
 
 				final List<Change> modifications = pattern
-						.getModifications();
+						.getChanges();
 				Revision sRevision = modifications.get(0).revision;
 				Revision eRevision = modifications.get(0).revision;
 				for (final Change modification : modifications) {
