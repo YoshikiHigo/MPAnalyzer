@@ -13,11 +13,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import yoshikihigo.cpanalyzer.Config;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.clpanel.CLPanel;
+import yoshikihigo.cpanalyzer.gui.cpcode.CPCode;
+import yoshikihigo.cpanalyzer.gui.cplist.CPList;
 import yoshikihigo.cpanalyzer.gui.graph.PCGraph;
-import yoshikihigo.cpanalyzer.gui.mpcode.MPCode;
-import yoshikihigo.cpanalyzer.gui.mplist.MPList;
 
 public class MainWindow extends JFrame {
 
@@ -45,52 +45,52 @@ public class MainWindow extends JFrame {
 		this.addWindowListener(new MainWindowListener());
 
 		final ThresholdPanel threshold = new ThresholdPanel();
-		ObservedChangePatterns.getInstance(MPLABEL.ALL).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(
 				threshold);
-		ObservedChangePatterns.getInstance(MPLABEL.FILTERED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
 				threshold);
-		ObservedChangePatterns.getInstance(MPLABEL.SELECTED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
 				threshold);
 		this.getContentPane().add(threshold, BorderLayout.NORTH);
 
 		final JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		final PCGraph graph = new PCGraph();
-		ObservedChangePatterns.getInstance(MPLABEL.ALL)
+		ObservedChangePatterns.getInstance(CPLABEL.ALL)
 				.addObserver(graph);
-		ObservedChangePatterns.getInstance(MPLABEL.FILTERED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
 				graph);
-		ObservedChangePatterns.getInstance(MPLABEL.SELECTED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
 				graph);
 		topPane.add(graph, JSplitPane.LEFT);
 
 		final JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		final MPList list = new MPList();
-		ObservedChangePatterns.getInstance(MPLABEL.ALL).addObserver(list);
-		ObservedChangePatterns.getInstance(MPLABEL.FILTERED).addObserver(
+		final CPList list = new CPList();
+		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(list);
+		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
 				list);
-		ObservedChangePatterns.getInstance(MPLABEL.SELECTED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
 				list);
 		rightPane.setTopComponent(list.scrollPane);
 		final CLPanel clPanel = new CLPanel();
-		ObservedChangePatterns.getInstance(MPLABEL.SELECTED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
 				clPanel);
 		rightPane.setBottomComponent(clPanel.scrollPane);
 		topPane.add(rightPane, JSplitPane.RIGHT);
 
-		final MPCode beforeCode = new MPCode(CODE.BEFORE);
-		ObservedChangePatterns.getInstance(MPLABEL.ALL).addObserver(
+		final CPCode beforeCode = new CPCode(CODE.BEFORE);
+		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(
 				beforeCode);
-		ObservedChangePatterns.getInstance(MPLABEL.FILTERED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
 				beforeCode);
-		ObservedChangePatterns.getInstance(MPLABEL.SELECTED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
 				beforeCode);
 
-		final MPCode afterCode = new MPCode(CODE.AFTER);
-		ObservedChangePatterns.getInstance(MPLABEL.ALL).addObserver(
+		final CPCode afterCode = new CPCode(CODE.AFTER);
+		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(
 				afterCode);
-		ObservedChangePatterns.getInstance(MPLABEL.FILTERED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
 				afterCode);
-		ObservedChangePatterns.getInstance(MPLABEL.SELECTED).addObserver(
+		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
 				afterCode);
 
 		final JSplitPane bottomPane = new JSplitPane(

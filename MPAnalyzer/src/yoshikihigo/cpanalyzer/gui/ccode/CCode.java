@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui.mcode;
+package yoshikihigo.cpanalyzer.gui.ccode;
 
 import java.awt.Color;
 import java.awt.Insets;
@@ -33,9 +33,9 @@ import yoshikihigo.cpanalyzer.Config;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.gui.CODE;
 import yoshikihigo.cpanalyzer.gui.ObservedChanges;
-import yoshikihigo.cpanalyzer.gui.ObservedChanges.MLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChanges.CLABEL;
 
-public class MCode extends JTextArea implements Observer {
+public class CCode extends JTextArea implements Observer {
 
 	static public final int TAB_SIZE = 4;
 
@@ -44,13 +44,13 @@ public class MCode extends JTextArea implements Observer {
 
 	private Change change;
 
-	public MCode(final CODE code) {
+	public CCode(final CODE code) {
 
 		this.setTabSize(TAB_SIZE);
 
 		final Insets margin = new Insets(5, 50, 5, 5);
 		this.setMargin(margin);
-		this.setUI(new MCodeUI(code, new HashSet<Integer>(), this, margin));
+		this.setUI(new CCodeUI(code, new HashSet<Integer>(), this, margin));
 		this.setText("");
 		this.setEditable(false);
 
@@ -91,7 +91,7 @@ public class MCode extends JTextArea implements Observer {
 					case 1:
 						break;
 					case 2:
-						MCode.this.display();
+						CCode.this.display();
 						break;
 					default:
 					}
@@ -111,7 +111,7 @@ public class MCode extends JTextArea implements Observer {
 
 		if (o instanceof ObservedChanges) {
 			final ObservedChanges observedModifications = (ObservedChanges) o;
-			if (observedModifications.label.equals(MLABEL.SELECTED)) {
+			if (observedModifications.label.equals(CLABEL.SELECTED)) {
 
 				this.setText("");
 
@@ -156,7 +156,7 @@ public class MCode extends JTextArea implements Observer {
 						final Set<Integer> lines = this.getChangedLines();
 						final Insets margin = new Insets(5, 50, 5, 5);
 						this.setMargin(margin);
-						this.setUI(new MCodeUI(this.code, lines, this, margin));
+						this.setUI(new CCodeUI(this.code, lines, this, margin));
 						switch (this.code) {
 						case BEFORE:
 							this.setText(beforeText.toString());

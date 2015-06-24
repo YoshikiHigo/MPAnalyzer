@@ -13,17 +13,17 @@ import yoshikihigo.cpanalyzer.data.ChangePattern;
 
 public class ObservedChangePatterns extends Observable {
 
-	public enum MPLABEL {
+	public enum CPLABEL {
 		ALL, FILTERED, SELECTED, OVERLOOKED;
 	}
 
-	private static final Map<MPLABEL, ObservedChangePatterns> INSTANCES = new HashMap<MPLABEL, ObservedChangePatterns>();
+	private static final Map<CPLABEL, ObservedChangePatterns> INSTANCES = new HashMap<CPLABEL, ObservedChangePatterns>();
 
 	private final SortedSet<ChangePattern> patterns;
-	public final MPLABEL label;
+	public final CPLABEL label;
 	private Observer source;
 
-	private ObservedChangePatterns(final MPLABEL label) {
+	private ObservedChangePatterns(final CPLABEL label) {
 
 		if (null == label) {
 			throw new NullPointerException();
@@ -35,7 +35,7 @@ public class ObservedChangePatterns extends Observable {
 	}
 
 	public static final ObservedChangePatterns getInstance(
-			final MPLABEL label) {
+			final CPLABEL label) {
 		ObservedChangePatterns instance = INSTANCES.get(label);
 		if (null == instance) {
 			instance = new ObservedChangePatterns(label);

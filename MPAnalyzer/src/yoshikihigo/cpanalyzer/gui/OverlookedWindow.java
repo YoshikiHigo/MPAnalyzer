@@ -53,10 +53,10 @@ import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedRevisions.RLABEL;
 import yoshikihigo.cpanalyzer.gui.clpanel.CLPanel;
-import yoshikihigo.cpanalyzer.gui.mpcode.MPCode;
+import yoshikihigo.cpanalyzer.gui.cpcode.CPCode;
 import yoshikihigo.cpanalyzer.gui.ocode.OCode;
 import yoshikihigo.cpanalyzer.gui.olist.OList;
 import yoshikihigo.cpanalyzer.gui.progress.ProgressDialog;
@@ -67,7 +67,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 	private ProgressDialog progressDialog;
 
 	public OverlookedWindow() {
-		super("Overlooked code Window - MPAnalyzer");
+		super("Overlooked Code Window - CPAnalyzer");
 
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setSize(new Dimension(d.width - 5, d.height - 27));
@@ -95,7 +95,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 		final OList oList = new OList();
 		listPanel.setTopComponent(oList.scrollPane);
 		final CLPanel clPanel = new CLPanel();
-		ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
+		ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
 				.addObserver(clPanel);
 		listPanel.setBottomComponent(clPanel.scrollPane);
 
@@ -106,8 +106,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 		ObservedFiles.getInstance(FLABEL.OVERLOOKED).addObserver(oCode);
 		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(oCode);
 		codePanel.setTopComponent(oCode.scrollPane);
-		final MPCode mpCode = new MPCode(CODE.AFTER);
-		ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
+		final CPCode mpCode = new CPCode(CODE.AFTER);
+		ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
 				.addObserver(mpCode);
 		codePanel.setBottomComponent(mpCode.scrollPane);
 
@@ -118,7 +118,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 
 		ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED).addObserver(this);
 		ObservedFiles.getInstance(FLABEL.OVERLOOKED).addObserver(this);
-		ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
+		ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
 				.addObserver(this);
 		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(this);
 
@@ -137,7 +137,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 						OverlookedWindow.this);
 				ObservedFiles.getInstance(FLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
-				ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
+				ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
 						.clear(OverlookedWindow.this);
 				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
@@ -153,7 +153,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 				} catch (final NumberFormatException exception) {
 
 					final JDialog dialog = new JDialog(OverlookedWindow.this,
-							"MPAnalyzer", true);
+							"CPAnalyzer", true);
 					final JLabel error = new JLabel(
 							"PLACE must be emply or a positive integer!");
 					error.setHorizontalAlignment(SwingConstants.CENTER);
@@ -210,7 +210,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 			final long revision, final int place) {
 		final Map<String, List<Statement>> files = this.getFiles(revision);
 		final SortedSet<ChangePattern> MPs = ObservedChangePatterns
-				.getInstance(MPLABEL.FILTERED).get();
+				.getInstance(CPLABEL.FILTERED).get();
 		final SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> oCodefragments = new TreeMap<ChangePattern, SortedMap<String, SortedSet<Code>>>();
 		for (final ChangePattern mp : MPs) {
 			final List<Statement> pattern = mp.getChanges().get(0).before.statements;

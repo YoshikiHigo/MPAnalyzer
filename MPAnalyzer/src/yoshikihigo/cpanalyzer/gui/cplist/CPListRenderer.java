@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui.mplist;
+package yoshikihigo.cpanalyzer.gui.cplist;
 
 import java.awt.Component;
 
@@ -8,7 +8,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 
-class MPListRenderer extends DefaultTableCellRenderer {
+class CPListRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value,
@@ -20,7 +20,7 @@ class MPListRenderer extends DefaultTableCellRenderer {
 
 		final int modelRow = table.convertRowIndexToModel(row);
 		final int modelColumn = table.convertColumnIndexToModel(column);
-		final MPListModel model = (MPListModel) table.getModel();
+		final CPListModel model = (CPListModel) table.getModel();
 		final ChangePattern pattern = model.patterns[modelRow];
 		switch (modelColumn) {
 		case 0:

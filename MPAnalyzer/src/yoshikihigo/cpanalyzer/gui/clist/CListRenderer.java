@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui.mlist;
+package yoshikihigo.cpanalyzer.gui.clist;
 
 import java.awt.Component;
 
@@ -8,7 +8,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import yoshikihigo.cpanalyzer.data.Change;
 
-class MListRenderer extends DefaultTableCellRenderer {
+class CListRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value,
@@ -20,7 +20,7 @@ class MListRenderer extends DefaultTableCellRenderer {
 
 		final int modelRow = table.convertRowIndexToModel(row);
 		final int modelColumn = table.convertColumnIndexToModel(column);
-		final MListModel model = (MListModel) table.getModel();
+		final CListModel model = (CListModel) table.getModel();
 		final Change modification = model.changes[modelRow];
 		switch (modelColumn) {
 		case 0: {

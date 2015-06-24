@@ -21,7 +21,7 @@ import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 
 public class PCGraph extends JPanel implements Observer {
 
@@ -104,7 +104,7 @@ public class PCGraph extends JPanel implements Observer {
 					this.update();
 					this.draggingPolygonalIndex = -1;
 
-					ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
+					ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
 							.clear(PCGraph.this);
 				}
 			}
@@ -177,14 +177,14 @@ public class PCGraph extends JPanel implements Observer {
 
 		void update() {
 
-			ObservedChangePatterns.getInstance(MPLABEL.SELECTED).clear(
+			ObservedChangePatterns.getInstance(CPLABEL.SELECTED).clear(
 					PCGraph.this);
 
 			final Set<ChangePattern> inPatterns = new HashSet<ChangePattern>();
 			final Set<ChangePattern> outPatterns = new HashSet<ChangePattern>();
 
 			for (final ChangePattern pattern : ObservedChangePatterns
-					.getInstance(MPLABEL.ALL).get()) {
+					.getInstance(CPLABEL.ALL).get()) {
 
 				if (pattern.support > PCGraph.this.maxSUPPORT * this.yRate[0]) {
 					outPatterns.add(pattern);
@@ -244,9 +244,9 @@ public class PCGraph extends JPanel implements Observer {
 				}
 			}
 
-			ObservedChangePatterns.getInstance(MPLABEL.SELECTED).clear(
+			ObservedChangePatterns.getInstance(CPLABEL.SELECTED).clear(
 					PCGraph.this);
-			ObservedChangePatterns.getInstance(MPLABEL.FILTERED).setAll(
+			ObservedChangePatterns.getInstance(CPLABEL.FILTERED).setAll(
 					inPatterns, PCGraph.this);
 		}
 
@@ -362,13 +362,13 @@ public class PCGraph extends JPanel implements Observer {
 
 		if (o instanceof ObservedChangePatterns) {
 			final ObservedChangePatterns patterns = (ObservedChangePatterns) o;
-			if (patterns.label.equals(MPLABEL.ALL)) {
+			if (patterns.label.equals(CPLABEL.ALL)) {
 				this.resetMaxValues();
 				this.filter.reset();
 				this.filter.update();
 			}
 
-			else if (patterns.label.equals(MPLABEL.FILTERED)) {
+			else if (patterns.label.equals(CPLABEL.FILTERED)) {
 				this.repaint();
 			}
 		}
@@ -401,7 +401,7 @@ public class PCGraph extends JPanel implements Observer {
 		this.minRevision = new Revision("", Long.MAX_VALUE, "", "");
 		this.maxRevision = new Revision("", Long.MIN_VALUE, "", "");
 		for (final ChangePattern pattern : ObservedChangePatterns
-				.getInstance(MPLABEL.ALL).get()) {
+				.getInstance(CPLABEL.ALL).get()) {
 			if (this.maxSUPPORT < pattern.support) {
 				this.maxSUPPORT = pattern.support;
 			}
@@ -447,9 +447,9 @@ public class PCGraph extends JPanel implements Observer {
 	private void drawStatus(final Graphics g) {
 
 		final int allNumber = ObservedChangePatterns
-				.getInstance(MPLABEL.ALL).get().size();
+				.getInstance(CPLABEL.ALL).get().size();
 		final int filteredNumber = ObservedChangePatterns
-				.getInstance(MPLABEL.FILTERED).get().size();
+				.getInstance(CPLABEL.FILTERED).get().size();
 
 		g.setColor(METRIC_GRAPH_STATUS_COLOR);
 		g.drawString(filteredNumber + "/" + allNumber + " are selected", 20, 25);
@@ -479,13 +479,13 @@ public class PCGraph extends JPanel implements Observer {
 
 		g.setColor(METRICS_UN_SELECTED_DATA_COLOR);
 		for (final ChangePattern pattern : ObservedChangePatterns
-				.getInstance(MPLABEL.ALL).get()) {
+				.getInstance(CPLABEL.ALL).get()) {
 			this.drawModificationPattern(g, pattern);
 		}
 
 		g.setColor(METRICS_SELECTED_DATA_COLOR);
 		for (final ChangePattern pattern : ObservedChangePatterns
-				.getInstance(MPLABEL.FILTERED).get()) {
+				.getInstance(CPLABEL.FILTERED).get()) {
 			this.drawModificationPattern(g, pattern);
 		}
 	}

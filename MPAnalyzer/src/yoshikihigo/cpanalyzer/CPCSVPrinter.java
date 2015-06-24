@@ -9,7 +9,7 @@ import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 
-public class MPCSVPrinter {
+public class CPCSVPrinter {
 
 	public static void main(String[] args) {
 

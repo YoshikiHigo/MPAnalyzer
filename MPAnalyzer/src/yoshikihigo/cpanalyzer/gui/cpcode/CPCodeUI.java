@@ -1,9 +1,8 @@
-package yoshikihigo.cpanalyzer.gui.mcode;
+package yoshikihigo.cpanalyzer.gui.cpcode;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -15,9 +14,7 @@ import javax.swing.text.Element;
 import javax.swing.text.PlainView;
 import javax.swing.text.View;
 
-import yoshikihigo.cpanalyzer.gui.CODE;
-
-class MCodeUI extends BasicTextAreaUI {
+class CPCodeUI extends BasicTextAreaUI {
 
 	class SourceCodePlainView extends PlainView {
 
@@ -78,44 +75,13 @@ class MCodeUI extends BasicTextAreaUI {
 
 		@Override
 		protected void drawLine(int lineIndex, Graphics g, int x, int y) {
-			this.drawLineBackground(g, lineIndex);
-			this.drawLineNumber(g, lineIndex, y);
 			super.drawLine(lineIndex, g, x, y);
+			this.drawLineNumber(g, lineIndex, y);
 		}
 
-		private void drawLineBackground(final Graphics g, final int lineIndex) {
-
-			if (!MCodeUI.this.emphasizedLines.contains(lineIndex)) {
-				return;
-			}
+		private void drawLineNumber(Graphics g, int lineIndex, int y) {
 
 			g.setPaintMode();
-
-			try {
-
-				switch (MCodeUI.this.code) {
-				case BEFORE:
-					g.setColor(BEFORE_MODIFICATION_LINE_COLOR);
-					break;
-				case AFTER:
-					g.setColor(AFTER_MODIFICATION_LINE_COLOR);
-					break;
-				}
-
-				final int startOffset = this.textArea
-						.getLineStartOffset(lineIndex);
-				final Rectangle rectangle = MCodeUI.this.modelToView(
-						this.textArea, startOffset);
-				g.fillRect(0, rectangle.y, this.textArea.getWidth(),
-						rectangle.height);
-
-			} catch (final Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		private void drawLineNumber(final Graphics g, final int lineIndex,
-				final int y) {
 
 			final Color backupColor = g.getColor();
 
@@ -133,26 +99,18 @@ class MCodeUI extends BasicTextAreaUI {
 		}
 	}
 
-	static public final Color BEFORE_MODIFICATION_LINE_COLOR = new Color(0,
-			130, 130, 80);
-	static public final Color AFTER_MODIFICATION_LINE_COLOR = new Color(130,
-			130, 0, 80);
 	static public final Color VISUAL_SOURCECODEVIEW_LANG_TOKEN_COLOR = new Color(
 			12, 43, 116);
 	static public final Color VISUAL_SOURCECODEVIEW_LINENUM_COLOR = new Color(
 			0, 100, 0);
 
-	final private CODE code;
-	final private Set<Integer> emphasizedLines;
 	final private JTextArea textArea;
+
 	final Insets margin;
 
-	MCodeUI(final CODE code, final Set<Integer> emphasizedLines,
-			final JTextArea textArea, final Insets margin) {
+	CPCodeUI(final JTextArea textArea, final Insets margin) {
 
 		super();
-		this.code = code;
-		this.emphasizedLines = emphasizedLines;
 		this.textArea = textArea;
 		this.margin = margin;
 	}

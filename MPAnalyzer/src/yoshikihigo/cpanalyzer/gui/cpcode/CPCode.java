@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui.mpcode;
+package yoshikihigo.cpanalyzer.gui.cpcode;
 
 import java.awt.Color;
 import java.awt.Insets;
@@ -13,22 +13,22 @@ import javax.swing.border.TitledBorder;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.gui.CODE;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 
-public class MPCode extends JTextArea implements Observer {
+public class CPCode extends JTextArea implements Observer {
 
 	static public final int TAB_SIZE = 4;
 
 	public final JScrollPane scrollPane;
 	public final CODE code;
 
-	public MPCode(final CODE code) {
+	public CPCode(final CODE code) {
 
 		this.setTabSize(TAB_SIZE);
 
 		final Insets margin = new Insets(5, 50, 5, 5);
 		this.setMargin(margin);
-		this.setUI(new MPCodeUI(this, margin));
+		this.setUI(new CPCodeUI(this, margin));
 		this.setText("");
 		this.setEditable(false);
 
@@ -61,7 +61,7 @@ public class MPCode extends JTextArea implements Observer {
 
 		if (o instanceof ObservedChangePatterns) {
 			final ObservedChangePatterns patterns = (ObservedChangePatterns) o;
-			if (patterns.label.equals(MPLABEL.SELECTED)) {
+			if (patterns.label.equals(CPLABEL.SELECTED)) {
 
 				this.setText("");
 
@@ -78,7 +78,7 @@ public class MPCode extends JTextArea implements Observer {
 				}
 			}
 
-			else if (patterns.label.equals(MPLABEL.OVERLOOKED)) {
+			else if (patterns.label.equals(CPLABEL.OVERLOOKED)) {
 
 				this.setText("");
 

@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui.mplist;
+package yoshikihigo.cpanalyzer.gui.cplist;
 
 import java.awt.Component;
 
@@ -8,13 +8,13 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
-public class MPListCellEditor extends AbstractCellEditor implements
+public class CPListCellEditor extends AbstractCellEditor implements
 		TableCellEditor {
 
 	final JComboBox[] comboBoxes;
 	Object value;
 
-	MPListCellEditor(final JComboBox[] comboBoxes) {
+	CPListCellEditor(final JComboBox[] comboBoxes) {
 		this.value = null;
 		this.comboBoxes = comboBoxes;
 	}

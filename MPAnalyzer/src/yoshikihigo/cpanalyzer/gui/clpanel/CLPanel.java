@@ -17,7 +17,7 @@ import javax.swing.border.TitledBorder;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 
 public class CLPanel extends JTextArea implements Observer {
 
@@ -97,7 +97,7 @@ public class CLPanel extends JTextArea implements Observer {
 
 		if (o instanceof ObservedChangePatterns) {
 			final ObservedChangePatterns observedModificationPatterns = (ObservedChangePatterns) o;
-			if (observedModificationPatterns.label.equals(MPLABEL.SELECTED)) {
+			if (observedModificationPatterns.label.equals(CPLABEL.SELECTED)) {
 				this.setText("");
 				if (observedModificationPatterns.isSet()) {
 					final ChangePattern pattern = observedModificationPatterns
@@ -129,7 +129,7 @@ public class CLPanel extends JTextArea implements Observer {
 			}
 
 			else if (observedModificationPatterns.label
-					.equals(MPLABEL.OVERLOOKED)) {
+					.equals(CPLABEL.OVERLOOKED)) {
 				this.setText("");
 				if (observedModificationPatterns.isSet()) {
 					final ChangePattern pattern = observedModificationPatterns

@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui.mlist;
+package yoshikihigo.cpanalyzer.gui.clist;
 
 import java.util.Collection;
 
@@ -6,14 +6,14 @@ import javax.swing.table.AbstractTableModel;
 
 import yoshikihigo.cpanalyzer.data.Change;
 
-public class MListModel extends AbstractTableModel {
+public class CListModel extends AbstractTableModel {
 
 	static public final String[] TITLES = new String[] { "Revision", "Date",
 			"Path", "POSITION BEFORE", "POSITION AFTER" };
 
 	final public Change[] changes;
 
-	public MListModel(final Collection<Change> changes) {
+	public CListModel(final Collection<Change> changes) {
 		this.changes = changes.toArray(new Change[] {});
 	}
 

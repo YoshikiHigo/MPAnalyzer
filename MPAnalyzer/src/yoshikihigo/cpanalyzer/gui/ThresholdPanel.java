@@ -23,7 +23,7 @@ import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.Change.DiffType;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 
 public class ThresholdPanel extends JPanel implements Observer {
 
@@ -413,11 +413,11 @@ public class ThresholdPanel extends JPanel implements Observer {
 						}
 					}
 
-					ObservedChangePatterns.getInstance(MPLABEL.ALL)
+					ObservedChangePatterns.getInstance(CPLABEL.ALL)
 							.setAll(patterns, ThresholdPanel.this);
-					ObservedChangePatterns.getInstance(MPLABEL.FILTERED)
+					ObservedChangePatterns.getInstance(CPLABEL.FILTERED)
 							.setAll(patterns, ThresholdPanel.this);
-					ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
+					ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
 							.clear(ThresholdPanel.this);
 
 				} catch (final Exception databaseException) {

@@ -14,9 +14,9 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import yoshikihigo.cpanalyzer.data.Change;
-import yoshikihigo.cpanalyzer.gui.ObservedChanges.MLABEL;
-import yoshikihigo.cpanalyzer.gui.mcode.MCode;
-import yoshikihigo.cpanalyzer.gui.mlist.MList;
+import yoshikihigo.cpanalyzer.gui.ObservedChanges.CLABEL;
+import yoshikihigo.cpanalyzer.gui.ccode.CCode;
+import yoshikihigo.cpanalyzer.gui.clist.CList;
 
 public class PatternWindow extends JFrame implements Observer {
 
@@ -29,10 +29,10 @@ public class PatternWindow extends JFrame implements Observer {
 		this.setSize(new Dimension(d.width - 5, d.height - 27));
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-		ObservedChanges.getInstance(MLABEL.SELECTED).addObserver(this);
+		ObservedChanges.getInstance(CLABEL.SELECTED).addObserver(this);
 
-		final MList list = new MList();
-		ObservedChanges.getInstance(MLABEL.SELECTED).addObserver(list);
+		final CList list = new CList();
+		ObservedChanges.getInstance(CLABEL.SELECTED).addObserver(list);
 		this.logDisplay = new JTextArea();
 		this.logDisplay.setEditable(false);
 		this.logDisplay.setLineWrap(true);
@@ -42,11 +42,11 @@ public class PatternWindow extends JFrame implements Observer {
 		topPane.setLeftComponent(list.scrollPane);
 		topPane.setRightComponent(this.logDisplay);
 
-		final MCode beforeCode = new MCode(CODE.BEFORE);
-		ObservedChanges.getInstance(MLABEL.SELECTED).addObserver(
+		final CCode beforeCode = new CCode(CODE.BEFORE);
+		ObservedChanges.getInstance(CLABEL.SELECTED).addObserver(
 				beforeCode);
-		final MCode afterCode = new MCode(CODE.AFTER);
-		ObservedChanges.getInstance(MLABEL.SELECTED).addObserver(
+		final CCode afterCode = new CCode(CODE.AFTER);
+		ObservedChanges.getInstance(CLABEL.SELECTED).addObserver(
 				afterCode);
 		final JSplitPane codePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		codePane.add(beforeCode.scrollPane, JSplitPane.LEFT);
@@ -59,10 +59,10 @@ public class PatternWindow extends JFrame implements Observer {
 
 		this.setVisible(true);
 
-		topPane.setDividerLocation(MList.COLUMN_LENGTH_NUMBER
-				+ MList.COLUMN_LENGTH_DATE + MList.COLUMN_LENGTH_PATH
-				+ MList.COLUMN_LENGTH_BEFORE_POSITION
-				+ MList.COLUMN_LENGTH_AFTER_POSITION);
+		topPane.setDividerLocation(CList.COLUMN_LENGTH_NUMBER
+				+ CList.COLUMN_LENGTH_DATE + CList.COLUMN_LENGTH_PATH
+				+ CList.COLUMN_LENGTH_BEFORE_POSITION
+				+ CList.COLUMN_LENGTH_AFTER_POSITION);
 		codePane.setDividerLocation(codePane.getWidth() / 2);
 	}
 
@@ -70,7 +70,7 @@ public class PatternWindow extends JFrame implements Observer {
 	public void update(final Observable o, final Object arg) {
 		if (o instanceof ObservedChanges) {
 			final ObservedChanges modifications = (ObservedChanges) o;
-			if (modifications.label.equals(MLABEL.SELECTED)) {
+			if (modifications.label.equals(CLABEL.SELECTED)) {
 				if (modifications.isSet()) {
 					final Change m = modifications.get().first();
 					this.logDisplay.setText(m.revision.message);

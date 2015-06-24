@@ -13,17 +13,17 @@ import yoshikihigo.cpanalyzer.data.Change;
 
 public class ObservedChanges extends Observable {
 
-	public enum MLABEL {
+	public enum CLABEL {
 		SELECTED;
 	}
 
-	private static final Map<MLABEL, ObservedChanges> INSTANCES = new HashMap<MLABEL, ObservedChanges>();
+	private static final Map<CLABEL, ObservedChanges> INSTANCES = new HashMap<CLABEL, ObservedChanges>();
 
 	private final SortedSet<Change> changes;
-	public final MLABEL label;
+	public final CLABEL label;
 	private Observer source;
 
-	private ObservedChanges(final MLABEL label) {
+	private ObservedChanges(final CLABEL label) {
 
 		if (null == label) {
 			throw new NullPointerException();
@@ -34,7 +34,7 @@ public class ObservedChanges extends Observable {
 		this.label = label;
 	}
 
-	public static final ObservedChanges getInstance(final MLABEL label) {
+	public static final ObservedChanges getInstance(final CLABEL label) {
 		ObservedChanges instance = INSTANCES.get(label);
 		if (null == instance) {
 			instance = new ObservedChanges(label);

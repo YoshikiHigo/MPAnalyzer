@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui.mplist;
+package yoshikihigo.cpanalyzer.gui.cplist;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -35,9 +35,9 @@ import yoshikihigo.cpanalyzer.gui.DetectionWindow;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
 import yoshikihigo.cpanalyzer.gui.OverlookedWindow;
 import yoshikihigo.cpanalyzer.gui.PatternWindow;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 
-public class MPList extends JTable implements Observer {
+public class CPList extends JTable implements Observer {
 
 	class MPSelectionHandler implements ListSelectionListener {
 
@@ -54,23 +54,23 @@ public class MPList extends JTable implements Observer {
 			final SortedSet<ChangePattern> patterns = new TreeSet<ChangePattern>();
 			for (int index = firstIndex; index <= lastIndex; index++) {
 
-				if (!MPList.this.selectionModel.isSelectedIndex(index)) {
+				if (!CPList.this.selectionModel.isSelectedIndex(index)) {
 					continue;
 				}
 
-				final int modelIndex = MPList.this
+				final int modelIndex = CPList.this
 						.convertRowIndexToModel(index);
-				final MPListModel model = (MPListModel) MPList.this.getModel();
+				final CPListModel model = (CPListModel) CPList.this.getModel();
 				final ChangePattern pattern = model.patterns[modelIndex];
 				patterns.add(pattern);
 			}
 
 			if (!patterns.isEmpty()) {
-				ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
-						.setAll(patterns, MPList.this);
+				ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
+						.setAll(patterns, CPList.this);
 			} else {
-				ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
-						.clear(MPList.this);
+				ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
+						.clear(CPList.this);
 			}
 		}
 	}
@@ -81,15 +81,15 @@ public class MPList extends JTable implements Observer {
 			final JMenu exportMenu = new JMenu("export");
 			final JMenu removeMenu = new JMenu("remove");
 			final JMenu analyzeMenu = new JMenu("analyze");
-			final JMenuItem exportCSVItem = new JMenuItem("MPs into a CVS file");
+			final JMenuItem exportCSVItem = new JMenuItem("CPs into a CVS file");
 			final JMenuItem removeMPItem = new JMenuItem(
-					"this MP from this list");
+					"this CP from this list");
 			final JMenuItem analyzeMPItem = new JMenuItem(
-					"modifications in the selected MP");
+					"changes in the selected CP");
 			final JMenuItem analyzeOverlookedItem = new JMenuItem(
-					"overlooked code from all the listed MPs");
+					"overlooked code from all the listed CPs");
 			final JMenuItem analyzeCloneItem = new JMenuItem(
-					"clones using the selected MP");
+					"clones using the selected CP");
 
 			exportMenu.add(exportCSVItem);
 			removeMenu.add(removeMPItem);
@@ -101,7 +101,7 @@ public class MPList extends JTable implements Observer {
 			add(removeMenu);
 			add(analyzeMenu);
 
-			if (!ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
+			if (!ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
 					.isSet()) {
 				removeMPItem.setEnabled(false);
 				analyzeMPItem.setEnabled(false);
@@ -120,7 +120,7 @@ public class MPList extends JTable implements Observer {
 					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
 					// show dialog
-					int returnValue = fileChooser.showSaveDialog(MPList.this);
+					int returnValue = fileChooser.showSaveDialog(CPList.this);
 					if (returnValue == JFileChooser.APPROVE_OPTION) {
 
 						try {
@@ -128,7 +128,7 @@ public class MPList extends JTable implements Observer {
 							final BufferedWriter bw = new BufferedWriter(
 									new FileWriter(file));
 
-							final MPListModel model = (MPListModel) MPList.this
+							final CPListModel model = (CPListModel) CPList.this
 									.getModel();
 							final String data = model.getDataAsCSV();
 							bw.write(data);
@@ -147,17 +147,17 @@ public class MPList extends JTable implements Observer {
 			removeMPItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					final MPListModel model = (MPListModel) MPList.this
+					final CPListModel model = (CPListModel) CPList.this
 							.getModel();
 					final SortedSet<ChangePattern> mps = new TreeSet<ChangePattern>();
-					for (final int index : MPList.this.getSelectedRows()) {
-						final int modelIndex = MPList.this
+					for (final int index : CPList.this.getSelectedRows()) {
+						final int modelIndex = CPList.this
 								.convertRowIndexToModel(index);
 						final ChangePattern mp = model.patterns[modelIndex];
 						mps.add(mp);
 					}
-					ObservedChangePatterns.getInstance(MPLABEL.FILTERED)
-							.removeAll(mps, MPList.this);
+					ObservedChangePatterns.getInstance(CPLABEL.FILTERED)
+							.removeAll(mps, CPList.this);
 				}
 			});
 
@@ -208,7 +208,7 @@ public class MPList extends JTable implements Observer {
 	final public JScrollPane scrollPane;
 	final private MPSelectionHandler selectionHandler;
 
-	public MPList() {
+	public CPList() {
 
 		super();
 
@@ -261,7 +261,7 @@ public class MPList extends JTable implements Observer {
 
 		if (o instanceof ObservedChangePatterns) {
 			final ObservedChangePatterns patterns = (ObservedChangePatterns) o;
-			if (patterns.label.equals(MPLABEL.FILTERED)) {
+			if (patterns.label.equals(CPLABEL.FILTERED)) {
 
 				this.getSelectionModel().removeListSelectionListener(
 						this.selectionHandler);
@@ -274,7 +274,7 @@ public class MPList extends JTable implements Observer {
 
 	private void setModel() {
 		final SortedSet<ChangePattern> patterns = ObservedChangePatterns
-				.getInstance(MPLABEL.FILTERED).get();
+				.getInstance(CPLABEL.FILTERED).get();
 
 		final JComboBox[] comboBoxes = new JComboBox[patterns.size()];
 		for (int i = 0; i < comboBoxes.length; i++) {
@@ -286,14 +286,14 @@ public class MPList extends JTable implements Observer {
 			comboBoxes[i].addItem("Comment");
 		}
 
-		final MPListModel model = new MPListModel(patterns, comboBoxes);
+		final CPListModel model = new CPListModel(patterns, comboBoxes);
 		this.setModel(model);
-		final RowSorter<MPListModel> sorter = new TableRowSorter<MPListModel>(
+		final RowSorter<CPListModel> sorter = new TableRowSorter<CPListModel>(
 				model);
 		this.setRowSorter(sorter);
 		for (int i = 0; i < this.getColumnCount(); i++) {
 			this.getColumnModel().getColumn(i)
-					.setCellRenderer(new MPListRenderer());
+					.setCellRenderer(new CPListRenderer());
 		}
 		this.getColumnModel().getColumn(1)
 				.setPreferredWidth(COLUMN_LENGTH_SUPPORT);
@@ -305,7 +305,7 @@ public class MPList extends JTable implements Observer {
 				.setPreferredWidth(COLUMN_LENGTH_END);
 		if (10 <= model.getColumnCount()) {
 			this.getColumnModel().getColumn(12)
-					.setCellEditor(new MPListCellEditor(comboBoxes));
+					.setCellEditor(new CPListCellEditor(comboBoxes));
 			this.getColumnModel().getColumn(12)
 					.setPreferredWidth(COLUMN_LENGTH_CATEGORY);
 		}

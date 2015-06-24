@@ -36,7 +36,7 @@ import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
 import yoshikihigo.cpanalyzer.gui.PatternWindow;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 
 public class OList extends JTable implements Observer {
 
@@ -99,10 +99,10 @@ public class OList extends JTable implements Observer {
 			}
 
 			if (!mps.isEmpty()) {
-				ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
+				ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
 						.setAll(mps, OList.this);
 			} else {
-				ObservedChangePatterns.getInstance(MPLABEL.OVERLOOKED)
+				ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
 						.clear(OList.this);
 			}
 		}
@@ -112,7 +112,7 @@ public class OList extends JTable implements Observer {
 
 		OListPopupMenu() {
 			final JMenuItem seeItem = new JMenuItem(
-					"see the details of the selected MP");
+					"see the details of the selected CP");
 			this.add(seeItem);
 
 			seeItem.addActionListener(new ActionListener() {
@@ -128,7 +128,7 @@ public class OList extends JTable implements Observer {
 								.get(modelIndex)[0];
 						mps.add(mp);
 					}
-					ObservedChangePatterns.getInstance(MPLABEL.SELECTED)
+					ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
 							.setAll(mps, OList.this);
 
 					SwingUtilities.invokeLater(new Runnable() {

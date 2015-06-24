@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui.mplist;
+package yoshikihigo.cpanalyzer.gui.cplist;
 
 import java.util.Collection;
 
@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Revision;
 
-public class MPListModel extends AbstractTableModel {
+public class CPListModel extends AbstractTableModel {
 
 	static public final String[] TITLES = new String[] { "ID", "SUPPORT",
 			"CONFIDENCE", "NOD", "NOR", "NOF", "LBM", "LAM", "MTYPE", "CTYPE",
@@ -17,7 +17,7 @@ public class MPListModel extends AbstractTableModel {
 	final public ChangePattern[] patterns;
 	final public JComboBox[] comboBoxes;
 
-	public MPListModel(final Collection<ChangePattern> patterns,
+	public CPListModel(final Collection<ChangePattern> patterns,
 			final JComboBox[] comboBoxes) {
 		this.patterns = patterns.toArray(new ChangePattern[] {});
 		this.comboBoxes = comboBoxes;

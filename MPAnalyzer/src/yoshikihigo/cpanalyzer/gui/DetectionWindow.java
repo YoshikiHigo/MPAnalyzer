@@ -22,18 +22,18 @@ import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.MPLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedRevisions.RLABEL;
+import yoshikihigo.cpanalyzer.gui.ccode.CCode;
 import yoshikihigo.cpanalyzer.gui.dcode.DCode;
 import yoshikihigo.cpanalyzer.gui.dtree.DTree;
-import yoshikihigo.cpanalyzer.gui.mcode.MCode;
 import yoshikihigo.cpanalyzer.gui.progress.ProgressDialog;
 import yoshikihigo.cpanalyzer.gui.rlist.RList;
 
 public class DetectionWindow extends JFrame implements Observer {
 
 	public DetectionWindow() {
-		super("Detection Window - MPAnalyzer");
+		super("Detection Window - CPAnalyzer");
 
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setSize(new Dimension(d.width - 5, d.height - 27));
@@ -45,8 +45,8 @@ public class DetectionWindow extends JFrame implements Observer {
 		topLeftPanel.add(rList.scrollPane, BorderLayout.CENTER);
 
 		final JRadioButton beforeButton = new JRadioButton(
-				"Before modification", false);
-		final JRadioButton afterButton = new JRadioButton("After modification",
+				"Before change", false);
+		final JRadioButton afterButton = new JRadioButton("After change",
 				true);
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(beforeButton);
@@ -58,12 +58,12 @@ public class DetectionWindow extends JFrame implements Observer {
 
 		final JPanel mCodePane = new JPanel();
 		mCodePane.setLayout(new GridLayout(1, 2));
-		final MCode beforeCode = new MCode(CODE.BEFORE);
-		final MCode afterCode = new MCode(CODE.AFTER);
+		final CCode beforeCode = new CCode(CODE.BEFORE);
+		final CCode afterCode = new CCode(CODE.AFTER);
 		mCodePane.add(beforeCode.scrollPane);
 		mCodePane.add(afterCode.scrollPane);
 		final ChangePattern pattern = ObservedChangePatterns
-				.getInstance(MPLABEL.SELECTED).get().first();
+				.getInstance(CPLABEL.SELECTED).get().first();
 		beforeCode.setText(pattern.getChanges().get(0).before.text);
 		afterCode.setText(pattern.getChanges().get(0).after.text);
 
