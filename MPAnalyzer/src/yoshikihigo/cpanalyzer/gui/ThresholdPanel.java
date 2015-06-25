@@ -50,9 +50,9 @@ public class ThresholdPanel extends JPanel implements Observer {
 		final JTextField lamMaxField = new JTextField(TEXTFIELD_LENGTH);
 		final JCheckBox type2CheckBox = new JCheckBox("TYPE2", true);
 		final JCheckBox type3CheckBox = new JCheckBox("TYPE3", true);
-		final JCheckBox changeCheckBox = new JCheckBox("Change", true);
-		final JCheckBox addCheckBox = new JCheckBox("add", true);
-		final JCheckBox deleteCheckBox = new JCheckBox("delete", true);
+		final JCheckBox replaceCheckBox = new JCheckBox("REPLACE", true);
+		final JCheckBox addCheckBox = new JCheckBox("ADD", true);
+		final JCheckBox deleteCheckBox = new JCheckBox("DELETE", true);
 
 		supportMinField.setText("2");
 		supportMaxField.setText("9999");
@@ -64,9 +64,9 @@ public class ThresholdPanel extends JPanel implements Observer {
 		norMaxField.setText("9999");
 		nofMinField.setText("1");
 		nofMaxField.setText("9999");
-		lbmMinField.setText("1");
+		lbmMinField.setText("0");
 		lbmMaxField.setText("9999");
-		lamMinField.setText("1");
+		lamMinField.setText("0");
 		lamMaxField.setText("9999");
 
 		// this.setLayout(new FlowLayout(7, 5, 0));
@@ -168,7 +168,7 @@ public class ThresholdPanel extends JPanel implements Observer {
 					FlowLayout.CENTER, 3, 0));
 			changePanel.setBorder(new TitledBorder(new LineBorder(Color.black),
 					"REPLACE/ADD/DELETE"));
-			changePanel.add(changeCheckBox);
+			changePanel.add(replaceCheckBox);
 			changePanel.add(addCheckBox);
 			changePanel.add(deleteCheckBox);
 			this.add(changePanel);
@@ -298,17 +298,17 @@ public class ThresholdPanel extends JPanel implements Observer {
 				try {
 					final String textMin = lbmMinField.getText();
 					lbmMin = Integer.parseInt(textMin);
-					if (lbmMin < 1) {
+					if (lbmMin < 0) {
 						throw new NumberFormatException();
 					}
 					final String textMax = lbmMaxField.getText();
 					lbmMax = Integer.parseInt(textMax);
-					if (lbmMax < 1) {
+					if (lbmMax < 0) {
 						throw new NumberFormatException();
 					}
 				} catch (final NumberFormatException nofException) {
 					JOptionPane.showMessageDialog(ThresholdPanel.this,
-							"LBM must be positive integer.", "",
+							"LBM must be 0 or positive integer.", "",
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
@@ -318,17 +318,17 @@ public class ThresholdPanel extends JPanel implements Observer {
 				try {
 					final String textMin = lamMinField.getText();
 					lamMin = Integer.parseInt(textMin);
-					if (lamMin < 1) {
+					if (lamMin < 0) {
 						throw new NumberFormatException();
 					}
 					final String textMax = lamMaxField.getText();
 					lamMax = Integer.parseInt(textMax);
-					if (lamMax < 1) {
+					if (lamMax < 0) {
 						throw new NumberFormatException();
 					}
 				} catch (final NumberFormatException nofException) {
 					JOptionPane.showMessageDialog(ThresholdPanel.this,
-							"LAM must be positive integer.", "",
+							"LAM must be 0 or positive integer.", "",
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
@@ -342,7 +342,7 @@ public class ThresholdPanel extends JPanel implements Observer {
 					return;
 				}
 
-				final boolean changeChecked = changeCheckBox.isSelected();
+				final boolean changeChecked = replaceCheckBox.isSelected();
 				final boolean addChecked = addCheckBox.isSelected();
 				final boolean deleteChecked = deleteCheckBox.isSelected();
 				if (!changeChecked && !addChecked && !deleteChecked) {

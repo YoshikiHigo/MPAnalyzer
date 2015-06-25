@@ -51,9 +51,9 @@ import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Statement;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedRevisions.RLABEL;
 import yoshikihigo.cpanalyzer.gui.clpanel.CLPanel;
 import yoshikihigo.cpanalyzer.gui.cpcode.CPCode;
@@ -95,8 +95,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 		final OList oList = new OList();
 		listPanel.setTopComponent(oList.scrollPane);
 		final CLPanel clPanel = new CLPanel();
-		ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
-				.addObserver(clPanel);
+		ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED).addObserver(
+				clPanel);
 		listPanel.setBottomComponent(clPanel.scrollPane);
 
 		final JSplitPane codePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -107,8 +107,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(oCode);
 		codePanel.setTopComponent(oCode.scrollPane);
 		final CPCode mpCode = new CPCode(CODE.AFTER);
-		ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
-				.addObserver(mpCode);
+		ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED).addObserver(
+				mpCode);
 		codePanel.setBottomComponent(mpCode.scrollPane);
 
 		final JPanel centerPanel = new JPanel(new BorderLayout());
@@ -137,8 +137,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 						OverlookedWindow.this);
 				ObservedFiles.getInstance(FLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
-				ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
-						.clear(OverlookedWindow.this);
+				ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED).clear(
+						OverlookedWindow.this);
 				ObservedRevisions.getInstance(RLABEL.OVERLOOKED).clear(
 						OverlookedWindow.this);
 
@@ -209,20 +209,20 @@ public class OverlookedWindow extends JFrame implements Observer {
 	private SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> detectOverlookedCode(
 			final long revision, final int place) {
 		final Map<String, List<Statement>> files = this.getFiles(revision);
-		final SortedSet<ChangePattern> MPs = ObservedChangePatterns
+		final SortedSet<ChangePattern> CPs = ObservedChangePatterns
 				.getInstance(CPLABEL.FILTERED).get();
 		final SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> oCodefragments = new TreeMap<ChangePattern, SortedMap<String, SortedSet<Code>>>();
-		for (final ChangePattern mp : MPs) {
-			final List<Statement> pattern = mp.getChanges().get(0).before.statements;
-			final SortedMap<String, SortedSet<Code>> oCodefragmentForAMP = this
+		for (final ChangePattern cp : CPs) {
+			final List<Statement> pattern = cp.getChanges().get(0).before.statements;
+			final SortedMap<String, SortedSet<Code>> oCodefragmentForACP = this
 					.getOverlookedCode(files, pattern);
 
 			final List<Code> cfForChecking = new ArrayList<Code>();
-			for (final SortedSet<Code> cfs : oCodefragmentForAMP.values()) {
+			for (final SortedSet<Code> cfs : oCodefragmentForACP.values()) {
 				cfForChecking.addAll(cfs);
 			}
 			if ((0 < cfForChecking.size()) && (cfForChecking.size() <= place)) {
-				oCodefragments.put(mp, oCodefragmentForAMP);
+				oCodefragments.put(cp, oCodefragmentForACP);
 			}
 		}
 		return oCodefragments;
@@ -345,6 +345,10 @@ public class OverlookedWindow extends JFrame implements Observer {
 			final Map<String, List<Statement>> files,
 			final List<Statement> pattern) {
 
+		if (pattern.isEmpty()) {
+			return new TreeMap<String, SortedSet<Code>>();
+		}
+
 		final SortedMap<String, SortedSet<Code>> oCodefragments = new TreeMap<String, SortedSet<Code>>();
 
 		for (final Entry<String, List<Statement>> entry : files.entrySet()) {
@@ -364,6 +368,10 @@ public class OverlookedWindow extends JFrame implements Observer {
 	private SortedSet<Code> getOverookedCode(final List<Statement> statements,
 			final List<Statement> pattern) {
 
+		if (pattern.isEmpty()) {
+			return new TreeSet<Code>();
+		}
+		
 		int pIndex = 0;
 		final SortedSet<Code> oCodefragments = new TreeSet<Code>();
 		List<Statement> correspondence = new ArrayList<Statement>();

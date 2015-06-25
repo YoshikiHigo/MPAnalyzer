@@ -124,6 +124,11 @@ public class StringUtility {
 
 	public static List<Statement> splitToStatements(final String text,
 			final int startLine, final int endLine) {
+
+		if (text.isEmpty()) {
+			return new ArrayList<Statement>();
+		}
+
 		final List<Statement> statements = new ArrayList<Statement>();
 		final String[] lines = text.split(System.getProperty("line.separator"));
 		for (final String line : lines) {
@@ -133,10 +138,8 @@ public class StringUtility {
 			statements.add(statement);
 		}
 
-		if (!statements.isEmpty()) {
-			statements.get(0).tokens.get(0).line = startLine;
-			statements.get(statements.size() - 1).tokens.get(0).line = endLine;
-		}
+		statements.get(0).tokens.get(0).line = startLine;
+		statements.get(statements.size() - 1).tokens.get(0).line = endLine;
 
 		return statements;
 	}

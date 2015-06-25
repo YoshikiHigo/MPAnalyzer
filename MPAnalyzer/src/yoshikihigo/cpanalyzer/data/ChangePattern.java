@@ -136,9 +136,9 @@ public class ChangePattern implements Comparable<ChangePattern> {
 		this.changes.clear();
 		try {
 
-			final List<Change> modifications = ReadOnlyDAO.getInstance()
+			final List<Change> changes = ReadOnlyDAO.getInstance()
 					.getChanges(this.beforeHash, this.afterHash);
-			this.changes.addAll(modifications);
+			this.changes.addAll(changes);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

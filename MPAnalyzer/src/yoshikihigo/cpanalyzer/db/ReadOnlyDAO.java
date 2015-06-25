@@ -101,13 +101,13 @@ public class ReadOnlyDAO {
 				final DiffType diffType = DiffType.getType(result.getInt(14));
 				final String date = result.getString(15);
 				final String message = result.getString(16);
-				final Change modification = new Change(software, id, filepath,
+				final Change change = new Change(software, id, filepath,
 						new Code(software, beforeID, beforeText, beforeStart,
 								beforeEnd), new Code(software, afterID,
 								afterText, afterStart, afterEnd), new Revision(
 								software, number, date, message), changeType,
 						diffType);
-				changes.add(modification);
+				changes.add(change);
 			}
 			statement.close();
 		}

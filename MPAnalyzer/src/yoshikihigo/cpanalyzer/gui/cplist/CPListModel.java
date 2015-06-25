@@ -11,7 +11,7 @@ import yoshikihigo.cpanalyzer.data.Revision;
 public class CPListModel extends AbstractTableModel {
 
 	static public final String[] TITLES = new String[] { "ID", "SUPPORT",
-			"CONFIDENCE", "NOD", "NOR", "NOF", "LBM", "LAM", "MTYPE", "CTYPE",
+			"CONFIDENCE", "NOD", "NOR", "NOF", "LBM", "LAM", "R/A/D", "TYPE-2/3",
 			"START", "END", "CATEGORY" };
 
 	final public ChangePattern[] patterns;
