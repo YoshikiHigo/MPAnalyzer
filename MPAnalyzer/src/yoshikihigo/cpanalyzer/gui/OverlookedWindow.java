@@ -106,10 +106,10 @@ public class OverlookedWindow extends JFrame implements Observer {
 		ObservedFiles.getInstance(FLABEL.OVERLOOKED).addObserver(oCode);
 		ObservedRevisions.getInstance(RLABEL.OVERLOOKED).addObserver(oCode);
 		codePanel.setTopComponent(oCode.scrollPane);
-		final CPCode mpCode = new CPCode(CODE.AFTER);
+		final CPCode cpCode = new CPCode(CODE.AFTER);
 		ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED).addObserver(
-				mpCode);
-		codePanel.setBottomComponent(mpCode.scrollPane);
+				cpCode);
+		codePanel.setBottomComponent(cpCode.scrollPane);
 
 		final JPanel centerPanel = new JPanel(new BorderLayout());
 		centerPanel.add(listPanel, BorderLayout.WEST);
