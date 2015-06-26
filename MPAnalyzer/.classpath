@@ -4,7 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/commentremover/CR.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2/commons-cli-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.8.7/sqlite-jdbc-3.8.7.jar"/>
 	<classpathentry kind="lib" path="lib/svnkit-1.8.10/lib/antlr-runtime-3.4.jar"/>
 	<classpathentry kind="lib" path="lib/svnkit-1.8.10/lib/jna-4.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/svnkit-1.8.10/lib/jna-platform-4.1.0.jar"/>
@@ -21,5 +20,6 @@
 	<classpathentry kind="lib" path="lib/svnkit-1.8.10/lib/svnkit-cli-1.8.10.jar"/>
 	<classpathentry kind="lib" path="lib/svnkit-1.8.10/lib/svnkit-javahl16-1.8.10.jar"/>
 	<classpathentry kind="lib" path="lib/svnkit-1.8.10/lib/trilead-ssh2-1.0.0-build219.jar"/>
+	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.8.10.1/sqlite-jdbc-3.8.10.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
