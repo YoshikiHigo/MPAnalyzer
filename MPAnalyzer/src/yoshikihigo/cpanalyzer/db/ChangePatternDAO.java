@@ -32,6 +32,8 @@ public class ChangePatternDAO {
 					.executeUpdate("drop index if exists index_afterHash_patterns");
 			statement
 					.executeUpdate("drop index if exists index_beforeHash_afterHash_patterns");
+			statement.executeUpdate("drop index if exists index_changetype_patterns");
+			statement.executeUpdate("drop index if exists index_difftype_patterns");
 			statement
 					.executeUpdate("drop index if exists index_support_patterns");
 			statement
@@ -148,6 +150,8 @@ public class ChangePatternDAO {
 						.executeUpdate("create index index_afterHash_patterns on patterns(afterHash)");
 				statement
 						.executeUpdate("create index index_beforeHash_afterHash_patterns on patterns(beforeHash, afterHash)");
+				statement.executeUpdate("create index index_changetype_patterns on patterns(changetype)");
+				statement.executeUpdate("create index index_difftype_patterns on patterns(difftype)");
 				statement.close();
 			}
 			System.out.println(" done.");
