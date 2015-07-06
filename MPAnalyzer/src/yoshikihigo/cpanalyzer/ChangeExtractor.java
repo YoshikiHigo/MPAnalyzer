@@ -29,7 +29,7 @@ public class ChangeExtractor {
 		System.out.println("working on software \""
 				+ Config.getInstance().getSOFTWARE() + "\"");
 		System.out.print("identifing revisions to be checked ... ");
-		final Revision[] revisions = getRevisions().toArray(new Revision[0]);
+		final Revision[] revisions = getSVNRevisions().toArray(new Revision[0]);
 		System.out.println("done.");
 
 		if (0 == revisions.length) {
@@ -66,10 +66,10 @@ public class ChangeExtractor {
 		System.out.println(TimingUtility.getExecutionTime(startTime, endTime));
 	}
 
-	private static List<Revision> getRevisions() {
+	private static List<Revision> getSVNRevisions() {
 
 		final String repository = Config.getInstance()
-				.getREPOSITORY_FOR_MINING();
+				.getSVNREPOSITORY_FOR_MINING();
 		final String language = Config.getInstance().getLANGUAGE();
 		final String software = Config.getInstance().getSOFTWARE();
 		final boolean isVerbose = Config.getInstance().isVERBOSE();

@@ -45,7 +45,7 @@ public class ChangeExtractionThread extends Thread {
 		try {
 
 			final String repository = Config.getInstance()
-					.getREPOSITORY_FOR_MINING();
+					.getSVNREPOSITORY_FOR_MINING();
 			final String language = Config.getInstance().getLANGUAGE();
 			final String software = Config.getInstance().getSOFTWARE();
 			final boolean onlyCondition = Config.getInstance()

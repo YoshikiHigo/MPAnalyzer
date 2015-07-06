@@ -38,9 +38,18 @@ public class Config {
 		}
 
 		{
-			final Option option = new Option("repo", "repository", true,
-					"repository for mining");
-			option.setArgName("repository");
+			final Option option = new Option("svnrepo", "svnrepository", true,
+					"svn repository for mining");
+			option.setArgName("svnrepository");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+		
+		{
+			final Option option = new Option("gitrepo", "gitrepository", true,
+					"git repository for mining");
+			option.setArgName("gitrepository");
 			option.setArgs(1);
 			option.setRequired(false);
 			options.addOption(option);
@@ -221,14 +230,22 @@ public class Config {
 		return this.commandLine.getOptionValue("soft");
 	}
 
-	public String getREPOSITORY_FOR_MINING() {
-		if (!this.commandLine.hasOption("repo")) {
-			System.err.println("option \"repo\" is not specified.");
+	public String getSVNREPOSITORY_FOR_MINING() {
+		if (!this.commandLine.hasOption("svnrepo")) {
+			System.err.println("option \"svnrepo\" is not specified.");
 			System.exit(0);
 		}
-		return this.commandLine.getOptionValue("repo");
+		return this.commandLine.getOptionValue("svnrepo");
 	}
 
+	public String getGITREPOSITORY_FOR_MINING() {
+		if (!this.commandLine.hasOption("gitrepo")) {
+			System.err.println("option \"gitrepo\" is not specified.");
+			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("gitrepo");
+	}
+	
 	public long getSTART_REVISION_FOR_MINING() {
 		if (this.commandLine.hasOption("startrev")) {
 			return Long.parseLong(this.commandLine.getOptionValue("startrev"));
@@ -312,7 +329,15 @@ public class Config {
 	public boolean isVERBOSE() {
 		return this.commandLine.hasOption("v");
 	}
+	
+	public boolean hasSVNREPO() {
+		return this.commandLine.hasOption("svnrepo");
+	}
 
+	public boolean hasGITREPO() {
+		return this.commandLine.hasOption("gitrepo");
+	}
+	
 	public String getCSV_FILE() {
 		if (!this.commandLine.hasOption("csv")) {
 			System.err.println("option \"csv\" is not specified.");

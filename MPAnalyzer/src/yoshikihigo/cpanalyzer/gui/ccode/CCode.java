@@ -124,7 +124,7 @@ public class CCode extends JTextArea implements Observer {
 						final String filepath = this.change.filepath;
 						final String REPOSITORY_FOR_MINING = Config
 								.getInstance()
-								.getREPOSITORY_FOR_MINING();
+								.getSVNREPOSITORY_FOR_MINING();
 						final SVNURL url = SVNURL.fromFile(new File(
 								REPOSITORY_FOR_MINING + "/" + filepath));
 						FSRepositoryFactory.setup();
