@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -46,7 +47,9 @@ import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
+import yoshikihigo.cpanalyzer.FileUtility;
+import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
@@ -231,8 +234,9 @@ public class OverlookedWindow extends JFrame implements Observer {
 	private Map<String, List<Statement>> getFiles(final long revision) {
 
 		try {
-			final String language = Config.getInstance().getLANGUAGE();
-			final String repository = Config.getInstance()
+			final Set<LANGUAGE> languages = CPAConfig.getInstance()
+					.getLANGUAGE();
+			final String repository = CPAConfig.getInstance()
 					.getREPOSITORY_FOR_TEST();
 			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
@@ -270,28 +274,15 @@ public class OverlookedWindow extends JFrame implements Observer {
 							if (entry.getKind() == SVNNodeKind.FILE) {
 								final String path = entry.getRelativePath();
 
-								if (language.equalsIgnoreCase("JAVA")
-										&& StringUtility.isJavaFile(path)) {
-
-									paths.add(path);
-
-									OverlookedWindow.this.progressDialog.note
-											.setText("preparing files ... "
-													+ path);
-									OverlookedWindow.this.progressDialog
-											.repaint();
-
-								} else if (language.equalsIgnoreCase("C")
-										&& StringUtility.isCFile(path)) {
-
-									paths.add(path);
-
-									OverlookedWindow.this.progressDialog.note
-											.setText("preparing files ... "
-													+ path);
-									OverlookedWindow.this.progressDialog
-											.repaint();
-
+								for (final LANGUAGE language : languages) {
+									if (language.isTarget(path)) {
+										paths.add(path);
+										OverlookedWindow.this.progressDialog.note
+												.setText("preparing files ... "
+														+ path);
+										OverlookedWindow.this.progressDialog
+												.repaint();
+									}
 								}
 							}
 						}
@@ -327,6 +318,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 							}
 						});
 
+				final LANGUAGE language = FileUtility.getLANGUAGE(path);
 				final List<Statement> statements = StringUtility
 						.splitToStatements(text.toString(), language);
 				files.put(path, statements);
@@ -371,7 +363,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 		if (pattern.isEmpty()) {
 			return new TreeSet<Code>();
 		}
-		
+
 		int pIndex = 0;
 		final SortedSet<Code> oCodefragments = new TreeSet<Code>();
 		List<Statement> correspondence = new ArrayList<Statement>();

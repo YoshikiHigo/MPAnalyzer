@@ -1,6 +1,7 @@
 package yoshikihigo.cpanalyzer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
@@ -24,7 +25,7 @@ public class LCS {
 			return new ArrayList<Change>();
 		}
 
-		final int large = Config.getInstance().getLARGE();
+		final int large = CPAConfig.getInstance().getLARGE();
 		if (large < array1.size() || large < array2.size()) {
 			System.out.println("large file. (" + array1.size() + " x "
 					+ array2.size() + ")");
@@ -32,13 +33,13 @@ public class LCS {
 		}
 
 		final Cell[][] table = new Cell[array1.size()][array2.size()];
-		if (array1.get(0).hash == array2.get(0).hash) {
+		if (Arrays.equals(array1.get(0).hash, array2.get(0).hash)) {
 			table[0][0] = new Cell(1, true, 0, 0, null);
 		} else {
 			table[0][0] = new Cell(0, false, 0, 0, null);
 		}
 		for (int x = 1; x < array1.size(); x++) {
-			if (array1.get(x).hash == array2.get(0).hash) {
+			if (Arrays.equals(array1.get(x).hash, array2.get(0).hash)) {
 				table[x][0] = new Cell(1, true, x, 0, null);
 			} else {
 				table[x][0] = new Cell(table[x - 1][0].value, false, x, 0,
@@ -46,7 +47,7 @@ public class LCS {
 			}
 		}
 		for (int y = 1; y < array2.size(); y++) {
-			if (array1.get(0).hash == array2.get(y).hash) {
+			if (Arrays.equals(array1.get(0).hash, array2.get(y).hash)) {
 				table[0][y] = new Cell(1, true, 0, y, null);
 			} else {
 				table[0][y] = new Cell(table[0][y - 1].value, false, 0, y,
@@ -58,7 +59,7 @@ public class LCS {
 				final Cell left = table[x - 1][y];
 				final Cell up = table[x][y - 1];
 				final Cell upleft = table[x - 1][y - 1];
-				if (array1.get(x).hash == array2.get(y).hash) {
+				if (Arrays.equals(array1.get(x).hash, array2.get(y).hash)) {
 					table[x][y] = new Cell(upleft.value + 1, true, x, y, upleft);
 				} else {
 					table[x][y] = (left.value >= up.value) ? new Cell(

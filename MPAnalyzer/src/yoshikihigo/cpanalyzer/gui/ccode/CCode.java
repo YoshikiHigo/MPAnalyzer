@@ -29,7 +29,7 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.gui.CODE;
 import yoshikihigo.cpanalyzer.gui.ObservedChanges;
@@ -122,7 +122,7 @@ public class CCode extends JTextArea implements Observer {
 						this.change = observedModifications.get().first();
 						final long revision = this.change.revision.number;
 						final String filepath = this.change.filepath;
-						final String REPOSITORY_FOR_MINING = Config
+						final String REPOSITORY_FOR_MINING = CPAConfig
 								.getInstance()
 								.getSVNREPOSITORY_FOR_MINING();
 						final SVNURL url = SVNURL.fromFile(new File(

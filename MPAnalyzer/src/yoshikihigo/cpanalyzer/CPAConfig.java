@@ -1,5 +1,9 @@
 package yoshikihigo.cpanalyzer;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringTokenizer;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
@@ -7,9 +11,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-public class Config {
+public class CPAConfig {
 
-	static private Config SINGLETON = null;
+	static private CPAConfig SINGLETON = null;
 
 	static public boolean initialize(final String[] args) {
 
@@ -45,7 +49,7 @@ public class Config {
 			option.setRequired(false);
 			options.addOption(option);
 		}
-		
+
 		{
 			final Option option = new Option("gitrepo", "gitrepository", true,
 					"git repository for mining");
@@ -189,7 +193,7 @@ public class Config {
 		try {
 			final CommandLineParser parser = new PosixParser();
 			final CommandLine commandLine = parser.parse(options, args);
-			SINGLETON = new Config(commandLine);
+			SINGLETON = new CPAConfig(commandLine);
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -198,7 +202,7 @@ public class Config {
 		return true;
 	}
 
-	static public Config getInstance() {
+	static public CPAConfig getInstance() {
 
 		if (null == SINGLETON) {
 			System.err.println("Config is not initialized.");
@@ -210,16 +214,37 @@ public class Config {
 
 	private final CommandLine commandLine;
 
-	private Config(final CommandLine commandLine) {
+	private CPAConfig(final CommandLine commandLine) {
 		this.commandLine = commandLine;
 	}
 
-	public String getLANGUAGE() {
-		if (!this.commandLine.hasOption("lang")) {
-			System.err.println("option \"lang\" is not specified.");
-			System.exit(0);
+	public final Set<LANGUAGE> getLANGUAGE() {
+
+		final Set<LANGUAGE> languages = new HashSet<>();
+
+		if (this.commandLine.hasOption("lang")) {
+			final String option = this.commandLine.getOptionValue("lang");
+			final StringTokenizer tokenizer = new StringTokenizer(option, ":");
+			while (tokenizer.hasMoreTokens()) {
+				try {
+					final String value = tokenizer.nextToken();
+					final LANGUAGE language = LANGUAGE.valueOf(value
+							.toUpperCase());
+					languages.add(language);
+				} catch (final IllegalArgumentException e) {
+					System.err.println("invalid option value for \"-lang\"");
+					System.exit(0);
+				}
+			}
 		}
-		return this.commandLine.getOptionValue("lang");
+
+		else {
+			for (final LANGUAGE language : LANGUAGE.values()) {
+				languages.add(language);
+			}
+		}
+
+		return languages;
 	}
 
 	public String getSOFTWARE() {
@@ -245,7 +270,7 @@ public class Config {
 		}
 		return this.commandLine.getOptionValue("gitrepo");
 	}
-	
+
 	public long getSTART_REVISION_FOR_MINING() {
 		if (this.commandLine.hasOption("startrev")) {
 			return Long.parseLong(this.commandLine.getOptionValue("startrev"));
@@ -329,7 +354,7 @@ public class Config {
 	public boolean isVERBOSE() {
 		return this.commandLine.hasOption("v");
 	}
-	
+
 	public boolean hasSVNREPO() {
 		return this.commandLine.hasOption("svnrepo");
 	}
@@ -337,7 +362,7 @@ public class Config {
 	public boolean hasGITREPO() {
 		return this.commandLine.hasOption("gitrepo");
 	}
-	
+
 	public String getCSV_FILE() {
 		if (!this.commandLine.hasOption("csv")) {
 			System.err.println("option \"csv\" is not specified.");

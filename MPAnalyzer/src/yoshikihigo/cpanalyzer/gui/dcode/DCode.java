@@ -29,15 +29,17 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
+import yoshikihigo.cpanalyzer.FileUtility;
+import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments;
-import yoshikihigo.cpanalyzer.gui.ObservedFiles;
-import yoshikihigo.cpanalyzer.gui.ObservedRevisions;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedFiles;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
+import yoshikihigo.cpanalyzer.gui.ObservedRevisions;
 import yoshikihigo.cpanalyzer.gui.ObservedRevisions.RLABEL;
 
 public class DCode extends JTextArea implements Observer {
@@ -128,7 +130,7 @@ public class DCode extends JTextArea implements Observer {
 
 						final String path = observedFiles.get().first();
 
-						final String repository = Config.getInstance()
+						final String repository = CPAConfig.getInstance()
 								.getREPOSITORY_FOR_TEST();
 						final SVNURL fileurl = SVNURL.fromFile(new File(
 								repository
@@ -148,8 +150,8 @@ public class DCode extends JTextArea implements Observer {
 									}
 								});
 
-						final String language = Config.getInstance()
-								.getLANGUAGE();
+						final LANGUAGE language = FileUtility
+								.getLANGUAGE(path);
 						DCode.this.statements = StringUtility
 								.splitToStatements(text.toString(), language);
 						final SortedSet<Integer> highlightedLines = this

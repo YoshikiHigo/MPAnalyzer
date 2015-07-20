@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -25,7 +26,8 @@ import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
+import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.Revision;
 
@@ -117,17 +119,19 @@ public class RList extends JPanel {
 
 		try {
 
-			final String repository = Config.getInstance()
+			final String repository = CPAConfig.getInstance()
 					.getREPOSITORY_FOR_TEST();
-			final String language = Config.getInstance().getLANGUAGE();
+			final Set<LANGUAGE> languages = CPAConfig.getInstance()
+					.getLANGUAGE();
 
 			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
 			final SVNRepository svnRepository = FSRepositoryFactory.create(url);
 
-			long startRevision = Config.getInstance()
+			long startRevision = CPAConfig.getInstance()
 					.getSTART_REVISION_FOR_TEST();
-			long endRevision = Config.getInstance().getEND_REVISION_FOR_TEST();
+			long endRevision = CPAConfig.getInstance()
+					.getEND_REVISION_FOR_TEST();
 
 			if (startRevision < 0) {
 				startRevision = 0l;
@@ -152,14 +156,11 @@ public class RList extends JPanel {
 								final String message = logEntry.getMessage();
 								final Revision revision = new Revision("",
 										number, date, message);
-								if (language.equalsIgnoreCase("JAVA")
-										&& StringUtility.isJavaFile(path)) {
-									revisions.add(revision);
-									break;
-								} else if (language.equalsIgnoreCase("C")
-										&& StringUtility.isCFile(path)) {
-									revisions.add(revision);
-									break;
+								for (final LANGUAGE language : languages) {
+									if (language.isTarget(path)) {
+										revisions.add(revision);
+										break;
+									}
 								}
 							}
 						}

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,14 +45,16 @@ public class ChangeExtractionThread extends Thread {
 
 		try {
 
-			final String repository = Config.getInstance()
+			final String repository = CPAConfig.getInstance()
 					.getSVNREPOSITORY_FOR_MINING();
-			final String language = Config.getInstance().getLANGUAGE();
-			final String software = Config.getInstance().getSOFTWARE();
-			final boolean onlyCondition = Config.getInstance()
+			final Set<LANGUAGE> languages = CPAConfig.getInstance()
+					.getLANGUAGE();
+			final String software = CPAConfig.getInstance().getSOFTWARE();
+			final boolean onlyCondition = CPAConfig.getInstance()
 					.isONLY_CONDITION();
-			final boolean ignoreImport = Config.getInstance().isIGNORE_IMPORT();
-			final boolean isVerbose = Config.getInstance().isVERBOSE();
+			final boolean ignoreImport = CPAConfig.getInstance()
+					.isIGNORE_IMPORT();
+			final boolean isVerbose = CPAConfig.getInstance().isVERBOSE();
 
 			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
@@ -102,19 +105,13 @@ public class ChangeExtractionThread extends Thread {
 										return;
 									}
 
-									if (language.equalsIgnoreCase("JAVA")
-											&& StringUtility.isJavaFile(path)) {
-										changedFileList.add(path);
-										if (isVerbose) {
-											System.out.println(path);
+									for (final LANGUAGE language : languages) {
+										if (language.isTarget(path)) {
+											changedFileList.add(path);
+											if (isVerbose) {
+												System.err.println(path);
+											}
 										}
-									} else if (language.equalsIgnoreCase("C")
-											&& StringUtility.isCFile(path)) {
-										changedFileList.add(path);
-										if (isVerbose) {
-											System.out.println(path);
-										}
-
 									}
 								}
 							});
@@ -124,6 +121,7 @@ public class ChangeExtractionThread extends Thread {
 				}
 
 				FILE: for (final String path : changedFileList) {
+
 					final SVNURL fileurl = SVNURL.fromFile(new File(repository
 							+ System.getProperty("file.separator") + path));
 
@@ -138,7 +136,7 @@ public class ChangeExtractionThread extends Thread {
 										beforeText.append((char) b);
 									}
 								});
-					} catch (SVNException e) {
+					} catch (final SVNException e) {
 						e.printStackTrace();
 						continue FILE;
 					}
@@ -154,11 +152,12 @@ public class ChangeExtractionThread extends Thread {
 										afterText.append((char) b);
 									}
 								});
-					} catch (SVNException e) {
+					} catch (final SVNException e) {
 						e.printStackTrace();
 						continue FILE;
 					}
 
+					final LANGUAGE language = FileUtility.getLANGUAGE(path);
 					final List<Statement> beforeStatements = StringUtility
 							.splitToStatements(beforeText.toString(), language);
 					final List<Statement> afterStatements = StringUtility

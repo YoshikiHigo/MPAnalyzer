@@ -12,7 +12,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.clpanel.CLPanel;
 import yoshikihigo.cpanalyzer.gui.cpcode.CPCode;
@@ -29,7 +29,7 @@ public class MainWindow extends JFrame {
 		}
 
 
-		Config.initialize(args);
+		CPAConfig.initialize(args);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				new MainWindow();

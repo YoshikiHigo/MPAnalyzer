@@ -37,7 +37,9 @@ import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
+import yoshikihigo.cpanalyzer.FileUtility;
+import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Statement;
@@ -192,7 +194,7 @@ public class DTree extends JTree implements Observer {
 		final List<FileData> data = new ArrayList<FileData>();
 
 		try {
-			final String repository = Config.getInstance()
+			final String repository = CPAConfig.getInstance()
 					.getREPOSITORY_FOR_TEST();
 			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
@@ -270,7 +272,7 @@ public class DTree extends JTree implements Observer {
 							}
 						});
 
-				final String language = Config.getInstance().getLANGUAGE();
+				final LANGUAGE language = FileUtility.getLANGUAGE(path);
 				final List<Statement> statements = StringUtility
 						.splitToStatements(text.toString(), language);
 				final int count = this.getCount(statements,

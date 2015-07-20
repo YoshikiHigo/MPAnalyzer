@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.StringUtility;
 
 public class SourceFile implements Comparable<SourceFile> {
@@ -26,8 +26,8 @@ public class SourceFile implements Comparable<SourceFile> {
 		this.normalizedSequence = new StringBuilder();
 		this.positionMapper = new ArrayList<Integer>();
 
-		this.IGNORE_INDENT = Config.getInstance().isIGNORE_INDENT();
-		this.IGNORE_WHITESPACE = Config.getInstance().isIGNORE_WHITESPACE();
+		this.IGNORE_INDENT = CPAConfig.getInstance().isIGNORE_INDENT();
+		this.IGNORE_WHITESPACE = CPAConfig.getInstance().isIGNORE_WHITESPACE();
 	}
 
 	public void addLine(final String line) {

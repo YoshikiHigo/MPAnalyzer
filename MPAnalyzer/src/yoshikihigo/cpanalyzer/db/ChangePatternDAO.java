@@ -9,7 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
 
 public class ChangePatternDAO {
 
@@ -22,7 +22,7 @@ public class ChangePatternDAO {
 		try {
 
 			Class.forName("org.sqlite.JDBC");
-			final String database = Config.getInstance().getDATABASE();
+			final String database = CPAConfig.getInstance().getDATABASE();
 			this.connector = DriverManager.getConnection("jdbc:sqlite:"
 					+ database);
 			final Statement statement = connector.createStatement();

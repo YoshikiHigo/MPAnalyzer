@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Revision;
 
@@ -27,7 +27,7 @@ public class ChangeDAO {
 
 		try {
 			Class.forName("org.sqlite.JDBC");
-			final String database = Config.getInstance().getDATABASE();
+			final String database = CPAConfig.getInstance().getDATABASE();
 			this.connector = DriverManager.getConnection("jdbc:sqlite:"
 					+ database);
 

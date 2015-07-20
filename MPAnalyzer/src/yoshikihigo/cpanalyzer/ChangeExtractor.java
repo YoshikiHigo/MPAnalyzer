@@ -1,8 +1,9 @@
 package yoshikihigo.cpanalyzer;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,15 +22,15 @@ public class ChangeExtractor {
 
 	public static void main(String[] args) {
 
-		Config.initialize(args);
-		final int THREADS = Config.getInstance().getTHREAD();
+		CPAConfig.initialize(args);
+		final int THREADS = CPAConfig.getInstance().getTHREAD();
 
 		final long startTime = System.nanoTime();
 
 		System.out.println("working on software \""
-				+ Config.getInstance().getSOFTWARE() + "\"");
+				+ CPAConfig.getInstance().getSOFTWARE() + "\"");
 		System.out.print("identifing revisions to be checked ... ");
-		final Revision[] revisions = getSVNRevisions().toArray(new Revision[0]);
+		final Revision[] revisions = getSVNRevisions();
 		System.out.println("done.");
 
 		if (0 == revisions.length) {
@@ -66,23 +67,23 @@ public class ChangeExtractor {
 		System.out.println(TimingUtility.getExecutionTime(startTime, endTime));
 	}
 
-	private static List<Revision> getSVNRevisions() {
+	private static Revision[] getSVNRevisions() {
 
-		final String repository = Config.getInstance()
+		final String repository = CPAConfig.getInstance()
 				.getSVNREPOSITORY_FOR_MINING();
-		final String language = Config.getInstance().getLANGUAGE();
-		final String software = Config.getInstance().getSOFTWARE();
-		final boolean isVerbose = Config.getInstance().isVERBOSE();
+		final Set<LANGUAGE> languages = CPAConfig.getInstance().getLANGUAGE();
+		final String software = CPAConfig.getInstance().getSOFTWARE();
+		final boolean isVerbose = CPAConfig.getInstance().isVERBOSE();
 
-		long startRevision = Config.getInstance()
+		long startRevision = CPAConfig.getInstance()
 				.getSTART_REVISION_FOR_MINING();
-		long endRevision = Config.getInstance().getEND_REVISION_FOR_MINING();
+		long endRevision = CPAConfig.getInstance().getEND_REVISION_FOR_MINING();
 
 		if (startRevision < 0) {
 			startRevision = 0l;
 		}
 
-		final List<Revision> revisions = new ArrayList<Revision>();
+		final SortedSet<Revision> revisions = new TreeSet<>();
 
 		try {
 
@@ -96,6 +97,7 @@ public class ChangeExtractor {
 
 			svnRepository.log(null, startRevision, endRevision, true, true,
 					new ISVNLogEntryHandler() {
+						@Override
 						public void handleLogEntry(SVNLogEntry logEntry)
 								throws SVNException {
 							for (final Object key : logEntry.getChangedPaths()
@@ -107,24 +109,14 @@ public class ChangeExtractor {
 								final String message = logEntry.getMessage();
 								final Revision revision = new Revision(
 										software, number, date, message);
-								if (language.equalsIgnoreCase("JAVA")
-										&& StringUtility.isJavaFile(path)) {
-									if (isVerbose) {
-										System.out.print(Integer
-												.toString(number));
-										System.out.println(" is identified.");
+								for (final LANGUAGE language : languages) {
+									if (language.isTarget(path)) {
+										System.err.println(Integer
+												.toString(number)
+												+ "is identified.");
 									}
 									revisions.add(revision);
-									break;
-								} else if (language.equalsIgnoreCase("C")
-										&& StringUtility.isCFile(path)) {
-									if (isVerbose) {
-										System.out.print(Integer
-												.toString(number));
-										System.out.println(" is identified.");
-									}
-									revisions.add(revision);
-									break;
+									return;
 								}
 							}
 						}
@@ -135,6 +127,6 @@ public class ChangeExtractor {
 			System.exit(0);
 		}
 
-		return revisions;
+		return revisions.toArray(new Revision[0]);
 	}
 }

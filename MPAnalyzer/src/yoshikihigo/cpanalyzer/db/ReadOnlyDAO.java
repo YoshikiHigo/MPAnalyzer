@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import yoshikihigo.cpanalyzer.Config;
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.Change.DiffType;
@@ -43,7 +43,7 @@ public class ReadOnlyDAO {
 
 		try {
 			Class.forName("org.sqlite.JDBC");
-			final String database = Config.getInstance().getDATABASE();
+			final String database = CPAConfig.getInstance().getDATABASE();
 			this.connector = DriverManager.getConnection("jdbc:sqlite:"
 					+ database);
 		} catch (ClassNotFoundException | SQLException e) {

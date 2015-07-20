@@ -9,11 +9,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import yoshikihigo.commentremover.CRConfig;
 import yoshikihigo.commentremover.CommentRemover;
+import yoshikihigo.commentremover.CommentRemoverJC;
+import yoshikihigo.commentremover.CommentRemoverPY;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.lexer.CLineLexer;
 import yoshikihigo.cpanalyzer.lexer.JavaLineLexer;
 import yoshikihigo.cpanalyzer.lexer.LineLexer;
+import yoshikihigo.cpanalyzer.lexer.PythonLineLexer;
 import yoshikihigo.cpanalyzer.lexer.token.STATEMENT;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
 
@@ -152,35 +156,71 @@ public class StringUtility {
 	}
 
 	public static List<Statement> splitToStatements(final String text,
-			final String language) {
+			final LANGUAGE language) {
 
 		if (text.isEmpty()) {
 			return new ArrayList<Statement>();
 		}
 
-		if (text.startsWith("-")) {
-			return new ArrayList<Statement>();
+		switch (language) {
+		case JAVA: {
+			final String[] args = new String[7];
+			args[0] = "-q";
+			args[1] = "-blankline";
+			args[2] = "retain";
+			args[3] = "-bracketline";
+			args[4] = "retain";
+			args[5] = "-indent";
+			args[6] = "retain";
+			final CRConfig config = CRConfig.initialize(args);
+			final CommentRemover remover = new CommentRemoverJC(config);
+			final String normalizedText = remover.perform(text);
+			final LineLexer lexer = new JavaLineLexer();
+			final List<Token> tokens = lexer.lexFile(normalizedText);
+			final List<Statement> statements = Statement
+					.getJCStatements(tokens);
+			return statements;
+		}
+		case C:
+		case CPP: {
+			final String[] args = new String[7];
+			args[0] = "-q";
+			args[1] = "-blankline";
+			args[2] = "retain";
+			args[3] = "-bracketline";
+			args[4] = "retain";
+			args[5] = "-indent";
+			args[6] = "retain";
+			final CRConfig config = CRConfig.initialize(args);
+			final CommentRemover remover = new CommentRemoverJC(config);
+			final String normalizedText = remover.perform(text);
+			final LineLexer lexer = new CLineLexer();
+			final List<Token> tokens = lexer.lexFile(normalizedText);
+			final List<Statement> statements = Statement
+					.getJCStatements(tokens);
+			return statements;
+		}
+		case PYTHON: {
+			final String[] args = new String[3];
+			args[0] = "-q";
+			args[1] = "-blankline";
+			args[2] = "retain";
+			final CRConfig config = CRConfig.initialize(args);
+			final CommentRemover remover = new CommentRemoverPY(config);
+			final String normalizedText = remover.perform(text);
+			final LineLexer lexer = new PythonLineLexer();
+			final List<Token> tokens = lexer.lexFile(normalizedText);
+			final List<Statement> statements = Statement
+					.getPYStatements(tokens);
+			return statements;
+		}
+		default: {
+			System.err.println("invalid programming language.");
+			System.exit(0);
+		}
 		}
 
-		final String[] args = new String[8];
-		args[0] = "-l";
-		args[1] = language;
-		args[2] = "-i";
-		args[3] = text;
-		args[4] = "-q";
-		args[5] = "-a";
-		args[6] = "-d";
-		args[7] = "-e";
-		final CommentRemover remover = new CommentRemover();
-		remover.perform(args);
-		final String nonCommentText = remover.result;
-
-		final LineLexer lexer = language.equalsIgnoreCase("java") ? new JavaLineLexer()
-				: new CLineLexer();
-		final List<Token> tokens = lexer.lexFile(nonCommentText);
-		final List<Statement> statements = Statement.getStatements(tokens);
-
-		return statements;
+		return new ArrayList<Statement>();
 	}
 
 	public static int getLOC(final String text) {
