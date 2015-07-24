@@ -421,14 +421,6 @@ public class Statement {
 		return text.toString();
 	}
 
-	public int getStartLine() {
-		return this.tokens.get(0).line;
-	}
-
-	public int getEndLine() {
-		return this.tokens.get(this.tokens.size() - 1).line;
-	}
-
 	private Map<String, String> getIdentifierPool() {
 		final Thread thread = Thread.currentThread();
 		Map<String, String> map = IDENTIFIERS.get(thread);

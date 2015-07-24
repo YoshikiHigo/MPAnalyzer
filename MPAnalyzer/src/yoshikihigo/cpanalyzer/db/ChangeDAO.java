@@ -82,10 +82,10 @@ public class ChangeDAO {
 			this.codePS.setString(3, change.before.text);
 			this.codePS.setBytes(4, change.before.hash);
 			final int beforeStart = change.before.statements.isEmpty() ? 0
-					: change.before.statements.get(0).getStartLine();
+					: change.before.statements.get(0).fromLine;
 			final int beforeEnd = change.before.statements.isEmpty() ? 0
-					: change.before.statements.get(
-							change.before.statements.size() - 1).getEndLine();
+					: change.before.statements.get(change.before.statements
+							.size() - 1).toLine;
 			this.codePS.setInt(5, beforeStart);
 			this.codePS.setInt(6, beforeEnd);
 			this.codePS.addBatch();
@@ -96,10 +96,10 @@ public class ChangeDAO {
 			this.codePS.setString(3, change.after.text);
 			this.codePS.setBytes(4, change.after.hash);
 			final int afterStart = change.after.statements.isEmpty() ? 0
-					: change.after.statements.get(0).getStartLine();
+					: change.after.statements.get(0).fromLine;
 			final int afterEnd = change.after.statements.isEmpty() ? 0
-					: change.after.statements.get(
-							change.after.statements.size() - 1).getEndLine();
+					: change.after.statements.get(change.after.statements
+							.size() - 1).toLine;
 			this.codePS.setInt(5, afterStart);
 			this.codePS.setInt(6, afterEnd);
 			this.codePS.addBatch();

@@ -31,7 +31,9 @@ public class ChangeExtractor {
 				+ CPAConfig.getInstance().getSOFTWARE() + "\"");
 		System.out.print("identifing revisions to be checked ... ");
 		final Revision[] revisions = getSVNRevisions();
-		System.out.println("done.");
+		if (!CPAConfig.getInstance().isVERBOSE()) {
+			System.out.println("done.");
+		}
 
 		if (0 == revisions.length) {
 			System.out.println("no revision.");
@@ -110,10 +112,10 @@ public class ChangeExtractor {
 								final Revision revision = new Revision(
 										software, number, date, message);
 								for (final LANGUAGE language : languages) {
-									if (language.isTarget(path)) {
+									if (isVerbose && language.isTarget(path)) {
 										System.err.println(Integer
 												.toString(number)
-												+ "is identified.");
+												+ " is identified.");
 									}
 									revisions.add(revision);
 									return;

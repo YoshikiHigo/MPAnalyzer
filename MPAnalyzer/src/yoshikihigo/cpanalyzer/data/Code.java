@@ -37,9 +37,9 @@ public class Code implements Comparable<Code> {
 
 			if (!statements.isEmpty()) {
 				final StringBuilder tmp2 = new StringBuilder();
-				tmp2.append(statements.get(0).getStartLine());
+				tmp2.append(statements.get(0).fromLine);
 				tmp2.append(" --- ");
-				tmp2.append(statements.get(statements.size() - 1).getEndLine());
+				tmp2.append(statements.get(statements.size() - 1).toLine);
 				this.position = tmp2.toString();
 			} else {
 				this.position = "not exist.";
@@ -100,7 +100,7 @@ public class Code implements Comparable<Code> {
 		if (this.statements.isEmpty()) {
 			return 0;
 		} else {
-			return this.statements.get(0).tokens.get(0).line;
+			return this.statements.get(0).fromLine;
 		}
 	}
 
@@ -108,9 +108,7 @@ public class Code implements Comparable<Code> {
 		if (this.statements.isEmpty()) {
 			return 0;
 		} else {
-			return this.statements.get(this.statements.size() - 1).tokens
-					.get(this.statements.get(this.statements.size() - 1).tokens
-							.size() - 1).line;
+			return this.statements.get(this.statements.size() - 1).toLine;
 		}
 	}
 
