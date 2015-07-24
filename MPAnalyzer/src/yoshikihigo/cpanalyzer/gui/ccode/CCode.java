@@ -110,21 +110,20 @@ public class CCode extends JTextArea implements Observer {
 	public void update(final Observable o, final Object arg) {
 
 		if (o instanceof ObservedChanges) {
-			final ObservedChanges observedModifications = (ObservedChanges) o;
-			if (observedModifications.label.equals(CLABEL.SELECTED)) {
+			final ObservedChanges observedChanges = (ObservedChanges) o;
+			if (observedChanges.label.equals(CLABEL.SELECTED)) {
 
 				this.setText("");
 
-				if (observedModifications.isSet()) {
+				if (observedChanges.isSet()) {
 
 					try {
 
-						this.change = observedModifications.get().first();
+						this.change = observedChanges.get().first();
 						final long revision = this.change.revision.number;
 						final String filepath = this.change.filepath;
 						final String REPOSITORY_FOR_MINING = CPAConfig
-								.getInstance()
-								.getSVNREPOSITORY_FOR_MINING();
+								.getInstance().getSVNREPOSITORY_FOR_MINING();
 						final SVNURL url = SVNURL.fromFile(new File(
 								REPOSITORY_FOR_MINING + "/" + filepath));
 						FSRepositoryFactory.setup();
