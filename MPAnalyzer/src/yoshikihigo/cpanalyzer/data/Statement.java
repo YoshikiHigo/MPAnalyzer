@@ -39,6 +39,7 @@ import yoshikihigo.cpanalyzer.lexer.token.TAB;
 import yoshikihigo.cpanalyzer.lexer.token.TRANSIENT;
 import yoshikihigo.cpanalyzer.lexer.token.TRUE;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
+import yoshikihigo.cpanalyzer.lexer.token.WHITESPACE;
 
 public class Statement {
 
@@ -126,7 +127,7 @@ public class Statement {
 		boolean isIndent = true;
 		for (final Token token : allTokens) {
 
-			if (token instanceof TAB) {
+			if ((token instanceof TAB) || (token instanceof WHITESPACE)) {
 				if (isIndent && !interrupted) {
 					nestLevel++;
 				}
@@ -134,11 +135,13 @@ public class Statement {
 				isIndent = false;
 			}
 
-			if (!(token instanceof TAB) && !(token instanceof LINEEND)) {
+			if (!(token instanceof TAB) && !(token instanceof WHITESPACE)
+					&& !(token instanceof LINEEND)) {
 				token.index = index++;
 			}
 
-			if (!(token instanceof TAB) && !(token instanceof LINEEND)
+			if (!(token instanceof TAB) && !(token instanceof WHITESPACE)
+					&& !(token instanceof LINEEND)
 					&& !(token instanceof SEMICOLON)
 					&& !(token instanceof LINEINTERRUPTION)) {
 				tokens.add(token);
