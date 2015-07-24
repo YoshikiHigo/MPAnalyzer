@@ -30,6 +30,9 @@ public class ChangeExtractor {
 		System.out.println("working on software \""
 				+ CPAConfig.getInstance().getSOFTWARE() + "\"");
 		System.out.print("identifing revisions to be checked ... ");
+		if (CPAConfig.getInstance().isVERBOSE()) {
+			System.out.println();
+		}
 		final Revision[] revisions = getSVNRevisions();
 		if (!CPAConfig.getInstance().isVERBOSE()) {
 			System.out.println("done.");
@@ -40,6 +43,10 @@ public class ChangeExtractor {
 			System.exit(0);
 		}
 
+		System.out.print("extracting code changes ... ");
+		if (CPAConfig.getInstance().isVERBOSE()) {
+			System.out.println();
+		}
 		final AtomicInteger index = new AtomicInteger(1);
 		final BlockingQueue<Change> queue = new ArrayBlockingQueue<Change>(
 				100000, true);
@@ -62,6 +69,10 @@ public class ChangeExtractor {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(0);
+		}
+
+		if (!CPAConfig.getInstance().isVERBOSE()) {
+			System.out.println("done.");
 		}
 
 		final long endTime = System.nanoTime();
@@ -113,9 +124,9 @@ public class ChangeExtractor {
 										software, number, date, message);
 								for (final LANGUAGE language : languages) {
 									if (isVerbose && language.isTarget(path)) {
-										System.err.println(Integer
+										System.out.println(Integer
 												.toString(number)
-												+ " is identified.");
+												+ " has been identified.");
 									}
 									revisions.add(revision);
 									return;

@@ -76,13 +76,15 @@ public class ChangeExtractionThread extends Thread {
 				final Revision beforeRevision = this.revisions[targetIndex - 1];
 				final Revision afterRevision = this.revisions[targetIndex];
 
-				final StringBuilder progress = new StringBuilder();
-				progress.append(this.id);
-				progress.append(": checking revisions ");
-				progress.append(beforeRevision.number);
-				progress.append(" and ");
-				progress.append(afterRevision.number);
-				System.out.println(progress.toString());
+				if (isVerbose) {
+					final StringBuilder progress = new StringBuilder();
+					progress.append(this.id);
+					progress.append(": checking revisions ");
+					progress.append(beforeRevision.number);
+					progress.append(" and ");
+					progress.append(afterRevision.number);
+					System.out.println(progress.toString());
+				}
 
 				final List<String> changedFileList = new ArrayList<String>();
 				try {
@@ -108,9 +110,6 @@ public class ChangeExtractionThread extends Thread {
 									for (final LANGUAGE language : languages) {
 										if (language.isTarget(path)) {
 											changedFileList.add(path);
-											if (isVerbose) {
-												System.err.println(path);
-											}
 										}
 									}
 								}

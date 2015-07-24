@@ -119,13 +119,17 @@ public class ChangeDAO {
 			this.numberOfChangePS++;
 
 			if (10000 < this.numberOfCodePS) {
-				System.out.println("writing \'codes\' table ...");
+				if (CPAConfig.getInstance().isVERBOSE()) {
+					System.out.println("writing \'codes\' table ...");
+				}
 				this.codePS.executeBatch();
 				this.numberOfCodePS = 0;
 			}
 
 			if (10000 < this.numberOfChangePS) {
-				System.out.println("writing \'changes\' table ...");
+				if (CPAConfig.getInstance().isVERBOSE()) {
+					System.out.println("writing \'changes\' table ...");
+				}
 				this.changePS.executeBatch();
 				this.numberOfChangePS = 0;
 			}
@@ -146,12 +150,16 @@ public class ChangeDAO {
 	public void flush() {
 		try {
 			if (0 < this.numberOfCodePS) {
-				System.out.println("writing \'codes\' table ...");
+				if (CPAConfig.getInstance().isVERBOSE()) {
+					System.out.println("writing \'codes\' table ...");
+				}
 				this.codePS.executeBatch();
 				this.numberOfCodePS = 0;
 			}
 			if (0 < this.numberOfChangePS) {
-				System.out.println("writing \'changes\' table ...");
+				if (CPAConfig.getInstance().isVERBOSE()) {
+					System.out.println("writing \'changes\' table ...");
+				}
 				this.changePS.executeBatch();
 				this.numberOfChangePS = 0;
 			}
