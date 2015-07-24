@@ -138,7 +138,9 @@ public class StringUtility {
 		for (final String line : lines) {
 			final List<Token> tokens = new ArrayList<Token>();
 			tokens.add(new STATEMENT(line));
-			final Statement statement = new Statement(tokens);
+			final byte[] hash = Statement.getMD5(line);
+			final Statement statement = new Statement(startLine, endLine, -1,
+					true, tokens, hash);
 			statements.add(statement);
 		}
 
