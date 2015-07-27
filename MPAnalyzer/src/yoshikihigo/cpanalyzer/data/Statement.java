@@ -16,6 +16,7 @@ import yoshikihigo.cpanalyzer.lexer.token.ABSTRACT;
 import yoshikihigo.cpanalyzer.lexer.token.ANNOTATION;
 import yoshikihigo.cpanalyzer.lexer.token.CHARLITERAL;
 import yoshikihigo.cpanalyzer.lexer.token.CLASS;
+import yoshikihigo.cpanalyzer.lexer.token.COLON;
 import yoshikihigo.cpanalyzer.lexer.token.DEF;
 import yoshikihigo.cpanalyzer.lexer.token.FALSE;
 import yoshikihigo.cpanalyzer.lexer.token.FINAL;
@@ -23,14 +24,17 @@ import yoshikihigo.cpanalyzer.lexer.token.IDENTIFIER;
 import yoshikihigo.cpanalyzer.lexer.token.INTERFACE;
 import yoshikihigo.cpanalyzer.lexer.token.LEFTBRACKET;
 import yoshikihigo.cpanalyzer.lexer.token.LEFTPAREN;
+import yoshikihigo.cpanalyzer.lexer.token.LEFTSQUAREBRACKET;
 import yoshikihigo.cpanalyzer.lexer.token.LINEEND;
 import yoshikihigo.cpanalyzer.lexer.token.LINEINTERRUPTION;
 import yoshikihigo.cpanalyzer.lexer.token.NUMBERLITERAL;
 import yoshikihigo.cpanalyzer.lexer.token.PRIVATE;
 import yoshikihigo.cpanalyzer.lexer.token.PROTECTED;
 import yoshikihigo.cpanalyzer.lexer.token.PUBLIC;
+import yoshikihigo.cpanalyzer.lexer.token.QUESTION;
 import yoshikihigo.cpanalyzer.lexer.token.RIGHTBRACKET;
 import yoshikihigo.cpanalyzer.lexer.token.RIGHTPAREN;
+import yoshikihigo.cpanalyzer.lexer.token.RIGHTSQUAREBRACKET;
 import yoshikihigo.cpanalyzer.lexer.token.SEMICOLON;
 import yoshikihigo.cpanalyzer.lexer.token.STATIC;
 import yoshikihigo.cpanalyzer.lexer.token.STRICTFP;
@@ -52,13 +56,25 @@ public class Statement {
 		List<Token> tokens = new ArrayList<Token>();
 
 		final Stack<Integer> nestLevel = new Stack<>();
-		nestLevel.push(new Integer(0));
+		nestLevel.push(new Integer(1));
+		int inAnnotationDepth = 0;
 		int inParenDepth = 0;
+		int inTernaryOperationDepth = 0;
 		int index = 0;
+		final boolean isDebug = CPAConfig.getInstance().isDEBUG();
+
 		for (final Token token : allTokens) {
 
 			token.index = index++;
-			tokens.add(token);
+			if (0 < inAnnotationDepth) {
+				final ANNOTATION annotation = new ANNOTATION(token.value);
+				annotation.index = index++;
+				annotation.line = token.line;
+				tokens.add(annotation);
+			} else {
+				token.index = index++;
+				tokens.add(token);
+			}
 
 			if ((0 == inParenDepth) && (token instanceof RIGHTBRACKET)) {
 				if (0 == nestLevel.peek().intValue()) {
@@ -69,14 +85,22 @@ public class Statement {
 				}
 			}
 
+			if (token instanceof QUESTION) {
+				inTernaryOperationDepth++;
+			}
+
 			if (token instanceof RIGHTPAREN) {
 				inParenDepth--;
+				if (0 < inAnnotationDepth) {
+					inAnnotationDepth--;
+				}
 			}
 
 			if ((0 == inParenDepth)
+					&& (0 == inTernaryOperationDepth)
 					&& (token instanceof LEFTBRACKET
 							|| token instanceof RIGHTBRACKET
-							|| token instanceof SEMICOLON || token instanceof ANNOTATION)) {
+							|| token instanceof SEMICOLON || token instanceof COLON)) {
 
 				if (1 < tokens.size()) {
 
@@ -87,12 +111,15 @@ public class Statement {
 
 					final int fromLine = tokens.get(0).line;
 					final int toLine = tokens.get(tokens.size() - 1).line;
-					// System.out.print(Integer.toString(nestDepth) + ": ");
 					final byte[] hash = makeJCHash(tokens);
 					final Statement statement = new Statement(fromLine, toLine,
 							nestDepth, 1 < nestDepth, tokens, hash);
 					statements.add(statement);
 					tokens = new ArrayList<Token>();
+
+					if (isDebug) {
+						System.out.println(statement.toString());
+					}
 				}
 
 				else {
@@ -104,8 +131,21 @@ public class Statement {
 				nestLevel.push(new Integer(nestLevel.peek().intValue() + 1));
 			}
 
+			if ((0 < inTernaryOperationDepth) && (token instanceof COLON)) {
+				inTernaryOperationDepth--;
+			}
+
 			if (token instanceof LEFTPAREN) {
 				inParenDepth++;
+				if ((1 < tokens.size())
+						&& (tokens.get(tokens.size() - 2) instanceof ANNOTATION)) {
+					inAnnotationDepth++;
+					tokens.remove(tokens.size() - 1);
+					final ANNOTATION annotation = new ANNOTATION(token.value);
+					annotation.index = index++;
+					annotation.line = token.line;
+					tokens.add(annotation);
+				}
 			}
 
 		}
@@ -123,8 +163,12 @@ public class Statement {
 		int nestLevel = 0;
 		int index = 0;
 		int inParenDepth = 0;
+		int inBracketDepth = 0;
+		int inSquareBracketDepth = 0;
 		boolean interrupted = false;
 		boolean isIndent = true;
+		final boolean isDebug = CPAConfig.getInstance().isDEBUG();
+
 		for (final Token token : allTokens) {
 
 			if ((token instanceof TAB) || (token instanceof WHITESPACE)) {
@@ -155,8 +199,26 @@ public class Statement {
 				inParenDepth++;
 			}
 
+			if (token instanceof RIGHTBRACKET) {
+				inBracketDepth--;
+			}
+
+			if (token instanceof LEFTBRACKET) {
+				inBracketDepth++;
+			}
+
+			if (token instanceof RIGHTSQUAREBRACKET) {
+				inSquareBracketDepth--;
+			}
+
+			if (token instanceof LEFTSQUAREBRACKET) {
+				inSquareBracketDepth++;
+			}
+
 			if (token instanceof LINEINTERRUPTION) {
 				interrupted = true;
+			} else if (token instanceof LINEEND) {
+				// do nothing
 			} else {
 				interrupted = false;
 			}
@@ -164,8 +226,16 @@ public class Statement {
 			// make a statement
 			if (!interrupted
 					&& (0 == inParenDepth)
+					&& (0 == inBracketDepth)
+					&& (0 == inSquareBracketDepth)
 					&& ((token instanceof LINEEND) || (token instanceof SEMICOLON))) {
 				if (!tokens.isEmpty()) {
+
+					if (!methodDefinitionDepth.isEmpty()
+							&& (nestLevel <= methodDefinitionDepth.peek()
+									.intValue())) {
+						methodDefinitionDepth.pop();
+					}
 
 					if (isPYMethodDefinition(tokens)) {
 						methodDefinitionDepth.push(new Integer(nestLevel));
@@ -181,14 +251,17 @@ public class Statement {
 					final int toLine = tokens.get(tokens.size() - 1).line;
 					final boolean isTarget = (!methodDefinitionDepth.isEmpty() && (methodDefinitionDepth
 							.peek().intValue() < nestLevel));
-					// System.out.print(Integer.toString(nestLevel) + ": "
-					// + Boolean.toString(isTarget) + ": ");
 					final byte[] hash = makePYHash(tokens);
 					final Statement statement = new Statement(fromLine, toLine,
 							nestLevel, isTarget, tokens, hash);
 					statements.add(statement);
 					tokens = new ArrayList<Token>();
+
+					if (isDebug) {
+						System.out.println(statement.toString());
+					}
 				}
+
 				if (token instanceof LINEEND) {
 					nestLevel = 0;
 					isIndent = true;
@@ -236,7 +309,6 @@ public class Statement {
 		}
 
 		final String text = builder.toString();
-		// System.out.println(text);
 		final byte[] md5 = getMD5(text);
 		return md5;
 	}
@@ -278,7 +350,6 @@ public class Statement {
 		}
 
 		final String text = builder.toString();
-		// System.out.println(text);
 		final byte[] md5 = getMD5(text);
 		return md5;
 	}
@@ -292,6 +363,10 @@ public class Statement {
 					|| token instanceof PUBLIC || token instanceof STATIC
 					|| token instanceof STRICTFP || token instanceof TRANSIENT) {
 				// not used for making hash
+				continue;
+			}
+
+			else if (token instanceof ANNOTATION) {
 				continue;
 			}
 

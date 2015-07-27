@@ -59,7 +59,7 @@ import yoshikihigo.cpanalyzer.lexer.token.NONE;
 import yoshikihigo.cpanalyzer.lexer.token.NONLOCAL;
 import yoshikihigo.cpanalyzer.lexer.token.NOT;
 import yoshikihigo.cpanalyzer.lexer.token.NOT2;
-import yoshikihigo.cpanalyzer.lexer.token.NOTEQUAL;
+import yoshikihigo.cpanalyzer.lexer.token.NOTEQUAL2;
 import yoshikihigo.cpanalyzer.lexer.token.NUMBERLITERAL;
 import yoshikihigo.cpanalyzer.lexer.token.OR;
 import yoshikihigo.cpanalyzer.lexer.token.OR2;
@@ -85,6 +85,7 @@ import yoshikihigo.cpanalyzer.lexer.token.TRUE2;
 import yoshikihigo.cpanalyzer.lexer.token.TRY;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
 import yoshikihigo.cpanalyzer.lexer.token.WHILE;
+import yoshikihigo.cpanalyzer.lexer.token.WHITESPACE;
 import yoshikihigo.cpanalyzer.lexer.token.WITH;
 import yoshikihigo.cpanalyzer.lexer.token.YIELD;
 
@@ -187,7 +188,7 @@ public class PythonLineLexer implements LineLexer {
 					tokens.add(new EQUAL());
 				} else if (string.startsWith("<>")) {
 					text.delete(0, 2);
-					tokens.add(new NOTEQUAL());
+					tokens.add(new NOTEQUAL2());
 				} else if (string.startsWith("!")) {
 					text.delete(0, 1);
 					tokens.add(new NOT());
@@ -262,6 +263,9 @@ public class PythonLineLexer implements LineLexer {
 				} else if (string.startsWith(".")) {
 					text.delete(0, 1);
 					tokens.add(new DOT());
+				} else if (string.startsWith(" ")) {
+					text.delete(0, 1);
+					tokens.add(new WHITESPACE());					
 				} else if (string.startsWith("\\")) {
 					text.delete(0, 1);
 					tokens.add(new LINEINTERRUPTION());

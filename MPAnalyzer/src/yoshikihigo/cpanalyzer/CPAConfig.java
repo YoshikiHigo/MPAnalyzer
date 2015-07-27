@@ -190,6 +190,13 @@ public class CPAConfig {
 			options.addOption(option);
 		}
 
+		{
+			final Option option = new Option("debug", "debug", false,
+					"print some informlation for debugging");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
 		try {
 			final CommandLineParser parser = new PosixParser();
 			final CommandLine commandLine = parser.parse(options, args);
@@ -369,5 +376,9 @@ public class CPAConfig {
 			System.exit(0);
 		}
 		return this.commandLine.getOptionValue("csv");
+	}
+
+	public boolean isDEBUG() {
+		return this.commandLine.hasOption("debug");
 	}
 }
