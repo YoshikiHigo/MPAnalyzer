@@ -37,6 +37,12 @@ public final class FileNode extends DefaultMutableTreeNode {
 		return newFileNode;
 	}
 
+	@Override
+	public int hashCode() {
+		return this.name.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object o) {
 
 		if (o instanceof FileNode) {
