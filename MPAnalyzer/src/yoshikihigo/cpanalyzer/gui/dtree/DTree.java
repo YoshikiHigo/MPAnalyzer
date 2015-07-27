@@ -53,7 +53,7 @@ public class DTree extends JTree implements Observer {
 		public void valueChanged(TreeSelectionEvent e) {
 
 			final TreePath[] selectionPath = DTree.this.getSelectionPaths();
-			final Set<FileInfo> selectedFiles = new HashSet<FileInfo>();
+			//final Set<FileInfo> selectedFiles = new HashSet<FileInfo>();
 
 			if (null != selectionPath) {
 				for (int i = 0; i < selectionPath.length; i++) {
