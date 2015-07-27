@@ -121,6 +121,15 @@ public class ChangeExtractionThread extends Thread {
 
 				FILE: for (final String path : changedFileList) {
 
+					if (isVerbose) {
+						final StringBuilder progress = new StringBuilder();
+						progress.append(" ");
+						progress.append(this.id);
+						progress.append(": extracting changes from ");
+						progress.append(path);
+						System.out.println(progress.toString());
+					}
+
 					final SVNURL fileurl = SVNURL.fromFile(new File(repository
 							+ System.getProperty("file.separator") + path));
 
