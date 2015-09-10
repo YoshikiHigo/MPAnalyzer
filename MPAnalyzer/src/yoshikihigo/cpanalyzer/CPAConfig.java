@@ -161,8 +161,8 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("normalize", "normalization",
-					false, "normalizing text for mining");
+			final Option option = new Option("n", "normalization", false,
+					"normalizing text for mining");
 			option.setRequired(false);
 			options.addOption(option);
 		}
@@ -186,6 +186,13 @@ public class CPAConfig {
 					"CSV file for writing modification patterns");
 			option.setArgName("file");
 			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("a", "all", false,
+					"use all changes to make change patterns");
 			option.setRequired(false);
 			options.addOption(option);
 		}
@@ -351,7 +358,7 @@ public class CPAConfig {
 	}
 
 	public boolean isNORMALIZATION() {
-		return this.commandLine.hasOption("normalize");
+		return this.commandLine.hasOption("n");
 	}
 
 	public boolean isONLY_CONDITION() {
@@ -380,5 +387,9 @@ public class CPAConfig {
 
 	public boolean isDEBUG() {
 		return this.commandLine.hasOption("debug");
+	}
+
+	public boolean isALL() {
+		return this.commandLine.hasOption("a");
 	}
 }

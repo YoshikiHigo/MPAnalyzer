@@ -32,8 +32,10 @@ public class ChangePatternDAO {
 					.executeUpdate("drop index if exists index_afterHash_patterns");
 			statement
 					.executeUpdate("drop index if exists index_beforeHash_afterHash_patterns");
-			statement.executeUpdate("drop index if exists index_changetype_patterns");
-			statement.executeUpdate("drop index if exists index_difftype_patterns");
+			statement
+					.executeUpdate("drop index if exists index_changetype_patterns");
+			statement
+					.executeUpdate("drop index if exists index_difftype_patterns");
 			statement
 					.executeUpdate("drop index if exists index_support_patterns");
 			statement
@@ -103,10 +105,15 @@ public class ChangePatternDAO {
 			System.out.print("making change patterns ...");
 			final List<byte[]> hashs = new ArrayList<>();
 			{
+				final boolean isAll = CPAConfig.getInstance().isALL();
 				final Statement statement = this.connector.createStatement();
 				final StringBuilder text = new StringBuilder();
-				text.append("select beforeHash from changes ");
-				text.append("group by beforeHash having count(beforeHash) <> 1");
+				if (isAll) {
+					text.append("select distinct beforeHash from changes ");
+				} else {
+					text.append("select beforeHash from changes ");
+					text.append("group by beforeHash having count(beforeHash) <> 1");
+				}
 				final ResultSet result = statement
 						.executeQuery(text.toString());
 				while (result.next()) {
@@ -150,8 +157,10 @@ public class ChangePatternDAO {
 						.executeUpdate("create index index_afterHash_patterns on patterns(afterHash)");
 				statement
 						.executeUpdate("create index index_beforeHash_afterHash_patterns on patterns(beforeHash, afterHash)");
-				statement.executeUpdate("create index index_changetype_patterns on patterns(changetype)");
-				statement.executeUpdate("create index index_difftype_patterns on patterns(difftype)");
+				statement
+						.executeUpdate("create index index_changetype_patterns on patterns(changetype)");
+				statement
+						.executeUpdate("create index index_difftype_patterns on patterns(difftype)");
 				statement.close();
 			}
 			System.out.println(" done.");

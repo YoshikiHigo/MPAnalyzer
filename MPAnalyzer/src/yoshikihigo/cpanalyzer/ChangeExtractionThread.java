@@ -88,6 +88,7 @@ public class ChangeExtractionThread extends Thread {
 
 				final List<String> changedFileList = new ArrayList<String>();
 				try {
+					
 					diffClient.doDiffStatus(url,
 							SVNRevision.create(beforeRevision.number), url,
 							SVNRevision.create(afterRevision.number),
