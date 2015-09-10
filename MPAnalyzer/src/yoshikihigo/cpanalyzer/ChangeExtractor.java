@@ -23,6 +23,23 @@ public class ChangeExtractor {
 	public static void main(String[] args) {
 
 		CPAConfig.initialize(args);
+		final String db = CPAConfig.getInstance().getDATABASE();
+		final File dbFile = new File(db);
+		if (dbFile.exists()) {
+			System.out.println(db + " already exists in your file system.");
+			final boolean isForce = CPAConfig.getInstance().isFORCE();
+			if (isForce) {
+				if (!dbFile.delete()) {
+					System.out.println("The file cannot be removed.");
+					System.exit(0);
+				} else {
+					System.out.println("The file has been removed.");
+				}
+			} else {
+				System.exit(0);
+			}
+		}
+
 		final int THREADS = CPAConfig.getInstance().getTHREAD();
 
 		final long startTime = System.nanoTime();

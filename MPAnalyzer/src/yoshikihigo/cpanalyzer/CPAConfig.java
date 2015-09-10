@@ -198,6 +198,13 @@ public class CPAConfig {
 		}
 
 		{
+			final Option option = new Option("f", "force", false,
+					"force to make database file even if the same name file already exists");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
 			final Option option = new Option("debug", "debug", false,
 					"print some informlation for debugging");
 			option.setRequired(false);
@@ -391,5 +398,9 @@ public class CPAConfig {
 
 	public boolean isALL() {
 		return this.commandLine.hasOption("a");
+	}
+
+	public boolean isFORCE() {
+		return this.commandLine.hasOption("f");
 	}
 }
