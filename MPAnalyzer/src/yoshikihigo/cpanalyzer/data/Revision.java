@@ -6,13 +6,15 @@ public class Revision implements Comparable<Revision> {
 	public final long number;
 	public final String date;
 	public final String message;
+	public final String author;
 
 	public Revision(final String software, final long number,
-			final String date, final String message) {
+			final String date, final String message, final String author) {
 		this.software = software;
 		this.number = number;
 		this.date = date;
 		this.message = message;
+		this.author = author;
 	}
 
 	@Override

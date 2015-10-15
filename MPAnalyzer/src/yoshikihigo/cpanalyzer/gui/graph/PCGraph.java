@@ -104,8 +104,8 @@ public class PCGraph extends JPanel implements Observer {
 					this.update();
 					this.draggingPolygonalIndex = -1;
 
-					ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
-							.clear(PCGraph.this);
+					ObservedChangePatterns.getInstance(CPLABEL.SELECTED).clear(
+							PCGraph.this);
 				}
 			}
 
@@ -398,10 +398,10 @@ public class PCGraph extends JPanel implements Observer {
 		this.maxNOF = 1;
 		this.maxLBM = 1;
 		this.maxLAM = 1;
-		this.minRevision = new Revision("", Long.MAX_VALUE, "", "");
-		this.maxRevision = new Revision("", Long.MIN_VALUE, "", "");
-		for (final ChangePattern pattern : ObservedChangePatterns
-				.getInstance(CPLABEL.ALL).get()) {
+		this.minRevision = new Revision("", Long.MAX_VALUE, "", "", "");
+		this.maxRevision = new Revision("", Long.MIN_VALUE, "", "", "");
+		for (final ChangePattern pattern : ObservedChangePatterns.getInstance(
+				CPLABEL.ALL).get()) {
 			if (this.maxSUPPORT < pattern.support) {
 				this.maxSUPPORT = pattern.support;
 			}
@@ -446,8 +446,8 @@ public class PCGraph extends JPanel implements Observer {
 
 	private void drawStatus(final Graphics g) {
 
-		final int allNumber = ObservedChangePatterns
-				.getInstance(CPLABEL.ALL).get().size();
+		final int allNumber = ObservedChangePatterns.getInstance(CPLABEL.ALL)
+				.get().size();
 		final int filteredNumber = ObservedChangePatterns
 				.getInstance(CPLABEL.FILTERED).get().size();
 
@@ -478,14 +478,14 @@ public class PCGraph extends JPanel implements Observer {
 	private void drawChangePatterns(final Graphics g) {
 
 		g.setColor(METRICS_UN_SELECTED_DATA_COLOR);
-		for (final ChangePattern pattern : ObservedChangePatterns
-				.getInstance(CPLABEL.ALL).get()) {
+		for (final ChangePattern pattern : ObservedChangePatterns.getInstance(
+				CPLABEL.ALL).get()) {
 			this.drawModificationPattern(g, pattern);
 		}
 
 		g.setColor(METRICS_SELECTED_DATA_COLOR);
-		for (final ChangePattern pattern : ObservedChangePatterns
-				.getInstance(CPLABEL.FILTERED).get()) {
+		for (final ChangePattern pattern : ObservedChangePatterns.getInstance(
+				CPLABEL.FILTERED).get()) {
 			this.drawModificationPattern(g, pattern);
 		}
 	}

@@ -154,8 +154,9 @@ public class RList extends JPanel {
 								final String date = StringUtility
 										.getDateString(logEntry.getDate());
 								final String message = logEntry.getMessage();
+								final String author = logEntry.getAuthor();
 								final Revision revision = new Revision("",
-										number, date, message);
+										number, date, message, author);
 								for (final LANGUAGE language : languages) {
 									if (language.isTarget(path)) {
 										revisions.add(revision);

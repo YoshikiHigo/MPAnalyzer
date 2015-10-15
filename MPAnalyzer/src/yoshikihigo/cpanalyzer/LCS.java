@@ -19,7 +19,7 @@ public class LCS {
 
 	public static List<Change> getChanges(final List<Statement> array1,
 			final List<Statement> array2, final String software,
-			final String filepath, final Revision revision) {
+			final String filepath, final String author, final Revision revision) {
 
 		if (array1.isEmpty() || array2.isEmpty()) {
 			return new ArrayList<Change>();
@@ -97,8 +97,8 @@ public class LCS {
 							: afterCodeFragment.text.isEmpty() ? ChangeType.DELETE
 									: ChangeType.REPLACE;
 					final Change change = new Change(software, filepath,
-							beforeCodeFragment, afterCodeFragment, revision,
-							changeType, diffType);
+							author, beforeCodeFragment, afterCodeFragment,
+							revision, changeType, diffType);
 					changes.add(change);
 					xdiff.clear();
 					ydiff.clear();

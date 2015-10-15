@@ -17,6 +17,9 @@ public class ChangePattern implements Comparable<ChangePattern> {
 	public final int id;
 	public final int support;
 	public final float confidence;
+	public final int authors;
+	public final int files;
+	public final int projects;
 	public final byte[] beforeHash;
 	public final byte[] afterHash;
 	public final ChangeType changeType;
@@ -25,12 +28,16 @@ public class ChangePattern implements Comparable<ChangePattern> {
 	private final List<Change> changes;
 
 	public ChangePattern(final int id, final int support,
-			final float confidence, final byte[] beforeHash,
+			final float confidence, final int authors, final int files,
+			final int projects, final byte[] beforeHash,
 			final byte[] afterHash, final ChangeType changeType,
 			final DiffType diffType) {
 		this.id = id;
 		this.support = support;
 		this.confidence = confidence;
+		this.authors = authors;
+		this.files = files;
+		this.projects = projects;
 		this.beforeHash = beforeHash;
 		this.afterHash = afterHash;
 		this.changeType = changeType;
@@ -136,8 +143,8 @@ public class ChangePattern implements Comparable<ChangePattern> {
 		this.changes.clear();
 		try {
 
-			final List<Change> changes = ReadOnlyDAO.getInstance()
-					.getChanges(this.beforeHash, this.afterHash);
+			final List<Change> changes = ReadOnlyDAO.getInstance().getChanges(
+					this.beforeHash, this.afterHash);
 			this.changes.addAll(changes);
 		} catch (Exception e) {
 			e.printStackTrace();

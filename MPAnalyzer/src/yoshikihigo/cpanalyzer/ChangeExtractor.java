@@ -137,8 +137,9 @@ public class ChangeExtractor {
 								final String date = StringUtility
 										.getDateString(logEntry.getDate());
 								final String message = logEntry.getMessage();
+								final String author = logEntry.getAuthor();
 								final Revision revision = new Revision(
-										software, number, date, message);
+										software, number, date, message, author);
 								for (final LANGUAGE language : languages) {
 									if (isVerbose && language.isTarget(path)) {
 										System.out.println(Integer

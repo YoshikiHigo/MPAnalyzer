@@ -13,7 +13,14 @@ import yoshikihigo.cpanalyzer.CPAConfig;
 
 public class ChangePatternDAO {
 
-	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, beforeHash blob, afterHash blob, changetype integer, difftype integer, support integer, confidence real, nos integer";
+	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, "
+			+ "beforeHash blob, "
+			+ "afterHash blob, "
+			+ "changetype integer, "
+			+ "difftype integer, "
+			+ "support integer, "
+			+ "confidence real, "
+			+ "authors integer, " + "files integer, " + "nos integer";
 
 	private Connection connector;
 
@@ -181,12 +188,13 @@ public class ChangePatternDAO {
 			}
 
 			{
-				final StringBuilder text = new StringBuilder();
-				text.append("update patterns set nos = (select count(distinct software) ");
-				text.append("from changes C where C.beforeHash = ? and C.afterHash = ?) ");
-				text.append("where beforeHash = ? and afterHash = ?");
+				final String text = "update patterns "
+						+ "set authors = (select count(distinct author) from changes C1 where C1.beforeHash = ? and C1.afterHash = ?), "
+						+ "files = (select count(distinct filepath) from changes C2 where C2.beforeHash = ? and C2.afterHash = ?), "
+						+ "nos = (select count(distinct software) from changes C3 where C3.beforeHash = ? and C3.afterHash = ?) "
+						+ "where beforeHash = ? and afterHash = ?";
 				final PreparedStatement statement = this.connector
-						.prepareStatement(text.toString());
+						.prepareStatement(text);
 
 				int number = 1;
 				for (final byte[][] hashpair : hashpairs) {
@@ -202,6 +210,10 @@ public class ChangePatternDAO {
 					statement.setBytes(2, hashpair[1]);
 					statement.setBytes(3, hashpair[0]);
 					statement.setBytes(4, hashpair[1]);
+					statement.setBytes(5, hashpair[0]);
+					statement.setBytes(6, hashpair[1]);
+					statement.setBytes(7, hashpair[0]);
+					statement.setBytes(8, hashpair[1]);
 					statement.executeUpdate();
 					number++;
 				}
@@ -213,6 +225,10 @@ public class ChangePatternDAO {
 						.executeUpdate("create index index_support_patterns on patterns(support)");
 				statement
 						.executeUpdate("create index index_confidence_patterns on patterns(confidence)");
+				statement
+						.executeUpdate("create index index_authors_patterns on patterns(authors)");
+				statement
+						.executeUpdate("create index index_files_patterns on patterns(files)");
 				statement
 						.executeUpdate("create index index_nos_patterns on patterns(nos)");
 				statement.close();

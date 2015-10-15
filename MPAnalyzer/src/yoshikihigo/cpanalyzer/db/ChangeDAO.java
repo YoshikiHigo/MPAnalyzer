@@ -13,9 +13,9 @@ import yoshikihigo.cpanalyzer.data.Revision;
 
 public class ChangeDAO {
 
-	static public final String REVISIONS_SCHEMA = "software string, number integer, date string, message string, primary key(software, number)";
+	static public final String REVISIONS_SCHEMA = "software string, number integer, date string, message string, author string, primary key(software, number)";
 	static public final String CODES_SCHEMA = "software string, id integer, text string, hash blob, start int, end int, primary key(software, id)";
-	static public final String CHANGES_SCHEMA = "software string, id integer, filepath string, beforeID integer, beforeHash blob, afterID integer, afterHash blob, revision integer, changetype integer, difftype integer, primary key(software, id)";
+	static public final String CHANGES_SCHEMA = "software string, id integer, filepath string, author string, beforeID integer, beforeHash blob, afterID integer, afterHash blob, revision integer, changetype integer, difftype integer, primary key(software, id)";
 
 	private Connection connector;
 	private PreparedStatement codePS;
@@ -43,7 +43,7 @@ public class ChangeDAO {
 			this.codePS = this.connector
 					.prepareStatement("insert into codes values (?, ?, ?, ?, ?, ?)");
 			this.changePS = this.connector
-					.prepareStatement("insert into changes values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+					.prepareStatement("insert into changes values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 			this.numberOfCodePS = 0;
 			this.numberOfChangePS = 0;
@@ -58,12 +58,13 @@ public class ChangeDAO {
 
 		try {
 			final PreparedStatement statement = this.connector
-					.prepareStatement("insert into revisions values (?, ?, ?, ?)");
+					.prepareStatement("insert into revisions values (?, ?, ?, ?, ?)");
 			for (final Revision revision : revisions) {
 				statement.setString(1, revision.software);
 				statement.setLong(2, revision.number);
 				statement.setString(3, revision.date);
 				statement.setString(4, revision.message);
+				statement.setString(5, revision.author);
 				statement.addBatch();
 			}
 			statement.executeBatch();
@@ -108,13 +109,14 @@ public class ChangeDAO {
 			this.changePS.setString(1, change.software);
 			this.changePS.setInt(2, change.id);
 			this.changePS.setString(3, change.filepath);
-			this.changePS.setInt(4, change.before.getID());
-			this.changePS.setBytes(5, change.before.hash);
-			this.changePS.setInt(6, change.after.getID());
-			this.changePS.setBytes(7, change.after.hash);
-			this.changePS.setInt(8, (int) change.revision.number);
-			this.changePS.setInt(9, change.changeType.getValue());
-			this.changePS.setInt(10, change.diffType.getValue());
+			this.changePS.setString(4, change.author);
+			this.changePS.setInt(5, change.before.getID());
+			this.changePS.setBytes(6, change.before.hash);
+			this.changePS.setInt(7, change.after.getID());
+			this.changePS.setBytes(8, change.after.hash);
+			this.changePS.setInt(9, (int) change.revision.number);
+			this.changePS.setInt(10, change.changeType.getValue());
+			this.changePS.setInt(11, change.diffType.getValue());
 			this.changePS.addBatch();
 			this.numberOfChangePS++;
 

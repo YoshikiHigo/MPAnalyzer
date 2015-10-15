@@ -75,6 +75,7 @@ public class ChangeExtractionThread extends Thread {
 
 				final Revision beforeRevision = this.revisions[targetIndex - 1];
 				final Revision afterRevision = this.revisions[targetIndex];
+				final String author = this.revisions[targetIndex].author;
 
 				if (isVerbose) {
 					final StringBuilder progress = new StringBuilder();
@@ -88,7 +89,7 @@ public class ChangeExtractionThread extends Thread {
 
 				final List<String> changedFileList = new ArrayList<String>();
 				try {
-					
+
 					diffClient.doDiffStatus(url,
 							SVNRevision.create(beforeRevision.number), url,
 							SVNRevision.create(afterRevision.number),
@@ -174,7 +175,7 @@ public class ChangeExtractionThread extends Thread {
 
 					final List<Change> changes = LCS.getChanges(
 							beforeStatements, afterStatements, software, path,
-							afterRevision);
+							author, afterRevision);
 
 					if (onlyCondition) {
 						for (final Change change : changes) {

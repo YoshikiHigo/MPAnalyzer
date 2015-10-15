@@ -59,7 +59,7 @@ public class ReadOnlyDAO {
 
 		try {
 			final StringBuilder text = new StringBuilder();
-			text.append("select T.software, T.id, T.filepath, T.beforeHash, T.beforeText, ");
+			text.append("select T.software, T.id, T.filepath, T.author, T.beforeHash, T.beforeText, ");
 			text.append("T.beforeStart, T.beforeEnd, T.afterHash, T.afterText, ");
 			text.append("T.afterStart, T.afterEnd, T.revision, T.changetype, T.difftype, T.date, T.message from ");
 			text.append("(select M.software software, M.id id, M.filepath filepath, M.beforeHash beforeHash, ");
@@ -87,26 +87,27 @@ public class ReadOnlyDAO {
 				final String software = result.getString(1);
 				final int id = result.getInt(2);
 				final String filepath = result.getString(3);
-				final int beforeID = result.getInt(4);
-				final String beforeText = result.getString(5);
-				final int beforeStart = result.getInt(6);
-				final int beforeEnd = result.getInt(7);
-				final int afterID = result.getInt(8);
-				final String afterText = result.getString(9);
-				final int afterStart = result.getInt(10);
-				final int afterEnd = result.getInt(11);
-				final long number = result.getLong(12);
+				final String author = result.getString(4);
+				final int beforeID = result.getInt(5);
+				final String beforeText = result.getString(6);
+				final int beforeStart = result.getInt(7);
+				final int beforeEnd = result.getInt(8);
+				final int afterID = result.getInt(9);
+				final String afterText = result.getString(10);
+				final int afterStart = result.getInt(11);
+				final int afterEnd = result.getInt(12);
+				final long number = result.getLong(13);
 				final ChangeType changeType = ChangeType.getType(result
-						.getInt(13));
-				final DiffType diffType = DiffType.getType(result.getInt(14));
-				final String date = result.getString(15);
-				final String message = result.getString(16);
+						.getInt(14));
+				final DiffType diffType = DiffType.getType(result.getInt(15));
+				final String date = result.getString(16);
+				final String message = result.getString(17);
 				final Change change = new Change(software, id, filepath,
-						new Code(software, beforeID, beforeText, beforeStart,
-								beforeEnd), new Code(software, afterID,
-								afterText, afterStart, afterEnd), new Revision(
-								software, number, date, message), changeType,
-						diffType);
+						author, new Code(software, beforeID, beforeText,
+								beforeStart, beforeEnd), new Code(software,
+								afterID, afterText, afterStart, afterEnd),
+						new Revision(software, number, date, message, author),
+						changeType, diffType);
 				changes.add(change);
 			}
 			statement.close();
@@ -127,7 +128,7 @@ public class ReadOnlyDAO {
 
 		try {
 			final StringBuilder text = new StringBuilder();
-			text.append("select id, beforeHash, afterHash, changetype, difftype, support, confidence");
+			text.append("select id, beforeHash, afterHash, changetype, difftype, support, confidence, authors, files, nos");
 			text.append(" from patterns where ? <= support and ? <= confidence");
 			final PreparedStatement statement = this.connector
 					.prepareStatement(text.toString());
@@ -145,8 +146,12 @@ public class ReadOnlyDAO {
 				final DiffType diffType = DiffType.getType(result.getInt(5));
 				final int support = result.getInt(6);
 				final float confidence = result.getFloat(7);
+				final int authors = result.getInt(8);
+				final int files = result.getInt(9);
+				final int nos = result.getInt(10);
 				final ChangePattern pattern = new ChangePattern(id, support,
-						confidence, beforeHash, afterHash, changeType, diffType);
+						confidence, authors, files, nos, beforeHash, afterHash,
+						changeType, diffType);
 				patterns.add(pattern);
 			}
 
@@ -165,7 +170,7 @@ public class ReadOnlyDAO {
 
 		final Statement revisionStatement = this.connector.createStatement();
 		final ResultSet result = revisionStatement
-				.executeQuery("select software, number, date, message from revision");
+				.executeQuery("select software, number, date, message, author from revision");
 
 		final SortedSet<Revision> revisions = new TreeSet<Revision>();
 		while (result.next()) {
@@ -173,8 +178,9 @@ public class ReadOnlyDAO {
 			final long number = result.getLong(2);
 			final String date = result.getString(3);
 			final String message = result.getString(4);
+			final String author = result.getString(5);
 			final Revision revision = new Revision(software, number, date,
-					message);
+					message, author);
 			revisions.add(revision);
 		}
 
