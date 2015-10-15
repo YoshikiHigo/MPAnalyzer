@@ -19,9 +19,9 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.Change.DiffType;
+import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 

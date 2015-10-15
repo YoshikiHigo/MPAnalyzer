@@ -20,9 +20,9 @@ import javax.swing.SwingWorker;
 
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
+import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
-import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedRevisions.RLABEL;
 import yoshikihigo.cpanalyzer.gui.ccode.CCode;
 import yoshikihigo.cpanalyzer.gui.dcode.DCode;
