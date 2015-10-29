@@ -20,7 +20,10 @@ public class ChangePatternDAO {
 			+ "difftype integer, "
 			+ "support integer, "
 			+ "confidence real, "
-			+ "authors integer, " + "files integer, " + "nos integer";
+			+ "authors integer, "
+			+ "files integer, "
+			+ "nos integer, "
+			+ "firstdate string, " + "lastdate string";
 
 	private Connection connector;
 
@@ -156,6 +159,7 @@ public class ChangePatternDAO {
 				}
 				statement.close();
 			}
+
 			{
 				final Statement statement = this.connector.createStatement();
 				statement
@@ -191,7 +195,9 @@ public class ChangePatternDAO {
 				final String text = "update patterns "
 						+ "set authors = (select count(distinct author) from changes C1 where C1.beforeHash = ? and C1.afterHash = ?), "
 						+ "files = (select count(distinct filepath) from changes C2 where C2.beforeHash = ? and C2.afterHash = ?), "
-						+ "nos = (select count(distinct software) from changes C3 where C3.beforeHash = ? and C3.afterHash = ?) "
+						+ "nos = (select count(distinct software) from changes C3 where C3.beforeHash = ? and C3.afterHash = ?), "
+						+ "firstdate = (select date from changes C4 where C4.beforeHash = ? and C4.afterHash = ? order by date asc limit 1), "
+						+ "lastdate = (select date from changes C5 where C5.beforeHash = ? and C5.afterHash = ? order by date desc limit 1) "
 						+ "where beforeHash = ? and afterHash = ?";
 				final PreparedStatement statement = this.connector
 						.prepareStatement(text);
@@ -214,11 +220,16 @@ public class ChangePatternDAO {
 					statement.setBytes(6, hashpair[1]);
 					statement.setBytes(7, hashpair[0]);
 					statement.setBytes(8, hashpair[1]);
+					statement.setBytes(9, hashpair[0]);
+					statement.setBytes(10, hashpair[1]);
+					statement.setBytes(11, hashpair[0]);
+					statement.setBytes(12, hashpair[1]);
 					statement.executeUpdate();
 					number++;
 				}
 				statement.close();
 			}
+
 			{
 				final Statement statement = this.connector.createStatement();
 				statement
