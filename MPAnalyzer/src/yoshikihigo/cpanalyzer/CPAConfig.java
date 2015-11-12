@@ -182,6 +182,13 @@ public class CPAConfig {
 		}
 
 		{
+			final Option option = new Option("q", "quiet", false,
+					"do not output anything for progressing");
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
 			final Option option = new Option("csv", "csv", true,
 					"CSV file for writing modification patterns");
 			option.setArgName("file");
@@ -215,6 +222,13 @@ public class CPAConfig {
 			final CommandLineParser parser = new PosixParser();
 			final CommandLine commandLine = parser.parse(options, args);
 			SINGLETON = new CPAConfig(commandLine);
+
+			if (SINGLETON.isVERBOSE() && SINGLETON.isQUIET()) {
+				System.err
+						.println("\"-v\" and \"-q\" can not be used together.");
+				System.exit(0);
+			}
+
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -374,6 +388,10 @@ public class CPAConfig {
 
 	public boolean isVERBOSE() {
 		return this.commandLine.hasOption("v");
+	}
+
+	public boolean isQUIET() {
+		return this.commandLine.hasOption("q");
 	}
 
 	public boolean hasSVNREPO() {

@@ -30,10 +30,14 @@ public class ChangeExtractor {
 			final boolean isForce = CPAConfig.getInstance().isFORCE();
 			if (isForce) {
 				if (!dbFile.delete()) {
-					System.out.println("The file cannot be removed.");
+					if (!CPAConfig.getInstance().isQUIET()) {
+						System.err.println("The file cannot be removed.");
+					}
 					System.exit(0);
 				} else {
-					System.out.println("The file has been removed.");
+					if (!CPAConfig.getInstance().isQUIET()) {
+						System.out.println("The file has been removed.");
+					}
 				}
 			} else {
 				System.exit(0);
@@ -44,9 +48,11 @@ public class ChangeExtractor {
 
 		final long startTime = System.nanoTime();
 
-		System.out.println("working on software \""
-				+ CPAConfig.getInstance().getSOFTWARE() + "\"");
-		System.out.print("identifing revisions to be checked ... ");
+		if (!CPAConfig.getInstance().isQUIET()) {
+			System.out.println("working on software \""
+					+ CPAConfig.getInstance().getSOFTWARE() + "\"");
+			System.out.print("identifing revisions to be checked ... ");
+		}
 		if (CPAConfig.getInstance().isVERBOSE()) {
 			System.out.println();
 		}
@@ -55,12 +61,14 @@ public class ChangeExtractor {
 			System.out.println("done.");
 		}
 
-		if (0 == revisions.length) {
+		if ((0 == revisions.length) && !CPAConfig.getInstance().isQUIET()) {
 			System.out.println("no revision.");
 			System.exit(0);
 		}
 
-		System.out.print("extracting code changes ... ");
+		if (!CPAConfig.getInstance().isQUIET()) {
+			System.out.print("extracting code changes ... ");
+		}
 		if (CPAConfig.getInstance().isVERBOSE()) {
 			System.out.println();
 		}
@@ -88,13 +96,17 @@ public class ChangeExtractor {
 			System.exit(0);
 		}
 
-		if (!CPAConfig.getInstance().isVERBOSE()) {
+		if (!CPAConfig.getInstance().isVERBOSE()
+				&& !CPAConfig.getInstance().isQUIET()) {
 			System.out.println("done.");
 		}
 
 		final long endTime = System.nanoTime();
-		System.out.print("execution time: ");
-		System.out.println(TimingUtility.getExecutionTime(startTime, endTime));
+		if (!CPAConfig.getInstance().isQUIET()) {
+			System.out.print("execution time: ");
+			System.out.println(TimingUtility.getExecutionTime(startTime,
+					endTime));
+		}
 	}
 
 	private static Revision[] getSVNRevisions() {

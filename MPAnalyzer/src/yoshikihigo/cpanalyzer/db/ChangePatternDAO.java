@@ -112,7 +112,9 @@ public class ChangePatternDAO {
 
 		try {
 
-			System.out.print("making change patterns ...");
+			if (!CPAConfig.getInstance().isQUIET()) {
+				System.out.print("making change patterns ...");
+			}
 			final List<byte[]> hashs = new ArrayList<>();
 			{
 				final boolean isAll = CPAConfig.getInstance().isALL();
@@ -144,13 +146,15 @@ public class ChangePatternDAO {
 
 				int number = 1;
 				for (final byte[] beforeHash : hashs) {
-					if (0 == number % 500) {
-						System.out.print(number);
-					} else if (0 == number % 100) {
-						System.out.print(".");
-					}
-					if (0 == number % 5000) {
-						System.out.println();
+					if (!CPAConfig.getInstance().isQUIET()) {
+						if (0 == number % 500) {
+							System.out.print(number);
+						} else if (0 == number % 100) {
+							System.out.print(".");
+						}
+						if (0 == number % 5000) {
+							System.out.println();
+						}
 					}
 					statement.setBytes(1, beforeHash);
 					statement.setBytes(2, beforeHash);
@@ -174,9 +178,13 @@ public class ChangePatternDAO {
 						.executeUpdate("create index index_difftype_patterns on patterns(difftype)");
 				statement.close();
 			}
-			System.out.println(" done.");
+			if (!CPAConfig.getInstance().isQUIET()) {
+				System.out.println(" done.");
+			}
 
-			System.out.print("calculating metrics ...");
+			if (!CPAConfig.getInstance().isQUIET()) {
+				System.out.print("calculating metrics ...");
+			}
 			final List<byte[][]> hashpairs = new ArrayList<>();
 			{
 				final Statement statement = this.connector.createStatement();
@@ -204,13 +212,15 @@ public class ChangePatternDAO {
 
 				int number = 1;
 				for (final byte[][] hashpair : hashpairs) {
-					if (0 == number % 1000) {
-						System.out.print(number);
-					} else if (0 == number % 100) {
-						System.out.print(".");
-					}
-					if (0 == number % 5000) {
-						System.out.println();
+					if (!CPAConfig.getInstance().isQUIET()) {
+						if (0 == number % 1000) {
+							System.out.print(number);
+						} else if (0 == number % 100) {
+							System.out.print(".");
+						}
+						if (0 == number % 5000) {
+							System.out.println();
+						}
 					}
 					statement.setBytes(1, hashpair[0]);
 					statement.setBytes(2, hashpair[1]);
@@ -244,7 +254,9 @@ public class ChangePatternDAO {
 						.executeUpdate("create index index_nos_patterns on patterns(nos)");
 				statement.close();
 			}
-			System.out.println(" done.");
+			if (!CPAConfig.getInstance().isQUIET()) {
+				System.out.println(" done.");
+			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
