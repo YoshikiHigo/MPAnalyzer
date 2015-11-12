@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import yoshikihigo.cpanalyzer.StringUtility;
+import yoshikihigo.cpanalyzer.Utility;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class Code implements Comparable<Code> {
@@ -27,20 +28,23 @@ public class Code implements Comparable<Code> {
 		this.statements = statements;
 		{
 			final StringBuilder tmp = new StringBuilder();
-			for (final Statement statement : this.statements) {
-				tmp.append(statement);
+			for (int i = 0; i < (statements.size() - 1); i++) {
+				tmp.append(statements.get(i));
 				tmp.append(System.getProperty("line.separator"));
+			}
+			if (!statements.isEmpty()) {
+				tmp.append(Utility.getLast(statements));
 			}
 			this.text = tmp.toString();
 		}
 		{
 
 			if (!statements.isEmpty()) {
-				final StringBuilder tmp2 = new StringBuilder();
-				tmp2.append(statements.get(0).fromLine);
-				tmp2.append(" --- ");
-				tmp2.append(statements.get(statements.size() - 1).toLine);
-				this.position = tmp2.toString();
+				final StringBuilder tmp = new StringBuilder();
+				tmp.append(statements.get(0).fromLine);
+				tmp.append(" --- ");
+				tmp.append(Utility.getLast(statements).toLine);
+				this.position = tmp.toString();
 			} else {
 				this.position = "not exist.";
 			}
