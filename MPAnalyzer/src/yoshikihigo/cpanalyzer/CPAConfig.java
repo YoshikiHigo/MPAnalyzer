@@ -359,7 +359,7 @@ public class CPAConfig {
 
 	public int getLARGE() {
 		return this.commandLine.hasOption("large") ? Integer
-				.parseInt(this.commandLine.getOptionValue("large")) : 5000;
+				.parseInt(this.commandLine.getOptionValue("large")) : 10000;
 	}
 
 	public boolean isIGNORE_INDENT() {
