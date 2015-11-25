@@ -1,9 +1,11 @@
 package yoshikihigo.cpanalyzer.data;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
@@ -54,8 +56,8 @@ public class Statement {
 	public static List<Statement> getJCStatements(final List<Token> allTokens)
 			throws EmptyStackException {
 
-		final List<Statement> statements = new ArrayList<Statement>();
-		List<Token> tokens = new ArrayList<Token>();
+		final List<Statement> statements = new ArrayList<>();
+		List<Token> tokens = new ArrayList<>();
 
 		final Stack<Integer> nestLevel = new Stack<>();
 		nestLevel.push(new Integer(1));
@@ -454,6 +456,25 @@ public class Statement {
 		this.hash = hash;
 	}
 
+	@Override
+	public int hashCode() {
+		final BigInteger value = new BigInteger(1, this.hash);
+		return value.toString(16).hashCode();
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+		if (null == o) {
+			return false;
+		}
+		if (!(o instanceof Statement)) {
+			return false;
+		}
+
+		return Arrays.equals(this.hash, ((Statement) o).hash);
+	}
+
+	@Override
 	public String toString() {
 		final StringBuilder text = new StringBuilder();
 		final Map<String, String> identifiers = this.getIdentifierPool();
