@@ -20,8 +20,10 @@ public class Revision implements Comparable<Revision> {
 	@Override
 	public int compareTo(final Revision revision) {
 		final int softwareOrder = this.software.compareTo(revision.software);
-		return (0 != softwareOrder) ? softwareOrder : new Long(this.number)
-				.compareTo(revision.number);
+		if (0 != softwareOrder) {
+			return softwareOrder;
+		}
+		return Long.compare(this.number, revision.number);
 	}
 
 	@Override

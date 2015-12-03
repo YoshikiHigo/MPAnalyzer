@@ -206,10 +206,10 @@ public class PCGraph extends JPanel implements Observer {
 				} else if (pattern.getLAM() > PCGraph.this.maxLAM
 						* this.yRate[6]) {
 					outPatterns.add(pattern);
-				} else if ((pattern.getRevisions().first().number - PCGraph.this.minRevision.number) > (PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
+				} else if ((pattern.getOldestRevision().number - PCGraph.this.minRevision.number) > (PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
 						* this.yRate[7]) {
 					outPatterns.add(pattern);
-				} else if ((pattern.getRevisions().last().number - PCGraph.this.minRevision.number) > (PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
+				} else if ((pattern.getLatestRevision().number - PCGraph.this.minRevision.number) > (PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
 						* this.yRate[8]) {
 					outPatterns.add(pattern);
 				}
@@ -234,10 +234,10 @@ public class PCGraph extends JPanel implements Observer {
 						.getLAM()) {
 					outPatterns.add(pattern);
 				} else if ((PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
-						* this.yRate[10] > (pattern.getRevisions().first().number - PCGraph.this.minRevision.number)) {
+						* this.yRate[10] > (pattern.getOldestRevision().number - PCGraph.this.minRevision.number)) {
 					outPatterns.add(pattern);
 				} else if ((PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
-						* this.yRate[9] > (pattern.getRevisions().last().number - PCGraph.this.minRevision.number)) {
+						* this.yRate[9] > (pattern.getLatestRevision().number - PCGraph.this.minRevision.number)) {
 					outPatterns.add(pattern);
 				} else {
 					inPatterns.add(pattern);
@@ -420,17 +420,17 @@ public class PCGraph extends JPanel implements Observer {
 			if (this.maxLAM < pattern.getLAM()) {
 				this.maxLAM = pattern.getLAM();
 			}
-			if (this.minRevision.number > pattern.getRevisions().first().number) {
-				this.minRevision = pattern.getRevisions().first();
+			if (this.minRevision.number > pattern.getOldestRevision().number) {
+				this.minRevision = pattern.getOldestRevision();
 			}
-			if (this.maxRevision.number < pattern.getRevisions().first().number) {
-				this.maxRevision = pattern.getRevisions().first();
+			if (this.maxRevision.number < pattern.getOldestRevision().number) {
+				this.maxRevision = pattern.getOldestRevision();
 			}
-			if (this.minRevision.number > pattern.getRevisions().last().number) {
-				this.minRevision = pattern.getRevisions().last();
+			if (this.minRevision.number > pattern.getLatestRevision().number) {
+				this.minRevision = pattern.getLatestRevision();
 			}
-			if (this.maxRevision.number < pattern.getRevisions().last().number) {
-				this.maxRevision = pattern.getRevisions().last();
+			if (this.maxRevision.number < pattern.getLatestRevision().number) {
+				this.maxRevision = pattern.getLatestRevision();
 			}
 		}
 	}
@@ -509,10 +509,10 @@ public class PCGraph extends JPanel implements Observer {
 		y[6] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
 				* (((double) pattern.getLAM()) / ((double) this.maxLAM))));
 		y[7] = (int) (Y_MARGIN + this.getYSpace()
-				* (this.maxRevision.number - pattern.getRevisions().first().number)
+				* (this.maxRevision.number - pattern.getOldestRevision().number)
 				/ (this.maxRevision.number - this.minRevision.number + 1));
 		y[8] = (int) (Y_MARGIN + this.getYSpace()
-				* (this.maxRevision.number - pattern.getRevisions().last().number)
+				* (this.maxRevision.number - pattern.getLatestRevision().number)
 				/ (this.maxRevision.number - this.minRevision.number + 1));
 
 		// get x axis plot location

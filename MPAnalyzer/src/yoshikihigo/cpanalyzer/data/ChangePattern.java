@@ -1,11 +1,10 @@
 package yoshikihigo.cpanalyzer.data;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
@@ -38,8 +37,8 @@ public class ChangePattern implements Comparable<ChangePattern> {
 		this.authors = authors;
 		this.files = files;
 		this.projects = projects;
-		this.beforeHash = beforeHash;
-		this.afterHash = afterHash;
+		this.beforeHash = Arrays.copyOf(beforeHash, beforeHash.length);
+		this.afterHash = Arrays.copyOf(afterHash, afterHash.length);
 		this.changeType = changeType;
 		this.diffType = diffType;
 		this.changes = new ArrayList<Change>();
@@ -47,13 +46,7 @@ public class ChangePattern implements Comparable<ChangePattern> {
 
 	@Override
 	public int compareTo(final ChangePattern o) {
-		if (this.id > o.id) {
-			return 1;
-		} else if (this.id < o.id) {
-			return -1;
-		} else {
-			return 0;
-		}
+		return Integer.compare(this.id, o.id);
 	}
 
 	@Override
@@ -73,29 +66,32 @@ public class ChangePattern implements Comparable<ChangePattern> {
 		if (0 == this.changes.size()) {
 			this.setChanges();
 		}
-		return Collections.unmodifiableList(this.changes);
+		return new ArrayList<Change>(this.changes);
 	}
 
-	public SortedSet<String> getFilePaths() {
-		final SortedSet<String> paths = new TreeSet<String>();
+	public List<String> getFilePaths() {
 		if (0 == this.changes.size()) {
 			this.setChanges();
 		}
-		for (final Change modification : this.changes) {
-			paths.add(modification.filepath);
-		}
-		return paths;
+		return this.changes.stream().map(change -> change.filepath).distinct()
+				.sorted().collect(Collectors.toList());
 	}
 
-	public SortedSet<Revision> getRevisions() {
-		final SortedSet<Revision> revisions = new TreeSet<Revision>();
+	public List<Revision> getRevisions() {
 		if (0 == this.changes.size()) {
 			this.setChanges();
 		}
-		for (final Change modification : this.changes) {
-			revisions.add(modification.revision);
-		}
-		return revisions;
+		return this.changes.stream().map(change -> change.revision).distinct()
+				.sorted().collect(Collectors.toList());
+	}
+
+	public Revision getOldestRevision() {
+		return this.getRevisions().get(0);
+	}
+
+	public Revision getLatestRevision() {
+		final List<Revision> revisions = this.getRevisions();
+		return revisions.get(revisions.size() - 1);
 	}
 
 	public int getNOF() {
@@ -103,7 +99,6 @@ public class ChangePattern implements Comparable<ChangePattern> {
 	}
 
 	public int getNOD() {
-
 		if (0 == this.changes.size()) {
 			this.setChanges();
 		}
@@ -142,7 +137,6 @@ public class ChangePattern implements Comparable<ChangePattern> {
 	private void setChanges() {
 		this.changes.clear();
 		try {
-
 			final List<Change> changes = ReadOnlyDAO.getInstance().getChanges(
 					this.beforeHash, this.afterHash);
 			this.changes.addAll(changes);

@@ -2,6 +2,7 @@ package yoshikihigo.cpanalyzer.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -21,10 +22,10 @@ public class SourceFile implements Comparable<SourceFile> {
 
 	public SourceFile(final String filepath) throws IOException {
 		this.filepath = filepath;
-		this.originalLines = new ArrayList<String>();
+		this.originalLines = new ArrayList<>();
 		this.originalLines.add("");
 		this.normalizedSequence = new StringBuilder();
-		this.positionMapper = new ArrayList<Integer>();
+		this.positionMapper = new ArrayList<>();
 
 		this.IGNORE_INDENT = CPAConfig.getInstance().isIGNORE_INDENT();
 		this.IGNORE_WHITESPACE = CPAConfig.getInstance().isIGNORE_WHITESPACE();
@@ -56,9 +57,7 @@ public class SourceFile implements Comparable<SourceFile> {
 
 		final String content = this.normalizedSequence.toString();
 		final boolean[] checkingArray = new boolean[content.length()];
-		for (int index = 0; index < checkingArray.length; index++) {
-			checkingArray[index] = false;
-		}
+		Arrays.fill(checkingArray, false);
 
 		if (!beforeSequence.isEmpty()) {
 			int fromIndex = 0;
@@ -92,8 +91,8 @@ public class SourceFile implements Comparable<SourceFile> {
 			}
 		}
 
-		final List<SortedSet<Integer>> linesList = new ArrayList<SortedSet<Integer>>();
-		SortedSet<Integer> lines = new TreeSet<Integer>();
+		final List<SortedSet<Integer>> linesList = new ArrayList<>();
+		SortedSet<Integer> lines = new TreeSet<>();
 		for (int index = 0; index < checkingArray.length; index++) {
 
 			if (true == checkingArray[index]) {
@@ -103,7 +102,7 @@ public class SourceFile implements Comparable<SourceFile> {
 			else if (false == checkingArray[index]) {
 				if (0 < lines.size()) {
 					linesList.add(lines);
-					lines = new TreeSet<Integer>();
+					lines = new TreeSet<>();
 				}
 			}
 		}

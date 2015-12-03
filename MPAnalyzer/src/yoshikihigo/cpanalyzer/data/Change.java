@@ -170,34 +170,20 @@ public class Change implements Comparable<Change> {
 	}
 
 	public boolean isCondition() {
-		for (final Statement s : this.before.statements) {
-			final String text = s.toString();
-			if (text.startsWith("if ") || text.startsWith("while ")
-					|| text.startsWith("for ")) {
-				return true;
-			}
-		}
-		for (final Statement s : this.after.statements) {
-			final String text = s.toString();
-			if (text.startsWith("if ") || text.startsWith("while ")
-					|| text.startsWith("for ")) {
-				return true;
-			}
-		}
-		return false;
+		return this.before.statements.stream().anyMatch(
+				statement -> statement.text.startsWith("if ")
+						|| statement.text.startsWith("while ")
+						|| statement.text.startsWith("for "))
+				|| this.after.statements.stream().anyMatch(
+						statement -> statement.text.startsWith("if ")
+								|| statement.text.startsWith("while ")
+								|| statement.text.startsWith("for "));
 	}
 
 	public boolean isImport() {
-		for (final Statement s : this.before.statements) {
-			if (s.tokens.get(0) instanceof IMPORT) {
-				return true;
-			}
-		}
-		for (final Statement s : this.after.statements) {
-			if (s.tokens.get(0) instanceof IMPORT) {
-				return true;
-			}
-		}
-		return false;
+		return this.before.statements.stream().anyMatch(
+				statement -> statement.tokens.get(0) instanceof IMPORT)
+				|| this.after.statements.stream().anyMatch(
+						statement -> statement.tokens.get(0) instanceof IMPORT);
 	}
 }

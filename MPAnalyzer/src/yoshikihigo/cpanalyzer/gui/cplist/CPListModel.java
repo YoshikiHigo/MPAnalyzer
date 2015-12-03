@@ -11,8 +11,8 @@ import yoshikihigo.cpanalyzer.data.Revision;
 public class CPListModel extends AbstractTableModel {
 
 	static public final String[] TITLES = new String[] { "ID", "SUPPORT",
-			"CONFIDENCE", "NOD", "NOR", "NOF", "LBM", "LAM", "R/A/D", "TYPE-2/3",
-			"START", "END", "CATEGORY" };
+			"CONFIDENCE", "NOD", "NOR", "NOF", "LBM", "LAM", "R/A/D",
+			"TYPE-2/3", "START", "END", "CATEGORY" };
 
 	final public ChangePattern[] patterns;
 	final public JComboBox[] comboBoxes;
@@ -36,31 +36,32 @@ public class CPListModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int row, int col) {
 
+		final ChangePattern pattern = this.patterns[row];
 		switch (col) {
 		case 0:
-			return this.patterns[row].id;
+			return pattern.id;
 		case 1:
-			return this.patterns[row].support;
+			return pattern.support;
 		case 2:
-			return this.patterns[row].confidence;
+			return pattern.confidence;
 		case 3:
-			return this.patterns[row].getNOD();
+			return pattern.getNOD();
 		case 4:
-			return this.patterns[row].getNOR();
+			return pattern.getNOR();
 		case 5:
-			return this.patterns[row].getNOF();
+			return pattern.getNOF();
 		case 6:
-			return this.patterns[row].getLBM();
+			return pattern.getLBM();
 		case 7:
-			return this.patterns[row].getLAM();
+			return pattern.getLAM();
 		case 8:
-			return this.patterns[row].changeType.toString();
+			return pattern.changeType.toString();
 		case 9:
-			return this.patterns[row].diffType.toString();
+			return pattern.diffType.toString();
 		case 10:
-			return this.patterns[row].getRevisions().first();
+			return pattern.getOldestRevision();
 		case 11:
-			return this.patterns[row].getRevisions().last();
+			return pattern.getLatestRevision();
 		case 12:
 			return this.comboBoxes[row].getSelectedItem().toString();
 		default:
