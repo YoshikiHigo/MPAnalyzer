@@ -1,6 +1,8 @@
 package yoshikihigo.cpanalyzer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -8,9 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.tmatesoft.svn.core.ISVNLogEntryHandler;
 import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
@@ -73,16 +73,17 @@ public class ChangeExtractor {
 			System.out.println();
 		}
 		final AtomicInteger index = new AtomicInteger(1);
-		final BlockingQueue<Change> queue = new ArrayBlockingQueue<Change>(
-				100000, true);
+		final BlockingQueue<Change> queue = new ArrayBlockingQueue<>(100000,
+				true);
 		final ChangeWritingThread writingThread = new ChangeWritingThread(
 				queue, revisions);
 		writingThread.start();
-		final ChangeExtractionThread[] extractingThreads = new ChangeExtractionThread[THREADS];
-		for (int i = 0; i < extractingThreads.length; i++) {
-			extractingThreads[i] = new ChangeExtractionThread(i, revisions,
-					index, queue);
-			extractingThreads[i].start();
+		final List<ChangeExtractionThread> extractingThreads = new ArrayList<>();
+		for (int i = 0; i < THREADS; i++) {
+			ChangeExtractionThread thread = new ChangeExtractionThread(i,
+					revisions, index, queue);
+			thread.start();
+			extractingThreads.add(thread);
 		}
 
 		try {
@@ -127,40 +128,46 @@ public class ChangeExtractor {
 
 		final SortedSet<Revision> revisions = new TreeSet<>();
 
+		SVNURL url;
+		SVNRepository svnRepository;
 		try {
-
-			final SVNURL url = SVNURL.fromFile(new File(repository));
 			FSRepositoryFactory.setup();
-			final SVNRepository svnRepository = FSRepositoryFactory.create(url);
+			url = SVNURL.fromFile(new File(repository));
+			svnRepository = FSRepositoryFactory.create(url);
+		} catch (final SVNException | NullPointerException e) {
+			e.printStackTrace();
+			return revisions.toArray(new Revision[0]);
+		}
+
+		try {
 
 			if (endRevision < 0) {
 				endRevision = svnRepository.getLatestRevision();
 			}
 
-			svnRepository.log(null, startRevision, endRevision, true, true,
-					new ISVNLogEntryHandler() {
-						@Override
-						public void handleLogEntry(SVNLogEntry logEntry)
-								throws SVNException {
-							for (final Object key : logEntry.getChangedPaths()
-									.keySet()) {
-								final String path = (String) key;
-								final int number = (int) logEntry.getRevision();
-								final String date = StringUtility
-										.getDateString(logEntry.getDate());
-								final String message = logEntry.getMessage();
-								final String author = logEntry.getAuthor();
-								final Revision revision = new Revision(
-										software, number, date, message, author);
-								for (final LANGUAGE language : languages) {
-									if (isVerbose && language.isTarget(path)) {
-										System.out.println(Integer
-												.toString(number)
-												+ " has been identified.");
-									}
-									revisions.add(revision);
-									return;
+			svnRepository.log(
+					null,
+					startRevision,
+					endRevision,
+					true,
+					true,
+					entry -> {
+						final int number = (int) entry.getRevision();
+						final String date = StringUtility.getDateString(entry
+								.getDate());
+						final String message = entry.getMessage();
+						final String author = entry.getAuthor();
+						final Revision revision = new Revision(software,
+								number, date, message, author);
+						for (final String path : entry.getChangedPaths()
+								.keySet()) {
+							for (final LANGUAGE language : languages) {
+								if (isVerbose && language.isTarget(path)) {
+									System.out.println(Integer.toString(number)
+											+ " has been identified.");
 								}
+								revisions.add(revision);
+								return;
 							}
 						}
 					});

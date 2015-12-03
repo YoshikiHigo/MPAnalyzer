@@ -1,5 +1,7 @@
 package yoshikihigo.cpanalyzer;
 
+import java.util.Arrays;
+
 public enum LANGUAGE {
 
 	C("C") {
@@ -39,11 +41,7 @@ public enum LANGUAGE {
 	abstract public String[] getExtensions();
 
 	final public boolean isTarget(final String name) {
-		for (final String extension : this.getExtensions()) {
-			if (name.endsWith(extension)) {
-				return true;
-			}
-		}
-		return false;
+		return Arrays.asList(this.getExtensions()).stream()
+				.anyMatch(extension -> name.endsWith(extension));
 	}
 }

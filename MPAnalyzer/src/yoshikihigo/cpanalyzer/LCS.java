@@ -69,10 +69,10 @@ public class LCS {
 			}
 		}
 
-		final List<Change> changes = new ArrayList<Change>();
+		final List<Change> changes = new ArrayList<>();
 		Cell current = table[array1.size() - 1][array2.size() - 1];
-		final SortedSet<Integer> xdiff = new TreeSet<Integer>();
-		final SortedSet<Integer> ydiff = new TreeSet<Integer>();
+		final SortedSet<Integer> xdiff = new TreeSet<>();
+		final SortedSet<Integer> ydiff = new TreeSet<>();
 		while (true) {
 
 			if (current.match) {
@@ -127,10 +127,9 @@ public class LCS {
 	}
 
 	public static List<Token> getTokens(final List<Statement> statements) {
-		final List<Token> tokens = new ArrayList<Token>();
-		for (final Statement statement : statements) {
-			tokens.addAll(statement.tokens);
-		}
+		final List<Token> tokens = new ArrayList<>();
+		statements.stream().forEach(
+				statement -> tokens.addAll(statement.tokens));
 		return tokens;
 	}
 

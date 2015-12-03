@@ -6,8 +6,10 @@ import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import yoshikihigo.commentremover.CRConfig;
 import yoshikihigo.commentremover.CommentRemover;
@@ -25,10 +27,9 @@ public class StringUtility {
 
 	public static List<String> removeLineHeader(final List<String> beforeText)
 			throws IOException {
-		final List<String> afterText = new ArrayList<String>();
-		for (final String line : beforeText) {
-			afterText.add(removeLineHeader(line));
-		}
+		final List<String> afterText = new ArrayList<>();
+		beforeText.stream().forEach(
+				line -> afterText.add(removeLineHeader(line)));
 		return afterText;
 	}
 
@@ -42,10 +43,8 @@ public class StringUtility {
 
 	public static List<String> addLineHeader(final List<String> beforeText,
 			final String prefix) throws IOException {
-		final List<String> afterText = new ArrayList<String>();
-		for (final String line : beforeText) {
-			afterText.add(prefix + line);
-		}
+		final List<String> afterText = new ArrayList<>();
+		beforeText.stream().forEach(line -> afterText.add(prefix + line));
 		return afterText;
 	}
 
@@ -58,10 +57,8 @@ public class StringUtility {
 
 	public static List<String> removeIndent(final List<String> beforeText)
 			throws IOException {
-		final List<String> afterText = new ArrayList<String>();
-		for (final String line : beforeText) {
-			afterText.add(removeIndent(line));
-		}
+		final List<String> afterText = new ArrayList<>();
+		beforeText.stream().forEach(line -> afterText.add(removeIndent(line)));
 		return afterText;
 	}
 
@@ -78,10 +75,9 @@ public class StringUtility {
 
 	public static List<String> removeSpaceTab(final List<String> beforeText)
 			throws IOException {
-		final List<String> afterText = new ArrayList<String>();
-		for (final String line : beforeText) {
-			afterText.add(removeSpaceTab(line));
-		}
+		final List<String> afterText = new ArrayList<>();
+		beforeText.stream()
+				.forEach(line -> afterText.add(removeSpaceTab(line)));
 		return afterText;
 	}
 
@@ -96,20 +92,14 @@ public class StringUtility {
 		return newLine.toString();
 	}
 
-	public static List<String> removeNewLine(final List<String> beforeText)
+	public static String removeNewLine(final List<String> beforeText)
 			throws IOException {
-		final StringBuilder newLine = new StringBuilder();
-		for (final String line : beforeText) {
-			newLine.append(line);
-		}
-		final List<String> afterText = new ArrayList<String>();
-		afterText.add(newLine.toString());
-		return afterText;
+		return String.join(" ", beforeText);
 	}
 
 	public static List<String> trim(final List<String> beforeText)
 			throws IOException {
-		final List<String> afterText = new ArrayList<String>();
+		final List<String> afterText = new ArrayList<>();
 		for (final String line : beforeText) {
 			boolean blankLine = true;
 			for (int index = 0; index < line.length(); index++) {
@@ -133,16 +123,18 @@ public class StringUtility {
 			return new ArrayList<Statement>();
 		}
 
-		final List<Statement> statements = new ArrayList<Statement>();
-		final String[] lines = text.split(System.getProperty("line.separator"));
-		for (final String line : lines) {
-			final List<Token> tokens = new ArrayList<Token>();
-			tokens.add(new STATEMENT(line));
-			final byte[] hash = Statement.getMD5(line);
-			final Statement statement = new Statement(startLine, endLine, -1,
-					true, tokens, line, hash);
-			statements.add(statement);
-		}
+		final List<Statement> statements = new ArrayList<>();
+		final List<String> lines = Arrays.asList(text.split(System
+				.lineSeparator()));
+		lines.stream().forEach(
+				line -> {
+					final List<Token> tokens = new ArrayList<>();
+					tokens.add(new STATEMENT(line));
+					final byte[] hash = Statement.getMD5(line);
+					final Statement statement = new Statement(startLine,
+							endLine, -1, true, tokens, line, hash);
+					statements.add(statement);
+				});
 
 		statements.get(0).tokens.get(0).line = startLine;
 		statements.get(statements.size() - 1).tokens.get(0).line = endLine;
@@ -154,7 +146,7 @@ public class StringUtility {
 		if (null == text) {
 			return new String[0];
 		}
-		return text.split(System.getProperty("line.separator"));
+		return text.split(System.lineSeparator());
 	}
 
 	public static List<Statement> splitToStatements(final String text,
@@ -229,22 +221,14 @@ public class StringUtility {
 		return splitToLines(text).length;
 	}
 
-	public static boolean isImport(final List<String> text) throws IOException {
-		for (final String line : text) {
-			if (!line.startsWith("import ") && !line.startsWith("package ")) {
-				return false;
-			}
-		}
-		return true;
+	public static boolean isImport(final List<String> text) {
+		return text.stream().anyMatch(
+				line -> line.startsWith("import ")
+						|| line.startsWith("package "));
 	}
 
-	public static boolean isInclude(final List<String> text) throws IOException {
-		for (final String line : text) {
-			if (!line.startsWith("#include")) {
-				return false;
-			}
-		}
-		return true;
+	public static boolean isInclude(final List<String> text) {
+		return text.stream().anyMatch(line -> line.startsWith("#include"));
 	}
 
 	public static boolean isJavaFile(final String path) {
@@ -257,30 +241,12 @@ public class StringUtility {
 	}
 
 	public static String convertListToString(final List<String> list) {
-		final StringBuilder builder = new StringBuilder();
-		for (final String line : list) {
-			builder.append(line);
-			builder.append(System.getProperty("line.separator"));
-		}
-		return builder.toString();
+		return String.join(System.lineSeparator(), list);
 	}
 
-	public static List<String> convertStringToList(final String text)
-			throws IOException {
-
-		final List<String> list = new ArrayList<String>();
+	public static List<String> convertStringToList(final String text) {
 		final BufferedReader reader = new BufferedReader(new StringReader(text));
-
-		while (true) {
-			final String line = reader.readLine();
-			if (null == line) {
-				break;
-			}
-			list.add(line);
-		}
-
-		reader.close();
-		return list;
+		return reader.lines().collect(Collectors.toList());
 	}
 
 	public static String getSQLITELiteral(final String text) {

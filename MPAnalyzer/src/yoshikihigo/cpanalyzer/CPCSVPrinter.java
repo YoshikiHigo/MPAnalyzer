@@ -28,8 +28,8 @@ public class CPCSVPrinter {
 			writer.write("ID, SUPPORT, CONFIDENCE, EREVISION, SREVISION, EDATE, SDATE, NOD, NOR, NOF, LBM, LAM");
 			writer.newLine();
 
-			final List<ChangePattern> patterns = ReadOnlyDAO
-					.getInstance().getChangePatterns(0, 0);
+			final List<ChangePattern> patterns = ReadOnlyDAO.getInstance()
+					.getChangePatterns(0, 0);
 			for (final ChangePattern pattern : patterns) {
 
 				writer.write(Integer.toString(pattern.id));
@@ -39,16 +39,15 @@ public class CPCSVPrinter {
 				writer.write(Float.toString(pattern.confidence));
 				writer.write(", ");
 
-				final List<Change> modifications = pattern
-						.getChanges();
-				Revision sRevision = modifications.get(0).revision;
-				Revision eRevision = modifications.get(0).revision;
-				for (final Change modification : modifications) {
-					if (sRevision.number > modification.revision.number) {
-						sRevision = modification.revision;
+				final List<Change> changes = pattern.getChanges();
+				Revision sRevision = changes.get(0).revision;
+				Revision eRevision = changes.get(0).revision;
+				for (final Change change : changes) {
+					if (sRevision.number > change.revision.number) {
+						sRevision = change.revision;
 					}
-					if (eRevision.number < modification.revision.number) {
-						eRevision = modification.revision;
+					if (eRevision.number < change.revision.number) {
+						eRevision = change.revision;
 					}
 				}
 

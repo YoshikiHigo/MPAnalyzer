@@ -28,7 +28,7 @@ public class ChangeWritingThread extends Thread {
 			final ChangeDAO dao = new ChangeDAO();
 			dao.addRevisions(this.revisions);
 
-			final List<Change> changes = new ArrayList<Change>();
+			final List<Change> changes = new ArrayList<>();
 			while (!this.finished) {
 				if (0 < this.queue.size()) {
 					this.queue.drainTo(changes);
