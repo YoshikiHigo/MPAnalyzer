@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.Utility;
@@ -26,30 +27,10 @@ public class Code implements Comparable<Code> {
 		this.software = software;
 		this.id = ID_GENERATOR.getAndIncrement();
 		this.statements = statements;
-		{
-			final StringBuilder tmp = new StringBuilder();
-			for (int i = 0; i < (statements.size() - 1); i++) {
-				tmp.append(statements.get(i));
-				tmp.append(System.getProperty("line.separator"));
-			}
-			if (!statements.isEmpty()) {
-				tmp.append(Utility.getLast(statements));
-			}
-			this.text = tmp.toString();
-		}
-		{
-
-			if (!statements.isEmpty()) {
-				final StringBuilder tmp = new StringBuilder();
-				tmp.append(statements.get(0).fromLine);
-				tmp.append(" --- ");
-				tmp.append(Utility.getLast(statements).toLine);
-				this.position = tmp.toString();
-			} else {
-				this.position = "not exist.";
-			}
-
-		}
+		this.text = String.join(System.lineSeparator(), statements.stream()
+				.map(statement -> statement.text).collect(Collectors.toList()));
+		this.position = !statements.isEmpty() ? statements.get(0).fromLine
+				+ " --- " + Utility.getLast(statements).toLine : "not exist.";
 		this.hash = this.getMD5(this.text);
 	}
 
