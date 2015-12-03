@@ -18,7 +18,7 @@ public class Code implements Comparable<Code> {
 
 	public final List<Statement> statements;
 	public final String software;
-	private int id;
+	public final int id;
 	public final String text;
 	public final String position;
 	public final byte[] hash;
@@ -36,13 +36,13 @@ public class Code implements Comparable<Code> {
 
 	public Code(final String software, final int id, final String text,
 			final int startLine, final int endLine) {
-		this(software, StringUtility
-				.splitToStatements(text, startLine, endLine));
+		this.software = software;
 		this.id = id;
-	}
-
-	public int getID() {
-		return this.id;
+		this.statements = StringUtility.splitToStatements(text, startLine,
+				endLine);
+		this.text = text;
+		this.position = startLine + " --- " + endLine;
+		this.hash = this.getMD5(this.text);
 	}
 
 	@Override

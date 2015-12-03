@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.lexer.token.ABSTRACT;
@@ -49,9 +47,6 @@ import yoshikihigo.cpanalyzer.lexer.token.Token;
 import yoshikihigo.cpanalyzer.lexer.token.WHITESPACE;
 
 public class Statement {
-
-	final private static ConcurrentMap<Thread, Map<String, String>> IDENTIFIERS = new ConcurrentHashMap<>();
-	final private static ConcurrentMap<Thread, Map<String, String>> TYPES = new ConcurrentHashMap<>();
 
 	public static List<Statement> getJCStatements(final List<Token> allTokens)
 			throws EmptyStackException {
@@ -116,9 +111,11 @@ public class Statement {
 
 						final int fromLine = tokens.get(0).line;
 						final int toLine = tokens.get(tokens.size() - 1).line;
-						final byte[] hash = makeJCHash(tokens);
+						final String text = makeJCText(tokens);
+						final byte[] hash = getMD5(text);
 						final Statement statement = new Statement(fromLine,
-								toLine, nestDepth, 1 < nestDepth, tokens, hash);
+								toLine, nestDepth, 1 < nestDepth, tokens, text,
+								hash);
 						statements.add(statement);
 						tokens = new ArrayList<Token>();
 
@@ -265,9 +262,10 @@ public class Statement {
 						final boolean isTarget = (!methodDefinitionDepth
 								.isEmpty() && (methodDefinitionDepth.peek()
 								.intValue() < nestLevel));
-						final byte[] hash = makePYHash(tokens);
+						final String text = makePYText(tokens);
+						final byte[] hash = getMD5(text);
 						final Statement statement = new Statement(fromLine,
-								toLine, nestLevel, isTarget, tokens, hash);
+								toLine, nestLevel, isTarget, tokens, text, hash);
 						statements.add(statement);
 						tokens = new ArrayList<Token>();
 
@@ -291,11 +289,12 @@ public class Statement {
 		return statements;
 	}
 
-	private static byte[] makeJCHash(final List<Token> tokens) {
+	private static String makeJCText(final List<Token> tokens) {
 
 		final List<Token> nonTrivialTokens = removeJCTrivialTokens(tokens);
 		final StringBuilder builder = new StringBuilder();
 		final Map<String, String> identifiers = new HashMap<>();
+		final Map<String, String> types = new HashMap<>();
 
 		for (int index = 0; index < nonTrivialTokens.size(); index++) {
 
@@ -303,21 +302,35 @@ public class Statement {
 
 			if (token instanceof IDENTIFIER) {
 
-				if (nonTrivialTokens.size() == (index + 1)
-						|| !(nonTrivialTokens.get(index + 1) instanceof LEFTPAREN)) {
-					final String name = token.value;
-					String normalizedName = identifiers.get(name);
-					if (null == normalizedName) {
-						normalizedName = "$" + identifiers.size();
-						identifiers.put(name, normalizedName);
-					}
-					builder.append(normalizedName);
-				}
-
-				// not normalize if identifier is method name
-				else {
+				if (index < nonTrivialTokens.size()
+						&& nonTrivialTokens.get(index + 1) instanceof LEFTPAREN) {
 					builder.append(token.value);
 				}
+
+				else if (Character.isLowerCase(token.value.charAt(0))) {
+					String normalizedValue = identifiers.get(token.value);
+					if (null == normalizedValue) {
+						normalizedValue = "$V" + identifiers.size();
+						identifiers.put(token.value, normalizedValue);
+					}
+					builder.append(normalizedValue);
+				}
+
+				else if (Character.isUpperCase(token.value.charAt(0))) {
+					String normalizedValue = types.get(token.value);
+					if (null == normalizedValue) {
+						normalizedValue = "$T" + types.size();
+						types.put(token.value, normalizedValue);
+					}
+					builder.append(normalizedValue);
+				}
+			}
+
+			else if ((token instanceof CHARLITERAL)
+					|| (token instanceof NUMBERLITERAL)
+					|| (token instanceof STRINGLITERAL
+							|| (token instanceof TRUE) || (token instanceof FALSE))) {
+				builder.append("$L");
 			}
 
 			else {
@@ -326,13 +339,13 @@ public class Statement {
 
 			builder.append(" ");
 		}
+		builder.deleteCharAt(builder.length() - 1);
 
 		final String text = builder.toString();
-		final byte[] md5 = getMD5(text);
-		return md5;
+		return text.toString();
 	}
 
-	private static byte[] makePYHash(final List<Token> tokens) {
+	private static String makePYText(final List<Token> tokens) {
 
 		final List<Token> nonTrivialTokens = /* removePYTrivialTokens(tokens) */tokens;
 		final StringBuilder builder = new StringBuilder();
@@ -367,10 +380,8 @@ public class Statement {
 
 			builder.append(" ");
 		}
-
-		final String text = builder.toString();
-		final byte[] md5 = getMD5(text);
-		return md5;
+		builder.deleteCharAt(builder.length() - 1);
+		return builder.toString();
 	}
 
 	private static List<Token> removeJCTrivialTokens(final List<Token> tokens) {
@@ -444,15 +455,18 @@ public class Statement {
 	final public int nestLevel;
 	final public boolean isTarget;
 	final public List<Token> tokens;
+	final public String text;
 	final public byte[] hash;
 
 	public Statement(final int fromLine, final int toLine, final int nestLevel,
-			final boolean isTarget, final List<Token> tokens, final byte[] hash) {
+			final boolean isTarget, final List<Token> tokens,
+			final String text, final byte[] hash) {
 		this.fromLine = fromLine;
 		this.toLine = toLine;
 		this.tokens = tokens;
 		this.nestLevel = nestLevel;
 		this.isTarget = isTarget;
+		this.text = text;
 		this.hash = hash;
 	}
 
@@ -476,84 +490,6 @@ public class Statement {
 
 	@Override
 	public String toString() {
-		final StringBuilder text = new StringBuilder();
-		final Map<String, String> identifiers = this.getIdentifierPool();
-		final Map<String, String> types = this.getTypePool();
-		identifiers.clear();
-		types.clear();
-
-		for (final Token token : this.tokens) {
-
-			// normalize identifiers if "-normalize" is specified.
-			if (CPAConfig.getInstance().isNORMALIZATION()) {
-
-				if ((token instanceof IDENTIFIER)
-						&& Character.isLowerCase(token.value.charAt(0))) {
-					String normalizedValue = identifiers.get(token.value);
-					if (null == normalizedValue) {
-						normalizedValue = "$V" + identifiers.size();
-						identifiers.put(token.value, normalizedValue);
-					}
-					text.append(normalizedValue);
-					text.append(" ");
-				}
-
-				else if ((token instanceof IDENTIFIER)
-						&& Character.isUpperCase(token.value.charAt(0))) {
-					String normalizedValue = types.get(token.value);
-					if (null == normalizedValue) {
-						normalizedValue = "$T" + types.size();
-						types.put(token.value, normalizedValue);
-					}
-					text.append(normalizedValue);
-					text.append(" ");
-				}
-
-				else if ((token instanceof CHARLITERAL)
-						|| (token instanceof NUMBERLITERAL)
-						|| (token instanceof STRINGLITERAL
-								|| (token instanceof TRUE) || (token instanceof FALSE))) {
-					text.append("$L");
-					text.append(" ");
-				}
-
-				else if (token instanceof PRIVATE || token instanceof PROTECTED
-						|| token instanceof PUBLIC || token instanceof FINAL) {
-					// do nothing
-				}
-
-				else {
-					text.append(token.value);
-					text.append(" ");
-				}
-			}
-
-			else {
-				text.append(token.value);
-				text.append(" ");
-			}
-		}
-		text.deleteCharAt(text.length() - 1);
-		return text.toString();
-	}
-
-	private Map<String, String> getIdentifierPool() {
-		final Thread thread = Thread.currentThread();
-		Map<String, String> map = IDENTIFIERS.get(thread);
-		if (null == map) {
-			map = new HashMap<>();
-			IDENTIFIERS.put(thread, map);
-		}
-		return map;
-	}
-
-	private Map<String, String> getTypePool() {
-		final Thread thread = Thread.currentThread();
-		Map<String, String> map = TYPES.get(thread);
-		if (null == map) {
-			map = new HashMap<>();
-			TYPES.put(thread, map);
-		}
-		return map;
+		return this.text;
 	}
 }
