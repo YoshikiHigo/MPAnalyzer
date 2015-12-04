@@ -1,7 +1,5 @@
 package yoshikihigo.cpanalyzer.lexer;
 
-import java.io.LineNumberReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -89,55 +87,30 @@ import yoshikihigo.cpanalyzer.lexer.token.WHITESPACE;
 import yoshikihigo.cpanalyzer.lexer.token.WITH;
 import yoshikihigo.cpanalyzer.lexer.token.YIELD;
 
-public class PythonLineLexer implements LineLexer {
+public class PythonLineLexer extends LineLexer {
 
-	enum STATE {
+	enum PythonSTATE {
 		CODE, SINGLEQUOTELITERAL, DOUBLEQUOTELITERAL, BACKQUOTELITERAL;
 	}
 
-	@Override
-	public List<Token> lexFile(final String text) {
-
-		final List<Token> tokens = new ArrayList<Token>();
-
-		try (final LineNumberReader reader = new LineNumberReader(
-				new StringReader(text))) {
-
-			String line;
-			final PythonLineLexer lexer = new PythonLineLexer();
-			while (null != (line = reader.readLine())) {
-				for (final Token t : lexer.lexLine(line)) {
-					t.line = reader.getLineNumber();
-					tokens.add(t);
-				}
-			}
-
-		} catch (final Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-
-		return tokens;
-	}
-
-	final private Stack<STATE> states;
+	final private Stack<PythonSTATE> states;
 
 	public PythonLineLexer() {
-		this.states = new Stack<STATE>();
-		this.states.push(STATE.CODE);
+		this.states = new Stack<>();
+		this.states.push(PythonSTATE.CODE);
 	}
 
 	@Override
 	public List<Token> lexLine(final String line) {
 
-		final List<Token> tokens = new ArrayList<Token>();
+		final List<Token> tokens = new ArrayList<>();
 		final StringBuilder text = new StringBuilder(line);
 		boolean interrupted = false;
 
 		while (0 < text.length()) {
 
 			final String string = text.toString();
-			if (STATE.CODE == this.states.peek()) {
+			if (PythonSTATE.CODE == this.states.peek()) {
 
 				if (string.startsWith("**=")) {
 					text.delete(0, 3);
@@ -265,7 +238,7 @@ public class PythonLineLexer implements LineLexer {
 					tokens.add(new DOT());
 				} else if (string.startsWith(" ")) {
 					text.delete(0, 1);
-					tokens.add(new WHITESPACE());					
+					tokens.add(new WHITESPACE());
 				} else if (string.startsWith("\\")) {
 					text.delete(0, 1);
 					tokens.add(new LINEINTERRUPTION());
@@ -273,7 +246,7 @@ public class PythonLineLexer implements LineLexer {
 				}
 
 				else if ('\"' == string.charAt(0)) {
-					this.states.push(STATE.DOUBLEQUOTELITERAL);
+					this.states.push(PythonSTATE.DOUBLEQUOTELITERAL);
 					int index = 1;
 					LITERAL: while (index < string.length()) {
 						if ('\"' == string.charAt(index)) {
@@ -293,7 +266,7 @@ public class PythonLineLexer implements LineLexer {
 				}
 
 				else if ('\'' == string.charAt(0)) {
-					this.states.push(STATE.SINGLEQUOTELITERAL);
+					this.states.push(PythonSTATE.SINGLEQUOTELITERAL);
 					int index = 1;
 					LITERAL: while (index < string.length()) {
 						if ('\'' == string.charAt(index)) {
@@ -313,7 +286,7 @@ public class PythonLineLexer implements LineLexer {
 				}
 
 				else if ('`' == string.charAt(0)) {
-					this.states.push(STATE.BACKQUOTELITERAL);
+					this.states.push(PythonSTATE.BACKQUOTELITERAL);
 					int index = 1;
 					LITERAL: while (index < string.length()) {
 						if ('`' == string.charAt(index)) {
@@ -455,7 +428,7 @@ public class PythonLineLexer implements LineLexer {
 					System.exit(0);
 				}
 
-			} else if (STATE.SINGLEQUOTELITERAL == this.states.peek()) {
+			} else if (PythonSTATE.SINGLEQUOTELITERAL == this.states.peek()) {
 
 				int index = 1;
 				LITERAL: while (index < string.length()) {
@@ -474,7 +447,7 @@ public class PythonLineLexer implements LineLexer {
 				text.delete(0, index + 1);
 				tokens.add(new CHARLITERAL(value));
 
-			} else if (STATE.DOUBLEQUOTELITERAL == this.states.peek()) {
+			} else if (PythonSTATE.DOUBLEQUOTELITERAL == this.states.peek()) {
 
 				int index = 1;
 				LITERAL: while (index < string.length()) {
@@ -505,14 +478,5 @@ public class PythonLineLexer implements LineLexer {
 		}
 
 		return tokens;
-	}
-
-	private static boolean isAlphabet(final char c) {
-		return Character.isLowerCase(c) || Character.isUpperCase(c);
-	}
-
-	private static boolean isDigit(final char c) {
-		return '0' == c || '1' == c || '2' == c || '3' == c || '4' == c
-				|| '5' == c || '6' == c || '7' == c || '8' == c || '9' == c;
 	}
 }

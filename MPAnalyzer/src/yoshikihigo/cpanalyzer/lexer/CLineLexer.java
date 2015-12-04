@@ -89,54 +89,30 @@ import yoshikihigo.cpanalyzer.lexer.token.VOID;
 import yoshikihigo.cpanalyzer.lexer.token.VOLATILE;
 import yoshikihigo.cpanalyzer.lexer.token.WHILE;
 
-public class CLineLexer implements LineLexer {
+public class CLineLexer extends LineLexer {
 
-	enum STATE {
+	enum CSTATE {
 		CODE, SINGLEQUOTELITERAL, DOUBLEQUOTELITERAL;
 	}
-	
-	@Override
-	public List<Token> lexFile(final String text) {
 
-		final List<Token> tokens = new ArrayList<Token>();
-		try (final LineNumberReader reader = new LineNumberReader(
-				new StringReader(text));) {
-
-			String line;
-			final CLineLexer lexer = new CLineLexer();
-			while (null != (line = reader.readLine())) {
-				for (final Token t : lexer.lexLine(line)) {
-					t.line = reader.getLineNumber();
-					tokens.add(t);
-				}
-			}
-
-		} catch (final Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-
-		return tokens;
-	}
-	
-	final private Stack<STATE> states;
+	final private Stack<CSTATE> states;
 
 	public CLineLexer() {
-		this.states = new Stack<STATE>();
-		this.states.push(STATE.CODE);
+		this.states = new Stack<>();
+		this.states.push(CSTATE.CODE);
 	}
 
 	@Override
 	public List<Token> lexLine(final String line) {
 
-		final List<Token> tokenList = new ArrayList<Token>();
+		final List<Token> tokenList = new ArrayList<>();
 		final StringBuilder text = new StringBuilder(line);
 
 		while (0 < text.length()) {
 
 			final String string = text.toString();
 
-			if (STATE.CODE == this.states.peek()) {
+			if (CSTATE.CODE == this.states.peek()) {
 
 				if (string.startsWith("<<=")) {
 					text.delete(0, 3);
@@ -266,7 +242,7 @@ public class CLineLexer implements LineLexer {
 				}
 
 				else if ('\"' == string.charAt(0)) {
-					this.states.push(STATE.DOUBLEQUOTELITERAL);
+					this.states.push(CSTATE.DOUBLEQUOTELITERAL);
 					int index = 1;
 					LITERAL: while (index < string.length()) {
 						if ('\"' == string.charAt(index)) {
@@ -286,7 +262,7 @@ public class CLineLexer implements LineLexer {
 				}
 
 				else if ('\'' == string.charAt(0)) {
-					this.states.push(STATE.SINGLEQUOTELITERAL);
+					this.states.push(CSTATE.SINGLEQUOTELITERAL);
 					int index = 1;
 					LITERAL: while (index < string.length()) {
 						if ('\'' == string.charAt(index)) {
@@ -433,7 +409,7 @@ public class CLineLexer implements LineLexer {
 				}
 			}
 
-			else if (STATE.SINGLEQUOTELITERAL == this.states.peek()) {
+			else if (CSTATE.SINGLEQUOTELITERAL == this.states.peek()) {
 
 				int index = 1;
 				LITERAL: while (index < string.length()) {
@@ -452,7 +428,7 @@ public class CLineLexer implements LineLexer {
 				text.delete(0, index + 1);
 				tokenList.add(new CHARLITERAL(value));
 
-			} else if (STATE.DOUBLEQUOTELITERAL == this.states.peek()) {
+			} else if (CSTATE.DOUBLEQUOTELITERAL == this.states.peek()) {
 
 				int index = 1;
 				LITERAL: while (index < string.length()) {
@@ -479,14 +455,5 @@ public class CLineLexer implements LineLexer {
 		}
 
 		return tokenList;
-	}
-
-	private static boolean isAlphabet(final char c) {
-		return Character.isLowerCase(c) || Character.isUpperCase(c);
-	}
-
-	private static boolean isDigit(final char c) {
-		return '0' == c || '1' == c || '2' == c || '3' == c || '4' == c
-				|| '5' == c || '6' == c || '7' == c || '8' == c || '9' == c;
 	}
 }
