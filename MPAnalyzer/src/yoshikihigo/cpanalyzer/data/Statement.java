@@ -55,7 +55,7 @@ public class Statement {
 		List<Token> tokens = new ArrayList<>();
 
 		final Stack<Integer> nestLevel = new Stack<>();
-		nestLevel.push(new Integer(1));
+		nestLevel.push(Integer.valueOf(1));
 		int inAnnotationDepth = 0;
 		int inParenDepth = 0;
 		int inTernaryOperationDepth = 0;
@@ -105,7 +105,7 @@ public class Statement {
 					if (1 < tokens.size()) {
 
 						if (isJCTypeDefinition(tokens)) {
-							nestLevel.push(new Integer(0));
+							nestLevel.push(Integer.valueOf(0));
 						}
 						final int nestDepth = nestLevel.peek().intValue();
 
@@ -130,8 +130,8 @@ public class Statement {
 				}
 
 				if ((0 == inParenDepth) && (token instanceof LEFTBRACKET)) {
-					nestLevel
-							.push(new Integer(nestLevel.peek().intValue() + 1));
+					nestLevel.push(Integer
+							.valueOf(nestLevel.peek().intValue() + 1));
 				}
 
 				if ((0 < inTernaryOperationDepth) && (token instanceof COLON)) {
@@ -248,7 +248,8 @@ public class Statement {
 						}
 
 						if (isPYMethodDefinition(tokens)) {
-							methodDefinitionDepth.push(new Integer(nestLevel));
+							methodDefinitionDepth.push(Integer
+									.valueOf(nestLevel));
 						}
 
 						if (!methodDefinitionDepth.isEmpty()
@@ -467,7 +468,7 @@ public class Statement {
 		this.nestLevel = nestLevel;
 		this.isTarget = isTarget;
 		this.text = text;
-		this.hash = hash;
+		this.hash = Arrays.copyOf(hash, hash.length);
 	}
 
 	@Override

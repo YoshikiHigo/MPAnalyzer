@@ -162,7 +162,27 @@ public class Change implements Comparable<Change> {
 		if (0 != fileComparisonResult) {
 			return fileComparisonResult;
 		}
-		return new Integer(this.id).compareTo(o.id);
+		return Integer.compare(this.id, o.id);
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+
+		if (null == o) {
+			return false;
+		}
+
+		if (!(o instanceof Change)) {
+			return false;
+		}
+
+		final Change target = (Change) o;
+		return this.software.equals(target.software) && (this.id == target.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return this.software.hashCode() + this.id;
 	}
 
 	public boolean isSamePattern(final Change m) {

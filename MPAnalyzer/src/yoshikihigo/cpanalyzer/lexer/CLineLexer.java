@@ -1,7 +1,5 @@
 package yoshikihigo.cpanalyzer.lexer;
 
-import java.io.LineNumberReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -450,7 +448,7 @@ public class CLineLexer extends LineLexer {
 
 			else {
 				assert false : "unexpected situation: " + string;
-				System.exit(0);
+				break;
 			}
 		}
 

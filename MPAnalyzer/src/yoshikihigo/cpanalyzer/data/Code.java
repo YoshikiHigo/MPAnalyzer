@@ -1,5 +1,6 @@
 package yoshikihigo.cpanalyzer.data;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -108,7 +109,7 @@ public class Code implements Comparable<Code> {
 	private byte[] getMD5(final String text) {
 		try {
 			final MessageDigest md = MessageDigest.getInstance("MD5");
-			final byte[] data = text.getBytes();
+			final byte[] data = text.getBytes(StandardCharsets.UTF_8);
 			md.update(data);
 			final byte[] digest = md.digest();
 			return digest;

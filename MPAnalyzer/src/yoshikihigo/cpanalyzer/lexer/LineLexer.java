@@ -25,7 +25,6 @@ public abstract class LineLexer {
 
 		} catch (final Exception e) {
 			e.printStackTrace();
-			System.exit(0);
 		}
 
 		return tokens;

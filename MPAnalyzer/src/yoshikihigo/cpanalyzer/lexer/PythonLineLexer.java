@@ -425,7 +425,7 @@ public class PythonLineLexer extends LineLexer {
 
 				else {
 					assert false : "unexpected situation: " + string;
-					System.exit(0);
+					break;
 				}
 
 			} else if (PythonSTATE.SINGLEQUOTELITERAL == this.states.peek()) {
@@ -469,7 +469,7 @@ public class PythonLineLexer extends LineLexer {
 
 			else {
 				assert false : "unexpected situation: " + string;
-				System.exit(0);
+				break;
 			}
 		}
 

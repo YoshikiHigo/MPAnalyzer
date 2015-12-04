@@ -45,7 +45,6 @@ public class ChangeWritingThread extends Thread {
 
 		catch (final Exception e) {
 			e.printStackTrace();
-			System.exit(0);
 		}
 	}
 

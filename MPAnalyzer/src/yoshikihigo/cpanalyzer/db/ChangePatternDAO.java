@@ -65,8 +65,9 @@ public class ChangePatternDAO {
 			statement
 					.executeUpdate("drop index if exists index_beforeHash_afterHash_changes");
 			statement.close();
+		}
 
-		} catch (ClassNotFoundException | SQLException e) {
+		catch (final ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -83,7 +84,7 @@ public class ChangePatternDAO {
 			statement.close();
 		}
 
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -102,7 +103,7 @@ public class ChangePatternDAO {
 			statement.close();
 		}
 
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -257,8 +258,9 @@ public class ChangePatternDAO {
 			if (!CPAConfig.getInstance().isQUIET()) {
 				System.out.println(" done.");
 			}
+		}
 
-		} catch (SQLException e) {
+		catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}

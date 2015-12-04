@@ -419,7 +419,7 @@ public class JavaLineLexer extends LineLexer {
 
 			else {
 				assert false : "unexpected situation: " + string;
-				System.exit(0);
+				break;
 			}
 		}
 

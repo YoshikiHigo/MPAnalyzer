@@ -57,7 +57,7 @@ public class ChangeDAO {
 			this.numberOfCodePS = 0;
 			this.numberOfChangePS = 0;
 
-		} catch (ClassNotFoundException | SQLException e) {
+		} catch (final ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -78,7 +78,7 @@ public class ChangeDAO {
 			}
 			statement.executeBatch();
 			statement.close();
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -147,7 +147,7 @@ public class ChangeDAO {
 			}
 		}
 
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -175,7 +175,7 @@ public class ChangeDAO {
 				this.changePS.executeBatch();
 				this.numberOfChangePS = 0;
 			}
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -186,7 +186,7 @@ public class ChangeDAO {
 			this.codePS.close();
 			this.changePS.close();
 			this.connector.close();
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}

@@ -28,7 +28,6 @@ public class MainWindow extends JFrame {
 		} catch (final Exception e) {
 		}
 
-
 		CPAConfig.initialize(args);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -45,8 +44,7 @@ public class MainWindow extends JFrame {
 		this.addWindowListener(new MainWindowListener());
 
 		final ThresholdPanel threshold = new ThresholdPanel();
-		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(
-				threshold);
+		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(threshold);
 		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
 				threshold);
 		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
@@ -55,21 +53,16 @@ public class MainWindow extends JFrame {
 
 		final JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		final PCGraph graph = new PCGraph();
-		ObservedChangePatterns.getInstance(CPLABEL.ALL)
-				.addObserver(graph);
-		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
-				graph);
-		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
-				graph);
+		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(graph);
+		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(graph);
+		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(graph);
 		topPane.add(graph, JSplitPane.LEFT);
 
 		final JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		final CPList list = new CPList();
 		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(list);
-		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
-				list);
-		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
-				list);
+		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(list);
+		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(list);
 		rightPane.setTopComponent(list.scrollPane);
 		final CLPanel clPanel = new CLPanel();
 		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
@@ -78,16 +71,14 @@ public class MainWindow extends JFrame {
 		topPane.add(rightPane, JSplitPane.RIGHT);
 
 		final CPCode beforeCode = new CPCode(CODE.BEFORE);
-		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(
-				beforeCode);
+		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(beforeCode);
 		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
 				beforeCode);
 		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
 				beforeCode);
 
 		final CPCode afterCode = new CPCode(CODE.AFTER);
-		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(
-				afterCode);
+		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(afterCode);
 		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
 				afterCode);
 		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
@@ -107,12 +98,12 @@ public class MainWindow extends JFrame {
 		rightPane.setDividerLocation(d.height - 550);
 		topPane.setDividerLocation(d.width / 2);
 		bottomPane.setDividerLocation(d.width / 2);
-		mainPane.setDividerLocation(d.height -350);
+		mainPane.setDividerLocation(d.height - 350);
 
 		this.setVisible(true);
 	}
 
-	class MainWindowListener implements WindowListener {
+	static class MainWindowListener implements WindowListener {
 
 		public void windowActivated(WindowEvent e) {
 		}
