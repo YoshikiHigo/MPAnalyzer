@@ -153,10 +153,8 @@ public class ChangeDAO {
 		}
 	}
 
-	public void addChanges(Collection<Change> changes) throws Exception {
-		for (final Change change : changes) {
-			this.addChange(change);
-		}
+	public void addChanges(Collection<Change> changes) {
+		changes.stream().forEach(change -> this.addChange(change));
 	}
 
 	public void flush() {
