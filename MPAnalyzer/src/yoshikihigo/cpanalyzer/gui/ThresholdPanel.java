@@ -353,9 +353,8 @@ public class ThresholdPanel extends JPanel implements Observer {
 				}
 
 				try {
-					final List<ChangePattern> patterns = ReadOnlyDAO
-							.getInstance().getChangePatterns(supportMin,
-									confidenceMin);
+					final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON
+							.getChangePatterns(supportMin, confidenceMin);
 					for (final Iterator<ChangePattern> iterator = patterns
 							.iterator(); iterator.hasNext();) {
 						final ChangePattern pattern = iterator.next();
@@ -413,12 +412,12 @@ public class ThresholdPanel extends JPanel implements Observer {
 						}
 					}
 
-					ObservedChangePatterns.getInstance(CPLABEL.ALL)
-							.setAll(patterns, ThresholdPanel.this);
+					ObservedChangePatterns.getInstance(CPLABEL.ALL).setAll(
+							patterns, ThresholdPanel.this);
 					ObservedChangePatterns.getInstance(CPLABEL.FILTERED)
 							.setAll(patterns, ThresholdPanel.this);
-					ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
-							.clear(ThresholdPanel.this);
+					ObservedChangePatterns.getInstance(CPLABEL.SELECTED).clear(
+							ThresholdPanel.this);
 
 				} catch (final Exception databaseException) {
 					JOptionPane.showMessageDialog(ThresholdPanel.this,

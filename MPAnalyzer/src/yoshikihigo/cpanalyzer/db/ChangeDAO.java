@@ -13,6 +13,8 @@ import yoshikihigo.cpanalyzer.data.Revision;
 
 public class ChangeDAO {
 
+	static public final ChangeDAO SINGLETON = new ChangeDAO();
+
 	static public final String REVISIONS_SCHEMA = "software string, "
 			+ "number integer, " + "date string, " + "message string, "
 			+ "author string, " + "primary key(software, number)";
@@ -32,7 +34,10 @@ public class ChangeDAO {
 	private int numberOfCodePS;
 	private int numberOfChangePS;
 
-	public ChangeDAO() {
+	private ChangeDAO() {
+	}
+
+	synchronized public void initialize() {
 
 		try {
 			Class.forName("org.sqlite.JDBC");
@@ -56,14 +61,16 @@ public class ChangeDAO {
 
 			this.numberOfCodePS = 0;
 			this.numberOfChangePS = 0;
+			this.connector.setAutoCommit(false);
+		}
 
-		} catch (final ClassNotFoundException | SQLException e) {
+		catch (final ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 	}
 
-	public void addRevisions(final Revision[] revisions) {
+	synchronized public void addRevisions(final Revision[] revisions) {
 
 		try {
 			final PreparedStatement statement = this.connector
@@ -77,14 +84,17 @@ public class ChangeDAO {
 				statement.addBatch();
 			}
 			statement.executeBatch();
+			this.connector.commit();
 			statement.close();
-		} catch (final SQLException e) {
+		}
+
+		catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 	}
 
-	public void addChange(final Change change) {
+	synchronized public void addChange(final Change change) {
 
 		try {
 			this.codePS.setString(1, change.before.software);
@@ -135,6 +145,7 @@ public class ChangeDAO {
 					System.out.println("writing \'codes\' table ...");
 				}
 				this.codePS.executeBatch();
+				this.connector.commit();
 				this.numberOfCodePS = 0;
 			}
 
@@ -143,6 +154,7 @@ public class ChangeDAO {
 					System.out.println("writing \'changes\' table ...");
 				}
 				this.changePS.executeBatch();
+				this.connector.commit();
 				this.numberOfChangePS = 0;
 			}
 		}
@@ -153,17 +165,18 @@ public class ChangeDAO {
 		}
 	}
 
-	public void addChanges(Collection<Change> changes) {
+	synchronized public void addChanges(Collection<Change> changes) {
 		changes.stream().forEach(change -> this.addChange(change));
 	}
 
-	public void flush() {
+	synchronized public void flush() {
 		try {
 			if (0 < this.numberOfCodePS) {
 				if (CPAConfig.getInstance().isVERBOSE()) {
 					System.out.println("writing \'codes\' table ...");
 				}
 				this.codePS.executeBatch();
+				this.connector.commit();
 				this.numberOfCodePS = 0;
 			}
 			if (0 < this.numberOfChangePS) {
@@ -171,6 +184,7 @@ public class ChangeDAO {
 					System.out.println("writing \'changes\' table ...");
 				}
 				this.changePS.executeBatch();
+				this.connector.commit();
 				this.numberOfChangePS = 0;
 			}
 		} catch (final SQLException e) {
@@ -179,7 +193,7 @@ public class ChangeDAO {
 		}
 	}
 
-	public void close() {
+	synchronized public void close() {
 		try {
 			this.codePS.close();
 			this.changePS.close();

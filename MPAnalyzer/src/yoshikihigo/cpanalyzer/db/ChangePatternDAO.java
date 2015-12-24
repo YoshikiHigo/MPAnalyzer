@@ -13,6 +13,8 @@ import yoshikihigo.cpanalyzer.CPAConfig;
 
 public class ChangePatternDAO {
 
+	static public final ChangePatternDAO SINGLETON = new ChangePatternDAO();
+
 	static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, "
 			+ "beforeHash blob, "
 			+ "afterHash blob, "
@@ -27,7 +29,10 @@ public class ChangePatternDAO {
 
 	private Connection connector;
 
-	public ChangePatternDAO() {
+	private ChangePatternDAO() {
+	}
+
+	synchronized public void initialize() {
 
 		try {
 
@@ -73,7 +78,7 @@ public class ChangePatternDAO {
 		}
 	}
 
-	public void makeIndicesOnCODES() {
+	synchronized public void makeIndicesOnCODES() {
 
 		try {
 			final Statement statement = this.connector.createStatement();
@@ -90,7 +95,7 @@ public class ChangePatternDAO {
 		}
 	}
 
-	public void makeIndicesOnCHANGES() {
+	synchronized public void makeIndicesOnCHANGES() {
 
 		try {
 			final Statement statement = this.connector.createStatement();
@@ -109,7 +114,7 @@ public class ChangePatternDAO {
 		}
 	}
 
-	public void makeChangePatterns() {
+	synchronized public void makeChangePatterns() {
 
 		try {
 
@@ -266,7 +271,7 @@ public class ChangePatternDAO {
 		}
 	}
 
-	public void close() {
+	synchronized public void close() {
 		try {
 			this.connector.close();
 		} catch (SQLException e) {

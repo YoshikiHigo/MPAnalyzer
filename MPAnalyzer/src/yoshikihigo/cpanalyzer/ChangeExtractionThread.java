@@ -4,11 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
@@ -25,25 +23,26 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
+import yoshikihigo.cpanalyzer.db.ChangeDAO;
 
 public class ChangeExtractionThread extends Thread {
 
-	final public int id;
-	final public Revision[] revisions;
-	final private AtomicInteger index;
-	final private BlockingQueue<Change> queue;
+	final private static Object LOCK = new Object();
 
-	public ChangeExtractionThread(final int id, final Revision[] revisions,
-			final AtomicInteger index, BlockingQueue<Change> queue) {
-		this.id = id;
-		this.revisions = Arrays.copyOf(revisions, revisions.length);
-		this.index = index;
-		this.queue = queue;
+	final public Revision beforeRevision;
+	final public Revision afterRevision;
+
+	public ChangeExtractionThread(final Revision beforeRevision,
+			final Revision afterRevision) {
+
+		this.beforeRevision = beforeRevision;
+		this.afterRevision = afterRevision;
 	}
 
 	@Override
 	public void run() {
 
+		final long id = Thread.currentThread().getId();
 		final String repository = CPAConfig.getInstance()
 				.getSVNREPOSITORY_FOR_MINING();
 		final Set<LANGUAGE> languages = CPAConfig.getInstance().getLANGUAGE();
@@ -57,41 +56,32 @@ public class ChangeExtractionThread extends Thread {
 		SVNDiffClient diffClient;
 		SVNWCClient wcClient;
 		try {
-			FSRepositoryFactory.setup();
-			url = SVNURL.fromFile(new File(repository));
-			diffClient = SVNClientManager.newInstance().getDiffClient();
-			wcClient = SVNClientManager.newInstance().getWCClient();
+			synchronized (LOCK) {
+				FSRepositoryFactory.setup();
+				url = SVNURL.fromFile(new File(repository));
+				diffClient = SVNClientManager.newInstance().getDiffClient();
+				wcClient = SVNClientManager.newInstance().getWCClient();
+			}
 		} catch (final SVNException e) {
 			e.printStackTrace();
 			return;
 		}
 
-		REVISION: while (true) {
+		final String author = afterRevision.author;
 
-			final int targetIndex = this.index.getAndIncrement();
-			if (this.revisions.length <= targetIndex) {
-				break;
-			}
-			if (targetIndex < 1) {
-				continue;
-			}
+		if (isVerbose) {
+			final StringBuilder progress = new StringBuilder();
+			progress.append(id);
+			progress.append(": checking revisions ");
+			progress.append(beforeRevision.number);
+			progress.append(" and ");
+			progress.append(afterRevision.number);
+			System.out.println(progress.toString());
+		}
 
-			final Revision beforeRevision = this.revisions[targetIndex - 1];
-			final Revision afterRevision = this.revisions[targetIndex];
-			final String author = this.revisions[targetIndex].author;
-
-			if (isVerbose) {
-				final StringBuilder progress = new StringBuilder();
-				progress.append(this.id);
-				progress.append(": checking revisions ");
-				progress.append(beforeRevision.number);
-				progress.append(" and ");
-				progress.append(afterRevision.number);
-				System.out.println(progress.toString());
-			}
-
-			final List<String> changedPaths = new ArrayList<>();
-			try {
+		final List<String> changedPaths = new ArrayList<>();
+		try {
+			synchronized (LOCK) {
 				diffClient.doDiffStatus(url,
 						SVNRevision.create(beforeRevision.number), url,
 						SVNRevision.create(afterRevision.number),
@@ -115,33 +105,37 @@ public class ChangeExtractionThread extends Thread {
 								}
 							}
 						});
-			} catch (final SVNException | NullPointerException e) {
-				e.printStackTrace();
-				continue REVISION;
+			}
+		} catch (final SVNException | NullPointerException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		FILE: for (final String path : changedPaths) {
+
+			if (isVerbose) {
+				final StringBuilder progress = new StringBuilder();
+				progress.append(" ");
+				progress.append(id);
+				progress.append(": extracting changes from ");
+				progress.append(path);
+				System.out.println(progress.toString());
 			}
 
-			FILE: for (final String path : changedPaths) {
-
-				if (isVerbose) {
-					final StringBuilder progress = new StringBuilder();
-					progress.append(" ");
-					progress.append(this.id);
-					progress.append(": extracting changes from ");
-					progress.append(path);
-					System.out.println(progress.toString());
-				}
-
-				SVNURL fileurl;
-				try {
+			SVNURL fileurl;
+			try {
+				synchronized (LOCK) {
 					fileurl = SVNURL.fromFile(new File(repository
 							+ System.getProperty("file.separator") + path));
-				} catch (final SVNException e) {
-					e.printStackTrace();
-					continue FILE;
 				}
+			} catch (final SVNException e) {
+				e.printStackTrace();
+				continue FILE;
+			}
 
-				final StringBuilder beforeText = new StringBuilder();
-				try {
+			final StringBuilder beforeText = new StringBuilder();
+			try {
+				synchronized (LOCK) {
 					wcClient.doGetFileContents(fileurl,
 							SVNRevision.create(beforeRevision.number),
 							SVNRevision.create(beforeRevision.number), false,
@@ -151,13 +145,15 @@ public class ChangeExtractionThread extends Thread {
 									beforeText.append((char) b);
 								}
 							});
-				} catch (final SVNException | NullPointerException e) {
-					e.printStackTrace();
-					continue FILE;
 				}
+			} catch (final SVNException | NullPointerException e) {
+				e.printStackTrace();
+				continue FILE;
+			}
 
-				final StringBuilder afterText = new StringBuilder();
-				try {
+			final StringBuilder afterText = new StringBuilder();
+			try {
+				synchronized (LOCK) {
 					wcClient.doGetFileContents(fileurl,
 							SVNRevision.create(afterRevision.number),
 							SVNRevision.create(afterRevision.number), false,
@@ -167,33 +163,35 @@ public class ChangeExtractionThread extends Thread {
 									afterText.append((char) b);
 								}
 							});
-				} catch (final SVNException | NullPointerException e) {
-					e.printStackTrace();
-					continue FILE;
 				}
+			} catch (final SVNException | NullPointerException e) {
+				e.printStackTrace();
+				continue FILE;
+			}
 
-				final LANGUAGE language = FileUtility.getLANGUAGE(path);
-				final List<Statement> beforeStatements = StringUtility
-						.splitToStatements(beforeText.toString(), language);
-				final List<Statement> afterStatements = StringUtility
-						.splitToStatements(afterText.toString(), language);
+			final LANGUAGE language = FileUtility.getLANGUAGE(path);
+			final List<Statement> beforeStatements = StringUtility
+					.splitToStatements(beforeText.toString(), language);
+			final List<Statement> afterStatements = StringUtility
+					.splitToStatements(afterText.toString(), language);
 
-				final List<Change> changes = LCS.getChanges(beforeStatements,
-						afterStatements, software, path, author, afterRevision);
+			final List<Change> changes = LCS.getChanges(beforeStatements,
+					afterStatements, software, path, author, afterRevision);
 
-				if (onlyCondition) {
-					changes.stream().filter(change -> change.isCondition())
-							.forEach(change -> this.queue.add(change));
-				}
+			if (onlyCondition) {
+				ChangeDAO.SINGLETON.addChanges(changes.stream()
+						.filter(change -> change.isCondition())
+						.collect(Collectors.toList()));
+			}
 
-				else if (ignoreImport) {
-					changes.stream().filter(change -> !change.isImport())
-							.forEach(change -> this.queue.add(change));
-				}
+			else if (ignoreImport) {
+				ChangeDAO.SINGLETON.addChanges(changes.stream()
+						.filter(change -> !change.isImport())
+						.collect(Collectors.toList()));
+			}
 
-				else {
-					this.queue.addAll(changes);
-				}
+			else {
+				ChangeDAO.SINGLETON.addChanges(changes);
 			}
 		}
 	}

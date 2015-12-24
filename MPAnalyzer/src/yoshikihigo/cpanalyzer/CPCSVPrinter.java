@@ -28,7 +28,7 @@ public class CPCSVPrinter {
 			writer.write("ID, SUPPORT, CONFIDENCE, EREVISION, SREVISION, EDATE, SDATE, NOD, NOR, NOF, LBM, LAM");
 			writer.newLine();
 
-			final List<ChangePattern> patterns = ReadOnlyDAO.getInstance()
+			final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON
 					.getChangePatterns(0, 0);
 			for (final ChangePattern pattern : patterns) {
 

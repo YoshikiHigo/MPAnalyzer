@@ -21,25 +21,14 @@ import yoshikihigo.cpanalyzer.data.Revision;
 
 public class ReadOnlyDAO {
 
-	static private ReadOnlyDAO SINGLETON = null;
-
-	static public ReadOnlyDAO getInstance() throws Exception {
-		if (null == SINGLETON) {
-			SINGLETON = new ReadOnlyDAO();
-		}
-		return SINGLETON;
-	}
-
-	static public void deleteInstance() throws Exception {
-		if (null != SINGLETON) {
-			SINGLETON.clone();
-			SINGLETON = null;
-		}
-	}
+	static public final ReadOnlyDAO SINGLETON = new ReadOnlyDAO();
 
 	private Connection connector;
 
 	private ReadOnlyDAO() {
+	}
+
+	synchronized void initialize() {
 
 		try {
 			Class.forName("org.sqlite.JDBC");
@@ -52,7 +41,7 @@ public class ReadOnlyDAO {
 		}
 	}
 
-	public List<Change> getChanges(final byte[] beforeHash,
+	synchronized public List<Change> getChanges(final byte[] beforeHash,
 			final byte[] afterHash) {
 
 		final List<Change> changes = new ArrayList<Change>();
@@ -121,8 +110,8 @@ public class ReadOnlyDAO {
 		return changes;
 	}
 
-	public List<ChangePattern> getChangePatterns(final int supportThreshold,
-			final float confidenceThreshold) {
+	synchronized public List<ChangePattern> getChangePatterns(
+			final int supportThreshold, final float confidenceThreshold) {
 
 		final List<ChangePattern> patterns = new ArrayList<ChangePattern>();
 
@@ -166,7 +155,7 @@ public class ReadOnlyDAO {
 		return patterns;
 	}
 
-	public SortedSet<Revision> getRevisions() throws Exception {
+	synchronized public SortedSet<Revision> getRevisions() throws Exception {
 
 		final Statement revisionStatement = this.connector.createStatement();
 		final ResultSet result = revisionStatement
@@ -187,7 +176,7 @@ public class ReadOnlyDAO {
 		return revisions;
 	}
 
-	public void close() {
+	synchronized public void close() {
 		try {
 			this.connector.close();
 		} catch (SQLException e) {

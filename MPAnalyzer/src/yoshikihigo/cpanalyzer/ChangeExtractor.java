@@ -6,17 +6,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
-import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Revision;
+import yoshikihigo.cpanalyzer.db.ChangeDAO;
 
 public class ChangeExtractor {
 
@@ -72,29 +73,32 @@ public class ChangeExtractor {
 		if (CPAConfig.getInstance().isVERBOSE()) {
 			System.out.println();
 		}
-		final AtomicInteger index = new AtomicInteger(1);
-		final BlockingQueue<Change> queue = new ArrayBlockingQueue<>(100000,
-				true);
-		final ChangeWritingThread writingThread = new ChangeWritingThread(
-				queue, revisions);
-		writingThread.start();
-		final List<ChangeExtractionThread> extractingThreads = new ArrayList<>();
-		for (int i = 0; i < THREADS; i++) {
-			ChangeExtractionThread thread = new ChangeExtractionThread(i,
-					revisions, index, queue);
-			thread.start();
-			extractingThreads.add(thread);
+
+		ChangeDAO.SINGLETON.initialize();
+		final ExecutorService threadPool = Executors
+				.newFixedThreadPool(THREADS);
+		final List<Future<?>> futures = new ArrayList<>();
+
+		for (int index = 1; index < revisions.length; index++) {
+			final Revision beforeRevision = revisions[index - 1];
+			final Revision afterRevision = revisions[index];
+			final Future<?> future = threadPool
+					.submit(new ChangeExtractionThread(beforeRevision,
+							afterRevision));
+			futures.add(future);
 		}
 
 		try {
-			for (final ChangeExtractionThread thread : extractingThreads) {
-				thread.join();
+			for (final Future<?> future : futures) {
+				future.get();
 			}
-			writingThread.finish();
-			writingThread.join();
-		} catch (InterruptedException e) {
+			ChangeDAO.SINGLETON.flush();
+			ChangeDAO.SINGLETON.close();
+		} catch (final ExecutionException | InterruptedException e) {
 			e.printStackTrace();
 			System.exit(0);
+		} finally {
+			threadPool.shutdown();
 		}
 
 		if (!CPAConfig.getInstance().isVERBOSE()
