@@ -176,7 +176,7 @@ public class ChangeExtractor {
 						}
 					});
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}

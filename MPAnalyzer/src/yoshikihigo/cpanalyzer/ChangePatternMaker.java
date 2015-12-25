@@ -17,6 +17,7 @@ public class ChangePatternMaker {
 		dao.close();
 
 		final long endTime = System.nanoTime();
+
 		if (!CPAConfig.getInstance().isQUIET()) {
 			System.out.print("execution time: ");
 			System.out.println(TimingUtility.getExecutionTime(startTime,
