@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.lexer.token.ABSTRACT;
@@ -111,11 +112,12 @@ public class Statement {
 
 						final int fromLine = tokens.get(0).line;
 						final int toLine = tokens.get(tokens.size() - 1).line;
-						final String text = makeJCText(tokens);
-						final byte[] hash = getMD5(text);
+						final String rText = makeText(tokens);
+						final String nText = makeJCText(tokens);
+						final byte[] hash = getMD5(nText);
 						final Statement statement = new Statement(fromLine,
-								toLine, nestDepth, 1 < nestDepth, tokens, text,
-								hash);
+								toLine, nestDepth, 1 < nestDepth, tokens,
+								rText, nText, hash);
 						statements.add(statement);
 						tokens = new ArrayList<Token>();
 
@@ -263,10 +265,12 @@ public class Statement {
 						final boolean isTarget = (!methodDefinitionDepth
 								.isEmpty() && (methodDefinitionDepth.peek()
 								.intValue() < nestLevel));
-						final String text = makePYText(tokens);
-						final byte[] hash = getMD5(text);
+						final String rText = makeText(tokens);
+						final String nText = makePYText(tokens);
+						final byte[] hash = getMD5(nText);
 						final Statement statement = new Statement(fromLine,
-								toLine, nestLevel, isTarget, tokens, text, hash);
+								toLine, nestLevel, isTarget, tokens, rText,
+								nText, hash);
 						statements.add(statement);
 						tokens = new ArrayList<Token>();
 
@@ -385,6 +389,13 @@ public class Statement {
 		return builder.toString();
 	}
 
+	private static String makeText(final List<Token> tokens) {
+		final String[] array = tokens.stream().map(token -> token.value)
+				.collect(Collectors.toList()).toArray(new String[0]);
+		final String text = String.join(" ", array);
+		return text;
+	}
+
 	private static List<Token> removeJCTrivialTokens(final List<Token> tokens) {
 		final List<Token> nonTrivialTokens = new ArrayList<>();
 		for (final Token token : tokens) {
@@ -456,18 +467,20 @@ public class Statement {
 	final public int nestLevel;
 	final public boolean isTarget;
 	final public List<Token> tokens;
-	final public String text;
+	final public String rText;
+	final public String nText;
 	final public byte[] hash;
 
 	public Statement(final int fromLine, final int toLine, final int nestLevel,
 			final boolean isTarget, final List<Token> tokens,
-			final String text, final byte[] hash) {
+			final String rText, final String nText, final byte[] hash) {
 		this.fromLine = fromLine;
 		this.toLine = toLine;
 		this.tokens = tokens;
 		this.nestLevel = nestLevel;
 		this.isTarget = isTarget;
-		this.text = text;
+		this.rText = rText;
+		this.nText = nText;
 		this.hash = Arrays.copyOf(hash, hash.length);
 	}
 
@@ -491,6 +504,6 @@ public class Statement {
 
 	@Override
 	public String toString() {
-		return this.text;
+		return this.nText;
 	}
 }

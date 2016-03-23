@@ -58,6 +58,8 @@ public class ChangeExtractor {
 			System.out.println();
 		}
 		final Revision[] revisions = getSVNRevisions();
+		ChangeDAO.SINGLETON.initialize();
+		ChangeDAO.SINGLETON.addRevisions(revisions);
 		if (!CPAConfig.getInstance().isVERBOSE()) {
 			System.out.println("done.");
 		}
@@ -74,7 +76,6 @@ public class ChangeExtractor {
 			System.out.println();
 		}
 
-		ChangeDAO.SINGLETON.initialize();
 		final ExecutorService threadPool = Executors
 				.newFixedThreadPool(THREADS);
 		final List<Future<?>> futures = new ArrayList<>();

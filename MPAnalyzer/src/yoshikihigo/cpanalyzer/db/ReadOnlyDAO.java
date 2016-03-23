@@ -28,7 +28,7 @@ public class ReadOnlyDAO {
 	private ReadOnlyDAO() {
 	}
 
-	synchronized void initialize() {
+	synchronized public void initialize() {
 
 		try {
 			Class.forName("org.sqlite.JDBC");
@@ -48,17 +48,19 @@ public class ReadOnlyDAO {
 
 		try {
 			final StringBuilder text = new StringBuilder();
-			text.append("select T.software, T.id, T.filepath, T.author, T.beforeHash, T.beforeText, ");
-			text.append("T.beforeStart, T.beforeEnd, T.afterHash, T.afterText, ");
+			text.append("select T.software, T.id, T.filepath, T.author, T.beforeHash, T.beforeRText, ");
+			text.append("T.beforeNText, T.beforeStart, T.beforeEnd, T.afterHash, T.afterRText, T.afterNText, ");
 			text.append("T.afterStart, T.afterEnd, T.revision, T.changetype, T.difftype, T.date, T.message from ");
-			text.append("(select M.software software, M.id id, M.filepath filepath, M.beforeHash beforeHash, ");
-			text.append("(select C2.text from codes C2 where C2.id = M.beforeID) beforeText, ");
-			text.append("(select C3.start from codes C3 where C3.id = M.beforeID) beforeStart, ");
-			text.append("(select C4.end from codes C4 where C4.id = M.beforeID) beforeEnd, ");
+			text.append("(select M.software software, M.id id, M.filepath filepath, M.author author, M.beforeHash beforeHash, ");
+			text.append("(select C2.rtext from codes C2 where C2.id = M.beforeID) beforeRText, ");
+			text.append("(select C3.ntext from codes C3 where C3.id = M.beforeID) beforeNText, ");
+			text.append("(select C4.start from codes C4 where C4.id = M.beforeID) beforeStart, ");
+			text.append("(select C5.end from codes C5 where C5.id = M.beforeID) beforeEnd, ");
 			text.append("M.afterHash afterHash, ");
-			text.append("(select C6.text from codes C6 where C6.id = M.afterID) afterText, ");
-			text.append("(select C7.start from codes C7 where C7.id = M.afterID) afterStart, ");
-			text.append("(select C8.end from codes C8 where C8.id = M.afterID) afterEnd, ");
+			text.append("(select C6.rText from codes C6 where C6.id = M.afterID) afterRText, ");
+			text.append("(select C7.nText from codes C7 where C7.id = M.afterID) afterNText, ");
+			text.append("(select C8.start from codes C8 where C8.id = M.afterID) afterStart, ");
+			text.append("(select C9.end from codes C9 where C9.id = M.afterID) afterEnd, ");
 			text.append("M.revision revision, ");
 			text.append("M.changetype changetype, ");
 			text.append("M.difftype difftype, ");
@@ -78,25 +80,31 @@ public class ReadOnlyDAO {
 				final String filepath = result.getString(3);
 				final String author = result.getString(4);
 				final int beforeID = result.getInt(5);
-				final String beforeText = result.getString(6);
-				final int beforeStart = result.getInt(7);
-				final int beforeEnd = result.getInt(8);
-				final int afterID = result.getInt(9);
-				final String afterText = result.getString(10);
-				final int afterStart = result.getInt(11);
-				final int afterEnd = result.getInt(12);
-				final long number = result.getLong(13);
+				final String beforeRText = result.getString(6);
+				final String beforeNText = result.getString(7);
+				final int beforeStart = result.getInt(8);
+				final int beforeEnd = result.getInt(9);
+				final int afterID = result.getInt(10);
+				final String afterRText = result.getString(11);
+				final String afterNText = result.getString(12);
+				final int afterStart = result.getInt(13);
+				final int afterEnd = result.getInt(14);
+				final long number = result.getLong(15);
 				final ChangeType changeType = ChangeType.getType(result
-						.getInt(14));
-				final DiffType diffType = DiffType.getType(result.getInt(15));
-				final String date = result.getString(16);
-				final String message = result.getString(17);
+						.getInt(16));
+				final DiffType diffType = DiffType.getType(result.getInt(17));
+				final String date = result.getString(18);
+				final String message = result.getString(19);
+
+				final Code beforeCode = new Code(software, beforeID,
+						beforeRText, beforeNText, beforeStart, beforeEnd);
+				final Code afterCode = new Code(software, afterID, afterRText,
+						afterNText, afterStart, afterEnd);
+				final Revision revision = new Revision(software, number, date,
+						message, author);
 				final Change change = new Change(software, id, filepath,
-						author, new Code(software, beforeID, beforeText,
-								beforeStart, beforeEnd), new Code(software,
-								afterID, afterText, afterStart, afterEnd),
-						new Revision(software, number, date, message, author),
-						changeType, diffType);
+						author, beforeCode, afterCode, revision, changeType,
+						diffType);
 				changes.add(change);
 			}
 			statement.close();
@@ -113,7 +121,7 @@ public class ReadOnlyDAO {
 	synchronized public List<ChangePattern> getChangePatterns(
 			final int supportThreshold, final float confidenceThreshold) {
 
-		final List<ChangePattern> patterns = new ArrayList<ChangePattern>();
+		final List<ChangePattern> patterns = new ArrayList<>();
 
 		try {
 			final StringBuilder text = new StringBuilder();
@@ -147,7 +155,7 @@ public class ReadOnlyDAO {
 			statement.close();
 		}
 
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}

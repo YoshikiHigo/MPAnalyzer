@@ -132,7 +132,7 @@ public class StringUtility {
 					tokens.add(new STATEMENT(line));
 					final byte[] hash = Statement.getMD5(line);
 					final Statement statement = new Statement(startLine,
-							endLine, -1, true, tokens, line, hash);
+							endLine, -1, true, tokens, line, line, hash);
 					statements.add(statement);
 				});
 

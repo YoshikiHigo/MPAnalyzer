@@ -68,8 +68,8 @@ public class CPCode extends JTextArea implements Observer {
 				if (patterns.isSet()) {
 					final ChangePattern pattern = patterns.get().first();
 					final String text = this.code == CODE.BEFORE ? pattern
-							.getChanges().get(0).before.text : pattern
-							.getChanges().get(0).after.text;
+							.getChanges().get(0).before.nText : pattern
+							.getChanges().get(0).after.nText;
 					if (!text.isEmpty()) {
 						this.setText(text);
 					} else {
@@ -84,7 +84,7 @@ public class CPCode extends JTextArea implements Observer {
 
 				if (patterns.isSet()) {
 					final ChangePattern pattern = patterns.get().first();
-					final String text = pattern.getChanges().get(0).after.text;
+					final String text = pattern.getChanges().get(0).after.nText;
 					if (!text.isEmpty()) {
 						this.setText(text);
 					} else {

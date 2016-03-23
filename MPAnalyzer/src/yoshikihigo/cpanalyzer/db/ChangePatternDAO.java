@@ -62,7 +62,7 @@ public class ChangePatternDAO {
 					+ ")");
 
 			statement.executeUpdate("drop index if exists index_hash_codes");
-			statement.executeUpdate("drop index if exists index_text_codes");
+			statement.executeUpdate("drop index if exists index_nText_codes");
 			statement
 					.executeUpdate("drop index if exists index_beforeHash_changes");
 			statement
@@ -85,7 +85,7 @@ public class ChangePatternDAO {
 			statement
 					.executeUpdate("create index index_hash_codes on codes(hash)");
 			statement
-					.executeUpdate("create index index_text_codes on codes(text)");
+					.executeUpdate("create index index_nText_codes on codes(nText)");
 			statement.close();
 		}
 

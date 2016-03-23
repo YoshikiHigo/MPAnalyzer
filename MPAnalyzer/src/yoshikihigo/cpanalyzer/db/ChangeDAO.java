@@ -19,8 +19,9 @@ public class ChangeDAO {
 			+ "number integer, " + "date string, " + "message string, "
 			+ "author string, " + "primary key(software, number)";
 	static public final String CODES_SCHEMA = "software string, "
-			+ "id integer, " + "text string, " + "hash blob, " + "start int, "
-			+ "end int, " + "primary key(software, id)";
+			+ "id integer, " + "rText string, " + "nText string, "
+			+ "hash blob, " + "start int, " + "end int, "
+			+ "primary key(software, id)";
 	static public final String CHANGES_SCHEMA = "software string, "
 			+ "id integer, " + "filepath string, " + "author string, "
 			+ "beforeID integer, " + "beforeHash blob, " + "afterID integer, "
@@ -55,7 +56,7 @@ public class ChangeDAO {
 			statement.close();
 
 			this.codePS = this.connector
-					.prepareStatement("insert into codes values (?, ?, ?, ?, ?, ?)");
+					.prepareStatement("insert into codes values (?, ?, ?, ?, ?, ?, ?)");
 			this.changePS = this.connector
 					.prepareStatement("insert into changes values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
@@ -99,29 +100,31 @@ public class ChangeDAO {
 		try {
 			this.codePS.setString(1, change.before.software);
 			this.codePS.setInt(2, change.before.id);
-			this.codePS.setString(3, change.before.text);
-			this.codePS.setBytes(4, change.before.hash);
+			this.codePS.setString(3, change.before.rText);
+			this.codePS.setString(4, change.before.nText);
+			this.codePS.setBytes(5, change.before.hash);
 			final int beforeStart = change.before.statements.isEmpty() ? 0
 					: change.before.statements.get(0).fromLine;
 			final int beforeEnd = change.before.statements.isEmpty() ? 0
 					: change.before.statements.get(change.before.statements
 							.size() - 1).toLine;
-			this.codePS.setInt(5, beforeStart);
-			this.codePS.setInt(6, beforeEnd);
+			this.codePS.setInt(6, beforeStart);
+			this.codePS.setInt(7, beforeEnd);
 			this.codePS.addBatch();
 			this.numberOfCodePS++;
 
 			this.codePS.setString(1, change.after.software);
 			this.codePS.setInt(2, change.after.id);
-			this.codePS.setString(3, change.after.text);
-			this.codePS.setBytes(4, change.after.hash);
+			this.codePS.setString(3, change.after.rText);
+			this.codePS.setString(4, change.after.nText);
+			this.codePS.setBytes(5, change.after.hash);
 			final int afterStart = change.after.statements.isEmpty() ? 0
 					: change.after.statements.get(0).fromLine;
 			final int afterEnd = change.after.statements.isEmpty() ? 0
 					: change.after.statements.get(change.after.statements
 							.size() - 1).toLine;
-			this.codePS.setInt(5, afterStart);
-			this.codePS.setInt(6, afterEnd);
+			this.codePS.setInt(6, afterStart);
+			this.codePS.setInt(7, afterEnd);
 			this.codePS.addBatch();
 			this.numberOfCodePS++;
 

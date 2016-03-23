@@ -20,7 +20,8 @@ public class Code implements Comparable<Code> {
 	public final List<Statement> statements;
 	public final String software;
 	public final int id;
-	public final String text;
+	public final String rText;
+	public final String nText;
 	public final String position;
 	public final byte[] hash;
 
@@ -28,22 +29,29 @@ public class Code implements Comparable<Code> {
 		this.software = software;
 		this.id = ID_GENERATOR.getAndIncrement();
 		this.statements = statements;
-		this.text = String.join(System.lineSeparator(), statements.stream()
-				.map(statement -> statement.text).collect(Collectors.toList()));
+		this.rText = String
+				.join(System.lineSeparator(),
+						statements.stream().map(statement -> statement.rText)
+								.collect(Collectors.toList()));
+		this.nText = String
+				.join(System.lineSeparator(),
+						statements.stream().map(statement -> statement.nText)
+								.collect(Collectors.toList()));
 		this.position = !statements.isEmpty() ? statements.get(0).fromLine
 				+ " --- " + Utility.getLast(statements).toLine : "not exist.";
-		this.hash = this.getMD5(this.text);
+		this.hash = this.getMD5(this.nText);
 	}
 
-	public Code(final String software, final int id, final String text,
-			final int startLine, final int endLine) {
+	public Code(final String software, final int id, final String rText,
+			final String nText, final int startLine, final int endLine) {
 		this.software = software;
 		this.id = id;
-		this.statements = StringUtility.splitToStatements(text, startLine,
+		this.statements = StringUtility.splitToStatements(nText, startLine,
 				endLine);
-		this.text = text;
+		this.rText = rText;
+		this.nText = nText;
 		this.position = startLine + " --- " + endLine;
-		this.hash = this.getMD5(this.text);
+		this.hash = this.getMD5(this.nText);
 	}
 
 	@Override
@@ -74,12 +82,12 @@ public class Code implements Comparable<Code> {
 
 	@Override
 	public String toString() {
-		return this.text;
+		return this.nText;
 	}
 
 	@Override
 	public int compareTo(final Code o) {
-		return this.text.compareTo(o.text);
+		return this.nText.compareTo(o.nText);
 	}
 
 	public int getStartLine() {

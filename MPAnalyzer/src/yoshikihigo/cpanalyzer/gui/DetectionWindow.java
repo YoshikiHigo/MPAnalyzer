@@ -64,8 +64,8 @@ public class DetectionWindow extends JFrame implements Observer {
 		mCodePane.add(afterCode.scrollPane);
 		final ChangePattern pattern = ObservedChangePatterns
 				.getInstance(CPLABEL.SELECTED).get().first();
-		beforeCode.setText(pattern.getChanges().get(0).before.text);
-		afterCode.setText(pattern.getChanges().get(0).after.text);
+		beforeCode.setText(pattern.getChanges().get(0).before.nText);
+		afterCode.setText(pattern.getChanges().get(0).after.nText);
 
 		final JPanel topMainPanl = new JPanel();
 		topMainPanl.setLayout(new BorderLayout());

@@ -191,13 +191,13 @@ public class Change implements Comparable<Change> {
 
 	public boolean isCondition() {
 		return this.before.statements.stream().anyMatch(
-				statement -> statement.text.startsWith("if ")
-						|| statement.text.startsWith("while ")
-						|| statement.text.startsWith("for "))
+				statement -> statement.nText.startsWith("if ")
+						|| statement.nText.startsWith("while ")
+						|| statement.nText.startsWith("for "))
 				|| this.after.statements.stream().anyMatch(
-						statement -> statement.text.startsWith("if ")
-								|| statement.text.startsWith("while ")
-								|| statement.text.startsWith("for "));
+						statement -> statement.nText.startsWith("if ")
+								|| statement.nText.startsWith("while ")
+								|| statement.nText.startsWith("for "));
 	}
 
 	public boolean isImport() {

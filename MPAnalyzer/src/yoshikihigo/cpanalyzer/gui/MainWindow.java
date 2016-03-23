@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import yoshikihigo.cpanalyzer.CPAConfig;
+import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.clpanel.CLPanel;
 import yoshikihigo.cpanalyzer.gui.cpcode.CPCode;
@@ -39,7 +40,9 @@ public class MainWindow extends JFrame {
 	public MainWindow() {
 		super("");
 
-		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		ReadOnlyDAO.SINGLETON.initialize();
+
+		final Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setSize(new Dimension(d.width - 5, d.height - 27));
 		this.addWindowListener(new MainWindowListener());
 

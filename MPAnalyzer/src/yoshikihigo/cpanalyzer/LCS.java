@@ -92,9 +92,9 @@ public class LCS {
 							xStatements);
 					final Code afterCodeFragment = new Code(software,
 							yStatements);
-					final ChangeType changeType = beforeCodeFragment.text
+					final ChangeType changeType = beforeCodeFragment.nText
 							.isEmpty() ? ChangeType.ADD
-							: afterCodeFragment.text.isEmpty() ? ChangeType.DELETE
+							: afterCodeFragment.nText.isEmpty() ? ChangeType.DELETE
 									: ChangeType.REPLACE;
 					final Change change = new Change(software, filepath,
 							author, beforeCodeFragment, afterCodeFragment,
