@@ -61,6 +61,7 @@ public class ChangePatternDAO {
 			statement.executeUpdate("create table patterns (" + PATTERNS_SCHEMA
 					+ ")");
 
+			statement.executeUpdate("drop index if exists index_id_codes");
 			statement.executeUpdate("drop index if exists index_hash_codes");
 			statement.executeUpdate("drop index if exists index_nText_codes");
 			statement
@@ -82,6 +83,8 @@ public class ChangePatternDAO {
 
 		try {
 			final Statement statement = this.connector.createStatement();
+			statement
+			.executeUpdate("create index index_id_codes on codes(id)");
 			statement
 					.executeUpdate("create index index_hash_codes on codes(hash)");
 			statement
