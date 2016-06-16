@@ -322,12 +322,13 @@ public class Statement {
 				}
 
 				else if (Character.isUpperCase(token.value.charAt(0))) {
-					String normalizedValue = types.get(token.value);
-					if (null == normalizedValue) {
-						normalizedValue = "$T" + types.size();
-						types.put(token.value, normalizedValue);
-					}
-					builder.append(normalizedValue);
+//					String normalizedValue = types.get(token.value);
+//					if (null == normalizedValue) {
+//						normalizedValue = "$T" + types.size();
+//						types.put(token.value, normalizedValue);
+//					}
+//					builder.append(normalizedValue);
+					builder.append(token.value);
 				}
 			}
 
