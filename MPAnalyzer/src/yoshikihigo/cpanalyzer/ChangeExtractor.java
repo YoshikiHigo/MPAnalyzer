@@ -60,7 +60,7 @@ public class ChangeExtractor {
 		final Revision[] revisions = getSVNRevisions();
 		ChangeDAO.SINGLETON.initialize();
 		ChangeDAO.SINGLETON.addRevisions(revisions);
-		if (!CPAConfig.getInstance().isVERBOSE()) {
+		if (!CPAConfig.getInstance().isQUIET()) {
 			System.out.println("done.");
 		}
 
