@@ -34,6 +34,7 @@ import yoshikihigo.cpanalyzer.FileUtility;
 import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.Code;
+import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
@@ -48,7 +49,7 @@ public class OCode extends JTextArea implements Observer {
 
 	public final JScrollPane scrollPane;
 
-	private Long revision;
+	private Revision revision;
 	private Code codefragment;
 	private List<Statement> statements;
 
@@ -140,18 +141,18 @@ public class OCode extends JTextArea implements Observer {
 								.newInstance().getWCClient();
 
 						final StringBuilder text = new StringBuilder();
+						final long revNumber = Long.valueOf(this.revision.id);
 						wcClient.doGetFileContents(fileurl,
-								SVNRevision.create(this.revision.longValue()),
-								SVNRevision.create(this.revision.longValue()),
-								false, new OutputStream() {
+								SVNRevision.create(revNumber),
+								SVNRevision.create(revNumber), false,
+								new OutputStream() {
 									@Override
 									public void write(int b) throws IOException {
 										text.append((char) b);
 									}
 								});
 
-						final LANGUAGE language = FileUtility
-								.getLANGUAGE(path);
+						final LANGUAGE language = FileUtility.getLANGUAGE(path);
 						OCode.this.statements = StringUtility
 								.splitToStatements(text.toString(), language);
 						final SortedSet<Integer> highlightedLines = new TreeSet<Integer>();

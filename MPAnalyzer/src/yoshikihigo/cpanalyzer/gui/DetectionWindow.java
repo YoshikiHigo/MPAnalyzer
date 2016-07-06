@@ -20,6 +20,7 @@ import javax.swing.SwingWorker;
 
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
+import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
@@ -110,7 +111,7 @@ public class DetectionWindow extends JFrame implements Observer {
 
 				searchButton.setEnabled(false);
 
-				final long revision = rList.getSelectedRevision();
+				final Revision revision = rList.getSelectedRevision();
 				final Code codefragment = beforeButton.isSelected() ? pattern
 						.getChanges().get(0).before : pattern
 						.getChanges().get(0).after;

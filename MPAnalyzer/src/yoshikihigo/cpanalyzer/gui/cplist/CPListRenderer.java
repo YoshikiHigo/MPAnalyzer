@@ -41,37 +41,33 @@ class CPListRenderer extends DefaultTableCellRenderer {
 			break;
 		case 4:
 			renderer.setHorizontalAlignment(JLabel.RIGHT);
-			renderer.setText(Integer.toString(pattern.getNOR()));
+			renderer.setText(Integer.toString(pattern.getNOF()));
 			break;
 		case 5:
 			renderer.setHorizontalAlignment(JLabel.RIGHT);
-			renderer.setText(Integer.toString(pattern.getNOF()));
+			renderer.setText(Integer.toString(pattern.getLBM()));
 			break;
 		case 6:
 			renderer.setHorizontalAlignment(JLabel.RIGHT);
-			renderer.setText(Integer.toString(pattern.getLBM()));
-			break;
-		case 7:
-			renderer.setHorizontalAlignment(JLabel.RIGHT);
 			renderer.setText(Integer.toString(pattern.getLAM()));
 			break;
-		case 8:
+		case 7:
 			renderer.setHorizontalAlignment(JLabel.CENTER);
 			renderer.setText(pattern.changeType.toString());
 			break;
-		case 9:
+		case 8:
 			renderer.setHorizontalAlignment(JLabel.CENTER);
 			renderer.setText(pattern.diffType.toString());
 			break;
-		case 10:
+		case 9:
 			renderer.setHorizontalAlignment(JLabel.CENTER);
 			renderer.setText(pattern.getOldestRevision().date);
 			break;
-		case 11:
+		case 10:
 			renderer.setHorizontalAlignment(JLabel.CENTER);
 			renderer.setText(pattern.getLatestRevision().date);
 			break;
-		case 12:
+		case 11:
 			renderer.setHorizontalAlignment(JLabel.CENTER);
 			break;
 		default:

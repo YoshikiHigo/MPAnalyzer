@@ -47,13 +47,7 @@ public class RList extends JPanel {
 					new Comparator<Revision>() {
 						@Override
 						public int compare(final Revision r1, final Revision r2) {
-							if (r1.number < r2.number) {
-								return 1;
-							} else if (r1.number > r2.number) {
-								return -1;
-							} else {
-								return 0;
-							}
+							return r2.date.compareTo(r1.date);
 						}
 					});
 
@@ -69,7 +63,7 @@ public class RList extends JPanel {
 			int number = 1;
 			for (final Revision revision : revisions) {
 				final StringBuilder text = new StringBuilder();
-				text.append(revision.number);
+				text.append(revision.id);
 				text.append(" (");
 				text.append(revision.date);
 				text.append(")");
@@ -96,15 +90,15 @@ public class RList extends JPanel {
 				"Revisions"));
 	}
 
-	public final long getSelectedRevision() {
+	public final Revision getSelectedRevision() {
 
 		for (final Entry<JRadioButton, Revision> entry : this.buttonRevisionMap
 				.entrySet()) {
 			if (entry.getKey().isSelected()) {
-				return entry.getValue().number;
+				return entry.getValue();
 			}
 		}
-		return 0;
+		return null;
 
 		// Object[] selectedObjects = this.group.getSelection()
 		// .getSelectedObjects();
@@ -150,13 +144,14 @@ public class RList extends JPanel {
 							for (final Object key : logEntry.getChangedPaths()
 									.keySet()) {
 								final String path = (String) key;
-								final int number = (int) logEntry.getRevision();
+								final String id = Long.toString(logEntry
+										.getRevision());
 								final String date = StringUtility
 										.getDateString(logEntry.getDate());
 								final String message = logEntry.getMessage();
 								final String author = logEntry.getAuthor();
-								final Revision revision = new Revision("",
-										number, date, message, author);
+								final Revision revision = new Revision("", id,
+										date, message, author);
 								for (final LANGUAGE language : languages) {
 									if (language.isTarget(path)) {
 										revisions.add(revision);

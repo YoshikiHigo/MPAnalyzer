@@ -64,8 +64,8 @@ public class ReadOnlyDAO {
 			text.append("M.revision revision, ");
 			text.append("M.changetype changetype, ");
 			text.append("M.difftype difftype, ");
-			text.append("(select R1.date from revisions R1 where R1.number = M.revision) date, ");
-			text.append("(select R2.message from revisions R2 where R2.number = M.revision) message ");
+			text.append("(select R1.date from revisions R1 where R1.id = M.revision) date, ");
+			text.append("(select R2.message from revisions R2 where R2.id = M.revision) message ");
 			text.append("from changes M) T where T.beforeHash=? and T.afterHash=?");
 			final PreparedStatement statement = this.connector
 					.prepareStatement(text.toString());
@@ -76,7 +76,7 @@ public class ReadOnlyDAO {
 
 			while (result.next()) {
 				final String software = result.getString(1);
-				final int id = result.getInt(2);
+				final int changeID = result.getInt(2);
 				final String filepath = result.getString(3);
 				final String author = result.getString(4);
 				final int beforeID = result.getInt(5);
@@ -89,7 +89,7 @@ public class ReadOnlyDAO {
 				final String afterNText = result.getString(12);
 				final int afterStart = result.getInt(13);
 				final int afterEnd = result.getInt(14);
-				final long number = result.getLong(15);
+				final String revisionID = result.getString(15);
 				final ChangeType changeType = ChangeType.getType(result
 						.getInt(16));
 				final DiffType diffType = DiffType.getType(result.getInt(17));
@@ -100,9 +100,9 @@ public class ReadOnlyDAO {
 						beforeRText, beforeNText, beforeStart, beforeEnd);
 				final Code afterCode = new Code(software, afterID, afterRText,
 						afterNText, afterStart, afterEnd);
-				final Revision revision = new Revision(software, number, date,
-						message, author);
-				final Change change = new Change(software, id, filepath,
+				final Revision revision = new Revision(software, revisionID,
+						date, message, author);
+				final Change change = new Change(software, changeID, filepath,
 						author, beforeCode, afterCode, revision, changeType,
 						diffType);
 				changes.add(change);
@@ -167,17 +167,17 @@ public class ReadOnlyDAO {
 
 		final Statement revisionStatement = this.connector.createStatement();
 		final ResultSet result = revisionStatement
-				.executeQuery("select software, number, date, message, author from revision");
+				.executeQuery("select software, id, date, message, author from revision");
 
 		final SortedSet<Revision> revisions = new TreeSet<Revision>();
 		while (result.next()) {
 			final String software = result.getString(1);
-			final long number = result.getLong(2);
+			final String id = result.getString(2);
 			final String date = result.getString(3);
 			final String message = result.getString(4);
 			final String author = result.getString(5);
-			final Revision revision = new Revision(software, number, date,
-					message, author);
+			final Revision revision = new Revision(software, id, date, message,
+					author);
 			revisions.add(revision);
 		}
 

@@ -40,8 +40,6 @@ public class ThresholdPanel extends JPanel implements Observer {
 		final JTextField confidenceMaxField = new JTextField(TEXTFIELD_LENGTH);
 		final JTextField nodMinField = new JTextField(TEXTFIELD_LENGTH);
 		final JTextField nodMaxField = new JTextField(TEXTFIELD_LENGTH);
-		final JTextField norMinField = new JTextField(TEXTFIELD_LENGTH);
-		final JTextField norMaxField = new JTextField(TEXTFIELD_LENGTH);
 		final JTextField nofMinField = new JTextField(TEXTFIELD_LENGTH);
 		final JTextField nofMaxField = new JTextField(TEXTFIELD_LENGTH);
 		final JTextField lbmMinField = new JTextField(TEXTFIELD_LENGTH);
@@ -60,8 +58,6 @@ public class ThresholdPanel extends JPanel implements Observer {
 		confidenceMaxField.setText("1");
 		nodMinField.setText("0");
 		nodMaxField.setText("9999");
-		norMinField.setText("0");
-		norMaxField.setText("9999");
 		nofMinField.setText("1");
 		nofMaxField.setText("9999");
 		lbmMinField.setText("0");
@@ -109,19 +105,6 @@ public class ThresholdPanel extends JPanel implements Observer {
 			nodPanel.add(new JLabel("Max: "));
 			nodPanel.add(nodMaxField);
 			this.add(nodPanel);
-		}
-
-		{
-			final JPanel norPanel = new JPanel(new FlowLayout(
-					FlowLayout.CENTER, 5, 0));
-			norPanel.setBorder(new TitledBorder(new LineBorder(Color.black),
-					"NOR"));
-			norPanel.add(new JLabel("Min: "));
-			norPanel.add(norMinField);
-			norPanel.add(new JPanel());
-			norPanel.add(new JLabel("Max: "));
-			norPanel.add(norMaxField);
-			this.add(norPanel);
 		}
 
 		{
@@ -253,26 +236,6 @@ public class ThresholdPanel extends JPanel implements Observer {
 					return;
 				}
 
-				int norMin = 0;
-				int norMax = Integer.MAX_VALUE;
-				try {
-					final String textMin = norMinField.getText();
-					norMin = Integer.parseInt(textMin);
-					if (norMin < 0) {
-						throw new NumberFormatException();
-					}
-					final String textMax = norMaxField.getText();
-					norMax = Integer.parseInt(textMax);
-					if (norMax < 0) {
-						throw new NumberFormatException();
-					}
-				} catch (final NumberFormatException norException) {
-					JOptionPane.showMessageDialog(ThresholdPanel.this,
-							"NOR must be 0 or positive integer.", "",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
 				int nofMin = 0;
 				int nofMax = Integer.MAX_VALUE;
 				try {
@@ -359,7 +322,6 @@ public class ThresholdPanel extends JPanel implements Observer {
 							.iterator(); iterator.hasNext();) {
 						final ChangePattern pattern = iterator.next();
 						if ((pattern.getNOD() < nodMin)
-								|| (pattern.getNOR() < norMin)
 								|| (pattern.getNOF() < nofMin)
 								|| (pattern.getLBM() < lbmMin)
 								|| (pattern.getLAM() < lamMin)) {
@@ -368,7 +330,6 @@ public class ThresholdPanel extends JPanel implements Observer {
 						}
 
 						if ((pattern.getNOD() > nodMax)
-								|| (pattern.getNOR() > norMax)
 								|| (pattern.getNOF() > nofMax)
 								|| (pattern.getLBM() > lbmMax)
 								|| (pattern.getLAM() > lamMax)) {

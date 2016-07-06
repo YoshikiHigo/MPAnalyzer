@@ -31,6 +31,7 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.Change;
+import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.gui.CODE;
 import yoshikihigo.cpanalyzer.gui.ObservedChanges;
 import yoshikihigo.cpanalyzer.gui.ObservedChanges.CLABEL;
@@ -120,7 +121,7 @@ public class CCode extends JTextArea implements Observer {
 					try {
 
 						this.change = observedChanges.get().first();
-						final long revision = this.change.revision.number;
+						final Revision revision = this.change.revision;
 						final String filepath = this.change.filepath;
 						final String REPOSITORY_FOR_MINING = CPAConfig
 								.getInstance().getSVNREPOSITORY_FOR_MINING();
@@ -131,9 +132,10 @@ public class CCode extends JTextArea implements Observer {
 								.newInstance().getWCClient();
 
 						final StringBuilder beforeText = new StringBuilder();
+						final long revNumber = Long.valueOf(revision.id);
 						wcClient.doGetFileContents(url,
-								SVNRevision.create(revision - 1l),
-								SVNRevision.create(revision - 1l), false,
+								SVNRevision.create(revNumber - 1l),
+								SVNRevision.create(revNumber - 1l), false,
 								new OutputStream() {
 									@Override
 									public void write(int b) throws IOException {
@@ -143,8 +145,8 @@ public class CCode extends JTextArea implements Observer {
 
 						final StringBuilder afterText = new StringBuilder();
 						wcClient.doGetFileContents(url,
-								SVNRevision.create(revision),
-								SVNRevision.create(revision), false,
+								SVNRevision.create(revNumber),
+								SVNRevision.create(revNumber), false,
 								new OutputStream() {
 									@Override
 									public void write(int b) throws IOException {

@@ -32,7 +32,7 @@ public class CListModel extends AbstractTableModel {
 
 		switch (col) {
 		case 0:
-			return this.changes[row].revision.number;
+			return this.changes[row].revision.id;
 		case 1:
 			return this.changes[row].revision.date;
 		case 2:

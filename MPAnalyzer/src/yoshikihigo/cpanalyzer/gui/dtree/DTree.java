@@ -6,11 +6,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -31,7 +29,6 @@ import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
-import org.tmatesoft.svn.core.internal.wc17.SVNRemoteStatusEditor17.FileInfo;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
@@ -42,6 +39,7 @@ import yoshikihigo.cpanalyzer.FileUtility;
 import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.Code;
+import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles;
 import yoshikihigo.cpanalyzer.gui.ObservedFiles.FLABEL;
@@ -53,7 +51,7 @@ public class DTree extends JTree implements Observer {
 		public void valueChanged(TreeSelectionEvent e) {
 
 			final TreePath[] selectionPath = DTree.this.getSelectionPaths();
-			//final Set<FileInfo> selectedFiles = new HashSet<FileInfo>();
+			// final Set<FileInfo> selectedFiles = new HashSet<FileInfo>();
 
 			if (null != selectionPath) {
 				for (int i = 0; i < selectionPath.length; i++) {
@@ -127,7 +125,7 @@ public class DTree extends JTree implements Observer {
 		this.progressDialog = progressDialog;
 	}
 
-	public void update(final long revision, final Code codeFragment) {
+	public void update(final Revision revision, final Code codeFragment) {
 		final List<FileData> data = this.getFileData(revision, codeFragment);
 		final FileNode rootNode = this.makeTreeNode(data);
 		DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
@@ -188,7 +186,7 @@ public class DTree extends JTree implements Observer {
 		}
 	}
 
-	private List<FileData> getFileData(final long revision,
+	private List<FileData> getFileData(final Revision revision,
 			final Code codeFragment) {
 
 		final List<FileData> data = new ArrayList<FileData>();
@@ -208,8 +206,9 @@ public class DTree extends JTree implements Observer {
 
 			final SortedSet<String> files = new TreeSet<String>();
 
-			logClient.doList(url, SVNRevision.create(revision),
-					SVNRevision.create(revision), true, SVNDepth.INFINITY,
+			final long revNumber = Long.valueOf(revision.id);
+			logClient.doList(url, SVNRevision.create(revNumber),
+					SVNRevision.create(revNumber), true, SVNDepth.INFINITY,
 					SVNDirEntry.DIRENT_ALL, new ISVNDirEntryHandler() {
 
 						@Override
@@ -263,8 +262,8 @@ public class DTree extends JTree implements Observer {
 
 				final StringBuilder text = new StringBuilder();
 				wcClient.doGetFileContents(fileurl,
-						SVNRevision.create(revision),
-						SVNRevision.create(revision), false,
+						SVNRevision.create(revNumber),
+						SVNRevision.create(revNumber), false,
 						new OutputStream() {
 							@Override
 							public void write(int b) throws IOException {

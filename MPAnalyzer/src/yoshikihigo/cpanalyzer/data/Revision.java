@@ -3,15 +3,15 @@ package yoshikihigo.cpanalyzer.data;
 public class Revision implements Comparable<Revision> {
 
 	public final String software;
-	public final long number;
+	public final String id;
 	public final String date;
 	public final String message;
 	public final String author;
 
-	public Revision(final String software, final long number,
-			final String date, final String message, final String author) {
+	public Revision(final String software, final String id, final String date,
+			final String message, final String author) {
 		this.software = software;
-		this.number = number;
+		this.id = id;
 		this.date = date;
 		this.message = message;
 		this.author = author;
@@ -23,7 +23,7 @@ public class Revision implements Comparable<Revision> {
 		if (0 != softwareOrder) {
 			return softwareOrder;
 		}
-		return Long.compare(this.number, revision.number);
+		return this.date.compareTo(revision.date);
 	}
 
 	@Override
@@ -32,12 +32,12 @@ public class Revision implements Comparable<Revision> {
 			return false;
 		}
 		final Revision target = (Revision) o;
-		return this.number == target.number;
+		return this.id == target.id;
 	}
 
 	@Override
 	public int hashCode() {
-		return (int) this.number;
+		return this.id.hashCode();
 	}
 
 	@Override

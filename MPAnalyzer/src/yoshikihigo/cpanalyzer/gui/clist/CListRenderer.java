@@ -21,31 +21,31 @@ class CListRenderer extends DefaultTableCellRenderer {
 		final int modelRow = table.convertRowIndexToModel(row);
 		final int modelColumn = table.convertColumnIndexToModel(column);
 		final CListModel model = (CListModel) table.getModel();
-		final Change modification = model.changes[modelRow];
+		final Change change = model.changes[modelRow];
 		switch (modelColumn) {
 		case 0: {
 			renderer.setHorizontalAlignment(JLabel.CENTER);
-			renderer.setText(Long.toString(modification.revision.number));
+			renderer.setText(change.revision.id);
 			break;
 		}
 		case 1: {
 			renderer.setHorizontalAlignment(JLabel.CENTER);
-			renderer.setText(modification.revision.date);
+			renderer.setText(change.revision.date);
 			break;
 		}
 		case 2: {
 			renderer.setHorizontalAlignment(JLabel.LEFT);
-			renderer.setText(modification.filepath);
+			renderer.setText(change.filepath);
 			break;
 		}
 		case 3: {
 			renderer.setHorizontalAlignment(JLabel.CENTER);
-			renderer.setText(modification.before.position);
+			renderer.setText(change.before.position);
 			break;
 		}
 		case 4: {
 			renderer.setHorizontalAlignment(JLabel.CENTER);
-			renderer.setText(modification.after.position);
+			renderer.setText(change.after.position);
 			break;
 		}
 		default:

@@ -67,25 +67,28 @@ public class ChangeExtractionThread extends Thread {
 			return;
 		}
 
-		final String author = afterRevision.author;
+		final String author = this.afterRevision.author;
 
 		if (isVerbose) {
 			final StringBuilder progress = new StringBuilder();
 			progress.append(id);
 			progress.append(": checking revisions ");
-			progress.append(beforeRevision.number);
+			progress.append(beforeRevision.id);
 			progress.append(" and ");
-			progress.append(afterRevision.number);
+			progress.append(this.afterRevision.id);
 			System.out.println(progress.toString());
 		}
 
 		final List<String> changedPaths = new ArrayList<>();
 		try {
 			synchronized (LOCK) {
+				final long beforeRevNumber = Long
+						.valueOf(this.beforeRevision.id);
+				final long afterRevNumber = Long.valueOf(this.afterRevision.id);
 				diffClient.doDiffStatus(url,
-						SVNRevision.create(beforeRevision.number), url,
-						SVNRevision.create(afterRevision.number),
-						SVNDepth.INFINITY, true, new ISVNDiffStatusHandler() {
+						SVNRevision.create(beforeRevNumber), url,
+						SVNRevision.create(afterRevNumber), SVNDepth.INFINITY,
+						true, new ISVNDiffStatusHandler() {
 
 							@Override
 							public void handleDiffStatus(
@@ -136,9 +139,11 @@ public class ChangeExtractionThread extends Thread {
 			final StringBuilder beforeText = new StringBuilder();
 			try {
 				synchronized (LOCK) {
+					final long beforeRevNumber = Long
+							.valueOf(this.beforeRevision.id);
 					wcClient.doGetFileContents(fileurl,
-							SVNRevision.create(beforeRevision.number),
-							SVNRevision.create(beforeRevision.number), false,
+							SVNRevision.create(beforeRevNumber),
+							SVNRevision.create(beforeRevNumber), false,
 							new OutputStream() {
 								@Override
 								public void write(int b) throws IOException {
@@ -154,9 +159,11 @@ public class ChangeExtractionThread extends Thread {
 			final StringBuilder afterText = new StringBuilder();
 			try {
 				synchronized (LOCK) {
+					final long afterRevNumber = Long
+							.valueOf(this.afterRevision.id);
 					wcClient.doGetFileContents(fileurl,
-							SVNRevision.create(afterRevision.number),
-							SVNRevision.create(afterRevision.number), false,
+							SVNRevision.create(afterRevNumber),
+							SVNRevision.create(afterRevNumber), false,
 							new OutputStream() {
 								@Override
 								public void write(int b) throws IOException {
@@ -175,8 +182,9 @@ public class ChangeExtractionThread extends Thread {
 			final List<Statement> afterStatements = StringUtility
 					.splitToStatements(afterText.toString(), language);
 
-			final List<Change> changes = LCS.getChanges(beforeStatements,
-					afterStatements, software, path, author, afterRevision);
+			final List<Change> changes = LCS
+					.getChanges(beforeStatements, afterStatements, software,
+							path, author, this.afterRevision);
 
 			if (onlyCondition) {
 				ChangeDAO.SINGLETON.addChanges(changes.stream()

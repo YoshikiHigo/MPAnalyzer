@@ -1,13 +1,14 @@
 package yoshikihigo.cpanalyzer.gui;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import yoshikihigo.cpanalyzer.data.Revision;
 
 public class ObservedRevisions extends Observable {
 
@@ -17,7 +18,7 @@ public class ObservedRevisions extends Observable {
 
 	private static final Map<RLABEL, ObservedRevisions> INSTANCES = new HashMap<RLABEL, ObservedRevisions>();
 
-	private final SortedSet<Long> revisions;
+	private final SortedSet<Revision> revisions;
 	public final RLABEL label;
 	private Observer source;
 
@@ -27,7 +28,7 @@ public class ObservedRevisions extends Observable {
 			throw new NullPointerException();
 		}
 
-		this.revisions = new TreeSet<Long>();
+		this.revisions = new TreeSet<>();
 		this.source = null;
 		this.label = label;
 	}
@@ -41,7 +42,7 @@ public class ObservedRevisions extends Observable {
 		return instance;
 	}
 
-	public boolean add(final Long revision, final Observer source) {
+	public boolean add(final Revision revision, final Observer source) {
 
 		if (null == revision) {
 			return false;
@@ -56,7 +57,7 @@ public class ObservedRevisions extends Observable {
 		return true;
 	}
 
-	public boolean addAll(final Collection<Long> revisions,
+	public boolean addAll(final Collection<Revision> revisions,
 			final Observer source) {
 
 		if (null == revisions) {
@@ -72,7 +73,7 @@ public class ObservedRevisions extends Observable {
 		return true;
 	}
 
-	public boolean remove(final Long revision, final Observer source) {
+	public boolean remove(final Revision revision, final Observer source) {
 
 		if (null == revision) {
 			return false;
@@ -87,7 +88,7 @@ public class ObservedRevisions extends Observable {
 		return true;
 	}
 
-	public boolean removeAll(final Collection<Long> revisions,
+	public boolean removeAll(final Collection<Revision> revisions,
 			final Observer source) {
 
 		if (null == revisions) {
@@ -103,7 +104,7 @@ public class ObservedRevisions extends Observable {
 		return true;
 	}
 
-	public boolean set(final Long revision, final Observer source) {
+	public boolean set(final Revision revision, final Observer source) {
 
 		if (null == revision) {
 			return false;
@@ -119,7 +120,7 @@ public class ObservedRevisions extends Observable {
 		return true;
 	}
 
-	public boolean setAll(final Collection<Long> revisions,
+	public boolean setAll(final Collection<Revision> revisions,
 			final Observer source) {
 
 		if (null == revisions) {
@@ -149,8 +150,8 @@ public class ObservedRevisions extends Observable {
 		this.notifyObservers(source);
 	}
 
-	public SortedSet<Long> get() {
-		return Collections.unmodifiableSortedSet(this.revisions);
+	public SortedSet<Revision> get() {
+		return new TreeSet<>(this.revisions);
 	}
 
 	public Observer getSource() {

@@ -25,7 +25,7 @@ public class CPCSVPrinter {
 			final BufferedWriter writer = new BufferedWriter(new FileWriter(
 					CVSFILE));
 
-			writer.write("ID, SUPPORT, CONFIDENCE, EREVISION, SREVISION, EDATE, SDATE, NOD, NOR, NOF, LBM, LAM");
+			writer.write("ID, SUPPORT, CONFIDENCE, EREVISION, SREVISION, EDATE, SDATE, NOD, NOF, LBM, LAM");
 			writer.newLine();
 
 			final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON
@@ -43,17 +43,17 @@ public class CPCSVPrinter {
 				Revision sRevision = changes.get(0).revision;
 				Revision eRevision = changes.get(0).revision;
 				for (final Change change : changes) {
-					if (sRevision.number > change.revision.number) {
+					if (change.revision.compareTo(sRevision) < 0) {
 						sRevision = change.revision;
 					}
-					if (eRevision.number < change.revision.number) {
+					if (change.revision.compareTo(eRevision) > 0) {
 						eRevision = change.revision;
 					}
 				}
 
-				writer.write(Long.toString(eRevision.number));
+				writer.write(eRevision.id);
 				writer.write(", ");
-				writer.write(Long.toString(sRevision.number));
+				writer.write(sRevision.id);
 				writer.write(", ");
 				writer.write(eRevision.date);
 				writer.write(", ");
@@ -61,8 +61,6 @@ public class CPCSVPrinter {
 
 				writer.write(", ");
 				writer.write(Integer.toString(pattern.getNOD()));
-				writer.write(", ");
-				writer.write(Integer.toString(pattern.getNOR()));
 				writer.write(", ");
 				writer.write(Integer.toString(pattern.getNOF()));
 				writer.write(", ");

@@ -53,6 +53,7 @@ import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
+import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.gui.ObservedCodeFragments.CFLABEL;
@@ -185,7 +186,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 
 					@Override
 					protected Object doInBackground() throws Exception {
-						final long revision = rList.getSelectedRevision();
+						final Revision revision = rList.getSelectedRevision();
 						final SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> oCodefragments = OverlookedWindow.this
 								.detectOverlookedCode(revision, value);
 						oList.setModel(oCodefragments);
@@ -210,7 +211,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 	}
 
 	private SortedMap<ChangePattern, SortedMap<String, SortedSet<Code>>> detectOverlookedCode(
-			final long revision, final int place) {
+			final Revision revision, final int place) {
 		final Map<String, List<Statement>> files = this.getFiles(revision);
 		final SortedSet<ChangePattern> CPs = ObservedChangePatterns
 				.getInstance(CPLABEL.FILTERED).get();
@@ -231,7 +232,7 @@ public class OverlookedWindow extends JFrame implements Observer {
 		return oCodefragments;
 	}
 
-	private Map<String, List<Statement>> getFiles(final long revision) {
+	private Map<String, List<Statement>> getFiles(final Revision revision) {
 
 		try {
 			final Set<LANGUAGE> languages = CPAConfig.getInstance()
@@ -248,10 +249,11 @@ public class OverlookedWindow extends JFrame implements Observer {
 			this.progressDialog.note.setText("preparing a file list ...");
 			this.progressDialog.repaint();
 
-			final SortedSet<String> paths = new TreeSet<String>();
+			final SortedSet<String> paths = new TreeSet<>();
 
-			logClient.doList(url, SVNRevision.create(revision),
-					SVNRevision.create(revision), true, SVNDepth.INFINITY,
+			final long revNumber = Long.valueOf(revision.id);
+			logClient.doList(url, SVNRevision.create(revNumber),
+					SVNRevision.create(revNumber), true, SVNDepth.INFINITY,
 					SVNDirEntry.DIRENT_ALL, new ISVNDirEntryHandler() {
 
 						@Override
@@ -309,8 +311,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 
 				final StringBuilder text = new StringBuilder();
 				wcClient.doGetFileContents(fileurl,
-						SVNRevision.create(revision),
-						SVNRevision.create(revision), false,
+						SVNRevision.create(revNumber),
+						SVNRevision.create(revNumber), false,
 						new OutputStream() {
 							@Override
 							public void write(int b) throws IOException {

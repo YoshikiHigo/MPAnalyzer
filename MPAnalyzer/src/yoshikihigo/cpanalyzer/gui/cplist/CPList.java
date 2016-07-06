@@ -299,14 +299,14 @@ public class CPList extends JTable implements Observer {
 				.setPreferredWidth(COLUMN_LENGTH_SUPPORT);
 		this.getColumnModel().getColumn(2)
 				.setPreferredWidth(COLUMN_LENGTH_CONFIDENCE);
-		this.getColumnModel().getColumn(10)
+		this.getColumnModel().getColumn(9)
 				.setPreferredWidth(COLUMN_LENGTH_START);
-		this.getColumnModel().getColumn(11)
+		this.getColumnModel().getColumn(10)
 				.setPreferredWidth(COLUMN_LENGTH_END);
 		if (10 <= model.getColumnCount()) {
-			this.getColumnModel().getColumn(12)
+			this.getColumnModel().getColumn(11)
 					.setCellEditor(new CPListCellEditor(comboBoxes));
-			this.getColumnModel().getColumn(12)
+			this.getColumnModel().getColumn(11)
 					.setPreferredWidth(COLUMN_LENGTH_CATEGORY);
 		}
 	}

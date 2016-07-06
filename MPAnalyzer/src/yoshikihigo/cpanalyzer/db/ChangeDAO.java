@@ -16,8 +16,8 @@ public class ChangeDAO {
 	static public final ChangeDAO SINGLETON = new ChangeDAO();
 
 	static public final String REVISIONS_SCHEMA = "software string, "
-			+ "number integer, " + "date string, " + "message string, "
-			+ "author string, " + "primary key(software, number)";
+			+ "id string, " + "date string, " + "message string, "
+			+ "author string, " + "primary key(software, id)";
 	static public final String CODES_SCHEMA = "software string, "
 			+ "id integer, " + "rText string, " + "nText string, "
 			+ "hash blob, " + "start int, " + "end int, "
@@ -25,7 +25,7 @@ public class ChangeDAO {
 	static public final String CHANGES_SCHEMA = "software string, "
 			+ "id integer, " + "filepath string, " + "author string, "
 			+ "beforeID integer, " + "beforeHash blob, " + "afterID integer, "
-			+ "afterHash blob, " + "revision integer, " + "date string, "
+			+ "afterHash blob, " + "revision string, " + "date string, "
 			+ "changetype integer, " + "difftype integer, "
 			+ "primary key(software, id)";
 
@@ -78,7 +78,7 @@ public class ChangeDAO {
 					.prepareStatement("insert into revisions values (?, ?, ?, ?, ?)");
 			for (final Revision revision : revisions) {
 				statement.setString(1, revision.software);
-				statement.setLong(2, revision.number);
+				statement.setString(2, revision.id);
 				statement.setString(3, revision.date);
 				statement.setString(4, revision.message);
 				statement.setString(5, revision.author);
@@ -136,7 +136,7 @@ public class ChangeDAO {
 			this.changePS.setBytes(6, change.before.hash);
 			this.changePS.setInt(7, change.after.id);
 			this.changePS.setBytes(8, change.after.hash);
-			this.changePS.setInt(9, (int) change.revision.number);
+			this.changePS.setString(9, change.revision.id);
 			this.changePS.setString(10, change.revision.date);
 			this.changePS.setInt(11, change.changeType.getValue());
 			this.changePS.setInt(12, change.diffType.getValue());

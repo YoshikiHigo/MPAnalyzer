@@ -22,8 +22,8 @@ import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 public class CLPanel extends JTextArea implements Observer {
 
 	public final JScrollPane scrollPane;
-	private SortedMap<Long, String> messages;
-	private SortedMap<Long, String> dates;
+	private SortedMap<String, String> messages;
+	private SortedMap<String, String> dates;
 
 	public CLPanel() {
 		super("");
@@ -51,7 +51,7 @@ public class CLPanel extends JTextArea implements Observer {
 					if (e.getClickCount() == 2) {
 
 						final StringBuilder text = new StringBuilder();
-						for (final Long revision : CLPanel.this.messages
+						for (final String revision : CLPanel.this.messages
 								.keySet()) {
 							text.append(revision);
 							text.append(" (");
@@ -102,21 +102,21 @@ public class CLPanel extends JTextArea implements Observer {
 				if (observedModificationPatterns.isSet()) {
 					final ChangePattern pattern = observedModificationPatterns
 							.get().first();
-					this.messages = new TreeMap<Long, String>();
-					this.dates = new TreeMap<Long, String>();
+					this.messages = new TreeMap<String, String>();
+					this.dates = new TreeMap<String, String>();
 					for (final Change m : pattern.getChanges()) {
-						final long revision = m.revision.number;
+						final String id = m.revision.id;
 						final String date = m.revision.date;
 						final String message = m.revision.message;
-						if (!this.messages.containsKey(revision)) {
-							this.messages.put(revision, message);
+						if (!this.messages.containsKey(id)) {
+							this.messages.put(id, message);
 						}
-						if (!this.dates.containsKey(revision)) {
-							this.dates.put(revision, date);
+						if (!this.dates.containsKey(id)) {
+							this.dates.put(id, date);
 						}
 					}
 					final StringBuilder text = new StringBuilder();
-					for (final Long revision : this.messages.keySet()) {
+					for (final String revision : this.messages.keySet()) {
 						text.append(revision);
 						text.append(" (");
 						text.append(this.dates.get(revision));
@@ -134,12 +134,12 @@ public class CLPanel extends JTextArea implements Observer {
 				if (observedModificationPatterns.isSet()) {
 					final ChangePattern pattern = observedModificationPatterns
 							.get().first();
-					this.messages = new TreeMap<Long, String>();
-					this.dates = new TreeMap<Long, String>();
-					for (final Change m : pattern.getChanges()) {
-						final long revision = m.revision.number;
-						final String date = m.revision.date;
-						final String message = m.revision.message;
+					this.messages = new TreeMap<String, String>();
+					this.dates = new TreeMap<String, String>();
+					for (final Change c : pattern.getChanges()) {
+						final String revision = c.revision.id;
+						final String date = c.revision.date;
+						final String message = c.revision.message;
 						if (!this.messages.containsKey(revision)) {
 							this.messages.put(revision, message);
 						}
@@ -148,7 +148,7 @@ public class CLPanel extends JTextArea implements Observer {
 						}
 					}
 					final StringBuilder text = new StringBuilder();
-					for (final Long revision : this.messages.keySet()) {
+					for (final String revision : this.messages.keySet()) {
 						text.append(revision);
 						text.append(" (");
 						text.append(this.dates.get(revision));

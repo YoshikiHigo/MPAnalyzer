@@ -157,18 +157,18 @@ public class ChangeExtractor {
 					true,
 					true,
 					entry -> {
-						final int number = (int) entry.getRevision();
+						final String id = Long.toString(entry.getRevision());
 						final String date = StringUtility.getDateString(entry
 								.getDate());
 						final String message = entry.getMessage();
 						final String author = entry.getAuthor();
-						final Revision revision = new Revision(software,
-								number, date, message, author);
+						final Revision revision = new Revision(software, id,
+								date, message, author);
 						for (final String path : entry.getChangedPaths()
 								.keySet()) {
 							for (final LANGUAGE language : languages) {
 								if (isVerbose && language.isTarget(path)) {
-									System.out.println(Integer.toString(number)
+									System.out.println(id
 											+ " has been identified.");
 								}
 								revisions.add(revision);

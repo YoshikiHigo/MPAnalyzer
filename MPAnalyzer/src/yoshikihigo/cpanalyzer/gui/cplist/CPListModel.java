@@ -11,8 +11,8 @@ import yoshikihigo.cpanalyzer.data.Revision;
 public class CPListModel extends AbstractTableModel {
 
 	static public final String[] TITLES = new String[] { "ID", "SUPPORT",
-			"CONFIDENCE", "NOD", "NOR", "NOF", "LBM", "LAM", "R/A/D",
-			"TYPE-2/3", "START", "END", "CATEGORY" };
+			"CONFIDENCE", "NOD", "NOF", "LBM", "LAM", "R/A/D", "TYPE-2/3",
+			"START", "END", "CATEGORY" };
 
 	final public ChangePattern[] patterns;
 	final public JComboBox[] comboBoxes;
@@ -47,22 +47,20 @@ public class CPListModel extends AbstractTableModel {
 		case 3:
 			return pattern.getNOD();
 		case 4:
-			return pattern.getNOR();
-		case 5:
 			return pattern.getNOF();
-		case 6:
+		case 5:
 			return pattern.getLBM();
-		case 7:
+		case 6:
 			return pattern.getLAM();
-		case 8:
+		case 7:
 			return pattern.changeType.toString();
-		case 9:
+		case 8:
 			return pattern.diffType.toString();
-		case 10:
+		case 9:
 			return pattern.getOldestRevision();
-		case 11:
+		case 10:
 			return pattern.getLatestRevision();
-		case 12:
+		case 11:
 			return this.comboBoxes[row].getSelectedItem().toString();
 		default:
 			assert false : "Here sholdn't be reached!";
@@ -72,7 +70,7 @@ public class CPListModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(final int row, final int column) {
-		return 12 == column;
+		return 11 == column;
 	}
 
 	@Override
@@ -86,15 +84,14 @@ public class CPListModel extends AbstractTableModel {
 		case 4:
 		case 5:
 		case 6:
-		case 7:
 			return Integer.class;
+		case 7:
 		case 8:
-		case 9:
 			return String.class;
+		case 9:
 		case 10:
-		case 11:
 			return Revision.class;
-		case 12:
+		case 11:
 			return String.class;
 		default:
 			assert false : "Here shouldn't be reached!";

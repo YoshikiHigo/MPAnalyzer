@@ -17,9 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
-import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns;
 import yoshikihigo.cpanalyzer.gui.ObservedChangePatterns.CPLABEL;
 
@@ -31,7 +29,7 @@ public class PCGraph extends JPanel implements Observer {
 	public static final int LABEL_MARGIN = 5;
 
 	public static final String[] AXIS_TITLE = { "SUPPORT", "CONFIDENCE", "NOD",
-			"NOR", "NOF", "LBM", "LAM", "START", "END" };
+			"NOF", "LBM", "LAM" };
 
 	public static final Cursor DEFAULT_CURSOR = new Cursor(
 			Cursor.DEFAULT_CURSOR);
@@ -194,50 +192,32 @@ public class PCGraph extends JPanel implements Observer {
 				} else if (pattern.getNOD() > PCGraph.this.maxNOD
 						* this.yRate[2]) {
 					outPatterns.add(pattern);
-				} else if (pattern.getNOR() > PCGraph.this.maxNOR
+				} else if (pattern.getNOF() > PCGraph.this.maxNOF
 						* this.yRate[3]) {
 					outPatterns.add(pattern);
-				} else if (pattern.getNOF() > PCGraph.this.maxNOF
+				} else if (pattern.getLBM() > PCGraph.this.maxLBM
 						* this.yRate[4]) {
 					outPatterns.add(pattern);
-				} else if (pattern.getLBM() > PCGraph.this.maxLBM
-						* this.yRate[5]) {
-					outPatterns.add(pattern);
 				} else if (pattern.getLAM() > PCGraph.this.maxLAM
-						* this.yRate[6]) {
-					outPatterns.add(pattern);
-				} else if ((pattern.getOldestRevision().number - PCGraph.this.minRevision.number) > (PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
-						* this.yRate[7]) {
-					outPatterns.add(pattern);
-				} else if ((pattern.getLatestRevision().number - PCGraph.this.minRevision.number) > (PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
-						* this.yRate[8]) {
+						* this.yRate[5]) {
 					outPatterns.add(pattern);
 				}
 
-				else if (PCGraph.this.maxSUPPORT * this.yRate[17] > pattern.support) {
+				else if (PCGraph.this.maxSUPPORT * this.yRate[11] > pattern.support) {
 					outPatterns.add(pattern);
-				} else if (PCGraph.this.maxCONFIDENCE * this.yRate[16] > pattern.confidence) {
+				} else if (PCGraph.this.maxCONFIDENCE * this.yRate[10] > pattern.confidence) {
 					outPatterns.add(pattern);
-				} else if (PCGraph.this.maxNOD * this.yRate[15] > pattern
+				} else if (PCGraph.this.maxNOD * this.yRate[9] > pattern
 						.getNOD()) {
 					outPatterns.add(pattern);
-				} else if (PCGraph.this.maxNOR * this.yRate[14] > pattern
-						.getNOR()) {
-					outPatterns.add(pattern);
-				} else if (PCGraph.this.maxNOF * this.yRate[13] > pattern
+				} else if (PCGraph.this.maxNOF * this.yRate[8] > pattern
 						.getNOF()) {
 					outPatterns.add(pattern);
-				} else if (PCGraph.this.maxLBM * this.yRate[12] > pattern
+				} else if (PCGraph.this.maxLBM * this.yRate[7] > pattern
 						.getLBM()) {
 					outPatterns.add(pattern);
-				} else if (PCGraph.this.maxLAM * this.yRate[11] > pattern
+				} else if (PCGraph.this.maxLAM * this.yRate[6] > pattern
 						.getLAM()) {
-					outPatterns.add(pattern);
-				} else if ((PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
-						* this.yRate[10] > (pattern.getOldestRevision().number - PCGraph.this.minRevision.number)) {
-					outPatterns.add(pattern);
-				} else if ((PCGraph.this.maxRevision.number - PCGraph.this.minRevision.number)
-						* this.yRate[9] > (pattern.getLatestRevision().number - PCGraph.this.minRevision.number)) {
 					outPatterns.add(pattern);
 				} else {
 					inPatterns.add(pattern);
@@ -327,12 +307,9 @@ public class PCGraph extends JPanel implements Observer {
 	private int maxSUPPORT;
 	private float maxCONFIDENCE;
 	private int maxNOD;
-	private int maxNOR;
 	private int maxNOF;
 	private int maxLBM;
 	private int maxLAM;
-	private Revision minRevision;
-	private Revision maxRevision;
 
 	public PCGraph() {
 
@@ -394,12 +371,9 @@ public class PCGraph extends JPanel implements Observer {
 		this.maxSUPPORT = 1;
 		this.maxCONFIDENCE = 1.0f;
 		this.maxNOD = 1;
-		this.maxNOR = 1;
 		this.maxNOF = 1;
 		this.maxLBM = 1;
 		this.maxLAM = 1;
-		this.minRevision = new Revision("", Long.MAX_VALUE, "", "", "");
-		this.maxRevision = new Revision("", Long.MIN_VALUE, "", "", "");
 		for (final ChangePattern pattern : ObservedChangePatterns.getInstance(
 				CPLABEL.ALL).get()) {
 			if (this.maxSUPPORT < pattern.support) {
@@ -407,9 +381,6 @@ public class PCGraph extends JPanel implements Observer {
 			}
 			if (this.maxNOD < pattern.getNOD()) {
 				this.maxNOD = pattern.getNOD();
-			}
-			if (this.maxNOR < pattern.getNOR()) {
-				this.maxNOR = pattern.getNOR();
 			}
 			if (this.maxNOF < pattern.getNOF()) {
 				this.maxNOF = pattern.getNOF();
@@ -419,18 +390,6 @@ public class PCGraph extends JPanel implements Observer {
 			}
 			if (this.maxLAM < pattern.getLAM()) {
 				this.maxLAM = pattern.getLAM();
-			}
-			if (this.minRevision.number > pattern.getOldestRevision().number) {
-				this.minRevision = pattern.getOldestRevision();
-			}
-			if (this.maxRevision.number < pattern.getOldestRevision().number) {
-				this.maxRevision = pattern.getOldestRevision();
-			}
-			if (this.minRevision.number > pattern.getLatestRevision().number) {
-				this.minRevision = pattern.getLatestRevision();
-			}
-			if (this.maxRevision.number < pattern.getLatestRevision().number) {
-				this.maxRevision = pattern.getLatestRevision();
 			}
 		}
 	}
@@ -501,19 +460,11 @@ public class PCGraph extends JPanel implements Observer {
 		y[2] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
 				* (((double) pattern.getNOD()) / ((double) this.maxNOD))));
 		y[3] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
-				* (((double) pattern.getNOR()) / ((double) this.maxNOR))));
-		y[4] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
 				* (((double) pattern.getNOF()) / ((double) this.maxNOF))));
-		y[5] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
+		y[4] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
 				* (((double) pattern.getLBM()) / ((double) this.maxLBM))));
-		y[6] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
+		y[5] = this.getReversedY((int) (Y_MARGIN + this.getYSpace()
 				* (((double) pattern.getLAM()) / ((double) this.maxLAM))));
-		y[7] = (int) (Y_MARGIN + this.getYSpace()
-				* (this.maxRevision.number - pattern.getOldestRevision().number)
-				/ (this.maxRevision.number - this.minRevision.number + 1));
-		y[8] = (int) (Y_MARGIN + this.getYSpace()
-				* (this.maxRevision.number - pattern.getLatestRevision().number)
-				/ (this.maxRevision.number - this.minRevision.number + 1));
 
 		// get x axis plot location
 		final int[] x = new int[AXIS_TITLE.length];
@@ -535,12 +486,9 @@ public class PCGraph extends JPanel implements Observer {
 		this.drawSUPPORTLabel(g);
 		this.drawCONFIDENCELabel(g, data_space);
 		this.drawNODLabel(g, data_space);
-		this.drawNORLabel(g, data_space);
 		this.drawNOFLabel(g, data_space);
 		this.drawLBMLabel(g, data_space);
 		this.drawLAMLabel(g, data_space);
-		this.drawSTARTLabel(g, data_space);
-		this.drawENDLabel(g, data_space);
 	}
 
 	private void drawSUPPORTLabel(final Graphics g) {
@@ -586,24 +534,9 @@ public class PCGraph extends JPanel implements Observer {
 				this.getReversedY(Y_MARGIN + HIGHT));
 	}
 
-	private void drawNORLabel(final Graphics g, final int data_space) {
-
-		final int x_RNR = X_MARGIN + 3 * data_space + LABEL_MARGIN;
-		final int HIGHT = this.getYSpace();
-
-		g.setColor(METRICS_AXIS_LABEL_COLOR);
-		g.drawString("0", x_RNR, this.getReversedY(Y_MARGIN));
-		if (1 < this.maxNOR) {
-			g.drawString(Integer.toString(this.maxNOR / 2), x_RNR,
-					this.getReversedY(Y_MARGIN + HIGHT / 2));
-		}
-		g.drawString(Integer.toString(this.maxNOR), x_RNR,
-				this.getReversedY(Y_MARGIN + HIGHT));
-	}
-
 	private void drawNOFLabel(final Graphics g, final int data_space) {
 
-		final int x_NIF = X_MARGIN + 4 * data_space + LABEL_MARGIN;
+		final int x_NIF = X_MARGIN + 3 * data_space + LABEL_MARGIN;
 		final int HIGHT = this.getYSpace();
 
 		g.setColor(METRICS_AXIS_LABEL_COLOR);
@@ -618,7 +551,7 @@ public class PCGraph extends JPanel implements Observer {
 
 	private void drawLBMLabel(final Graphics g, final int data_space) {
 
-		final int x_NIF = X_MARGIN + 5 * data_space + LABEL_MARGIN;
+		final int x_NIF = X_MARGIN + 4 * data_space + LABEL_MARGIN;
 		final int HIGHT = this.getYSpace();
 
 		g.setColor(METRICS_AXIS_LABEL_COLOR);
@@ -633,7 +566,7 @@ public class PCGraph extends JPanel implements Observer {
 
 	private void drawLAMLabel(final Graphics g, final int data_space) {
 
-		final int x_NIF = X_MARGIN + 6 * data_space + LABEL_MARGIN;
+		final int x_NIF = X_MARGIN + 5 * data_space + LABEL_MARGIN;
 		final int HIGHT = this.getYSpace();
 
 		g.setColor(METRICS_AXIS_LABEL_COLOR);
@@ -643,30 +576,6 @@ public class PCGraph extends JPanel implements Observer {
 					this.getReversedY(Y_MARGIN + HIGHT / 2));
 		}
 		g.drawString(Integer.toString(this.maxLAM), x_NIF,
-				this.getReversedY(Y_MARGIN + HIGHT));
-	}
-
-	private void drawSTARTLabel(final Graphics g, final int data_space) {
-
-		final int x_START = X_MARGIN + 7 * data_space + LABEL_MARGIN;
-		final int HIGHT = this.getYSpace();
-
-		g.setColor(METRICS_AXIS_LABEL_COLOR);
-		g.drawString(StringUtility.removeTime(this.minRevision.date), x_START,
-				this.getReversedY(Y_MARGIN));
-		g.drawString(StringUtility.removeTime(this.maxRevision.date), x_START,
-				this.getReversedY(Y_MARGIN + HIGHT));
-	}
-
-	private void drawENDLabel(final Graphics g, final int data_space) {
-
-		final int x_END = X_MARGIN + 8 * data_space + LABEL_MARGIN;
-		final int HIGHT = this.getYSpace();
-
-		g.setColor(METRICS_AXIS_LABEL_COLOR);
-		g.drawString(StringUtility.removeTime(this.minRevision.date), x_END,
-				this.getReversedY(Y_MARGIN));
-		g.drawString(StringUtility.removeTime(this.maxRevision.date), x_END,
 				this.getReversedY(Y_MARGIN + HIGHT));
 	}
 

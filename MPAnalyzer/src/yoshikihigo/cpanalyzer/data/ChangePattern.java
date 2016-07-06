@@ -111,15 +111,6 @@ public class ChangePattern implements Comparable<ChangePattern> {
 		return (int) day;
 	}
 
-	public int getNOR() {
-		if (0 == this.changes.size()) {
-			this.setChanges();
-		}
-		final Revision firstRevision = this.changes.get(0).revision;
-		final Revision lastRevision = this.changes.get(this.changes.size() - 1).revision;
-		return (int) (lastRevision.number - firstRevision.number);
-	}
-
 	public int getLBM() {
 		if (0 == this.changes.size()) {
 			this.setChanges();
