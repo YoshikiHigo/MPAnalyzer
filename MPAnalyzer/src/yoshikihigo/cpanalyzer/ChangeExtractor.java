@@ -13,15 +13,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revplot.PlotCommitList;
-import org.eclipse.jgit.revplot.PlotLane;
-import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.tmatesoft.svn.core.SVNException;
@@ -243,70 +240,62 @@ public class ChangeExtractor {
 			System.exit(0);
 		}
 
-		final PlotWalk revWalk = new PlotWalk(repo);
-		try {
-			final ObjectId rootId = repo.resolve("HEAD");
-			final RevCommit root = revWalk.parseCommit(rootId);
-			revWalk.markStart(root);
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
+		try (final Git git = new Git(repo);
+				final DiffFormatter formatter = new DiffFormatter(
+						DisabledOutputStream.INSTANCE)) {
 
-		final PlotCommitList<PlotLane> commits = new PlotCommitList<>();
-		try {
-			commits.source(revWalk);
-			commits.fillTo(Integer.MAX_VALUE);
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
+			formatter.setRepository(repo);
+			formatter.setDiffComparator(RawTextComparator.DEFAULT);
+			formatter.setDetectRenames(true);
 
-		final DiffFormatter formatter = new DiffFormatter(
-				DisabledOutputStream.INSTANCE);
-		formatter.setRepository(repo);
-		formatter.setDiffComparator(RawTextComparator.DEFAULT);
-		formatter.setDetectRenames(true);
+			COMMIT: for (final RevCommit commit : git.log().all().call()) {
 
-		COMMIT: for (final RevCommit commit : commits) {
-			if (1 != commit.getParentCount()) {
-				continue;
-			}
-			final Date date = new Date(commit.getCommitTime() * 1000L);
-			if (date.before(startDate) || date.after(endDate)) {
-				continue;
-			}
-			final RevCommit parent = commit.getParent(0);
-			List<DiffEntry> diffEntries = null;
-			try {
-				diffEntries = formatter.scan(parent.getId(), commit.getId());
-			} catch (final IOException e) {
-				e.printStackTrace();
-				System.exit(0);
-			}
+				final Date date = new Date(commit.getCommitTime() * 1000L);
+				if (date.before(startDate) || date.after(endDate)) {
+					continue;
+				}
 
-			FILE: for (final DiffEntry entry : diffEntries) {
-				final String oldPath = entry.getOldPath();
-				final String newPath = entry.getNewPath();
+				for (final RevCommit parent : commit.getParents()) {
 
-				LANGUAGE: for (final LANGUAGE language : languages) {
-					if (language.isTarget(oldPath)
-							&& language.isTarget(newPath)) {
-						final String message = commit.getFullMessage();
-						final String id = commit.getId().getName();
-						final String author = commit.getAuthorIdent().getName();
-						final Revision revision = new Revision(software, id,
-								StringUtility.getDateString(date), message,
-								author);
-						revisions.add(revision);
-						if (isVerbose) {
-							System.out.println(id + " (" + date
-									+ ") has been identified.");
+					List<DiffEntry> diffEntries = null;
+					try {
+						diffEntries = formatter.scan(parent.getId(),
+								commit.getId());
+					} catch (final IOException e) {
+						e.printStackTrace();
+						System.exit(0);
+					}
+
+					FILE: for (final DiffEntry entry : diffEntries) {
+						final String oldPath = entry.getOldPath();
+						final String newPath = entry.getNewPath();
+
+						LANGUAGE: for (final LANGUAGE language : languages) {
+							if (language.isTarget(oldPath)
+									&& language.isTarget(newPath)) {
+								final String message = commit.getFullMessage();
+								final String id = commit.getId().getName();
+								final String author = commit.getAuthorIdent()
+										.getName();
+								final Revision revision = new Revision(
+										software, id,
+										StringUtility.getDateString(date),
+										message, author);
+								revisions.add(revision);
+								if (isVerbose) {
+									System.out.println(id + " (" + date
+											+ ") has been identified.");
+								}
+								break FILE;
+							}
 						}
-						break FILE;
 					}
 				}
 			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			System.exit(0);
 		}
-		formatter.close();
 
 		return revisions.toArray(new Revision[0]);
 	}
