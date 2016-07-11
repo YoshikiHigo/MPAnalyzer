@@ -1,5 +1,7 @@
 package yoshikihigo.cpanalyzer;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -72,6 +74,24 @@ public class CPAConfig {
 			final Option option = new Option("endrev", "endrevision", true,
 					"end revision of repository for mining");
 			option.setArgName("revision");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("startdate", "startdate", true,
+					"start date of repository for mining");
+			option.setArgName("date (dd:mm:yyyy)");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
+			final Option option = new Option("enddate", "enddate", true,
+					"end date of repository for mining");
+			option.setArgName("date (dd:mm:yyyy)");
 			option.setArgs(1);
 			option.setRequired(false);
 			options.addOption(option);
@@ -318,6 +338,40 @@ public class CPAConfig {
 			return Long.parseLong(this.commandLine.getOptionValue("endrev"));
 		}
 		return -1;
+	}
+
+	public Date getSTART_DATE_FOR_MINING() {
+		Date date = new Date(0);
+		if (this.commandLine.hasOption("startdate")) {
+			final SimpleDateFormat format = new SimpleDateFormat("dd:mm:yyyy");
+			final String value = this.commandLine.getOptionValue("startdate");
+			try {
+				date = format.parse(value);
+			} catch (final java.text.ParseException e) {
+				System.out
+						.println("\"-startdate\" must be specified with dd:mm:yyyy format");
+				System.exit(0);
+			}
+		}
+
+		return date;
+	}
+
+	public Date getEND_DATE_FOR_MINING() {
+		Date date = new Date();
+		if (this.commandLine.hasOption("enddate")) {
+			final SimpleDateFormat format = new SimpleDateFormat("dd:mm:yyyy");
+			final String value = this.commandLine.getOptionValue("enddate");
+			try {
+				date = format.parse(value);
+			} catch (final java.text.ParseException e) {
+				System.out
+						.println("\"-enddate\" must be specified with dd:mm:yyyy format");
+				System.exit(0);
+			}
+		}
+
+		return date;
 	}
 
 	public String getDATABASE() {

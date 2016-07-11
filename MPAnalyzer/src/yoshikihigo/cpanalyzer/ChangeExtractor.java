@@ -15,14 +15,9 @@ import java.util.concurrent.Future;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.AbbreviatedObjectId;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectLoader;
-import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revplot.PlotCommitList;
 import org.eclipse.jgit.revplot.PlotLane;
@@ -232,6 +227,9 @@ public class ChangeExtractor {
 				.getGITREPOSITORY_FOR_MINING();
 		final Set<LANGUAGE> languages = CPAConfig.getInstance().getLANGUAGE();
 		final String software = CPAConfig.getInstance().getSOFTWARE();
+		final Date startDate = CPAConfig.getInstance()
+				.getSTART_DATE_FOR_MINING();
+		final Date endDate = CPAConfig.getInstance().getEND_DATE_FOR_MINING();
 		final boolean isVerbose = CPAConfig.getInstance().isVERBOSE();
 
 		final SortedSet<Revision> revisions = new TreeSet<>();
@@ -272,6 +270,10 @@ public class ChangeExtractor {
 			if (1 != commit.getParentCount()) {
 				continue;
 			}
+			final Date date = new Date(commit.getCommitTime() * 1000L);
+			if (date.before(startDate) || date.after(endDate)) {
+				continue;
+			}
 			final RevCommit parent = commit.getParent(0);
 			List<DiffEntry> diffEntries = null;
 			try {
@@ -290,12 +292,10 @@ public class ChangeExtractor {
 							&& language.isTarget(newPath)) {
 						final String message = commit.getFullMessage();
 						final String id = commit.getId().getName();
-						final String date = StringUtility
-								.getDateString(new Date(
-										commit.getCommitTime() * 1000L));
 						final String author = commit.getAuthorIdent().getName();
 						final Revision revision = new Revision(software, id,
-								date, message, author);
+								StringUtility.getDateString(date), message,
+								author);
 						revisions.add(revision);
 						if (isVerbose) {
 							System.out.println(id + " (" + date
@@ -309,18 +309,5 @@ public class ChangeExtractor {
 		formatter.close();
 
 		return revisions.toArray(new Revision[0]);
-	}
-
-	private static String readText(final AbbreviatedObjectId blobId,
-			final ObjectReader reader) {
-		try {
-			final ObjectLoader loader = reader.open(blobId.toObjectId(),
-					Constants.OBJ_BLOB);
-			final RawText rawText = new RawText(loader.getCachedBytes());
-			return rawText.getString(0, rawText.size(), false);
-		} catch (final IOException e) {
-			e.printStackTrace();
-			return "";
-		}
 	}
 }
