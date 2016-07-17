@@ -255,39 +255,41 @@ public class ChangeExtractor {
 					continue;
 				}
 
-				for (final RevCommit parent : commit.getParents()) {
+				if (1 != commit.getParentCount()) {
+					continue;
+				}
 
-					List<DiffEntry> diffEntries = null;
-					try {
-						diffEntries = formatter.scan(parent.getId(),
-								commit.getId());
-					} catch (final IOException e) {
-						e.printStackTrace();
-						System.exit(0);
-					}
+				final RevCommit parent = commit.getParent(0);
 
-					FILE: for (final DiffEntry entry : diffEntries) {
-						final String oldPath = entry.getOldPath();
-						final String newPath = entry.getNewPath();
+				List<DiffEntry> diffEntries = null;
+				try {
+					diffEntries = formatter
+							.scan(parent.getId(), commit.getId());
+				} catch (final IOException e) {
+					e.printStackTrace();
+					System.exit(0);
+				}
 
-						LANGUAGE: for (final LANGUAGE language : languages) {
-							if (language.isTarget(oldPath)
-									&& language.isTarget(newPath)) {
-								final String message = commit.getFullMessage();
-								final String id = commit.getId().getName();
-								final String author = commit.getAuthorIdent()
-										.getName();
-								final Revision revision = new Revision(
-										software, id,
-										StringUtility.getDateString(date),
-										message, author);
-								revisions.add(revision);
-								if (isVerbose) {
-									System.out.println(id + " (" + date
-											+ ") has been identified.");
-								}
-								break FILE;
+				for (final DiffEntry entry : diffEntries) {
+					final String oldPath = entry.getOldPath();
+					final String newPath = entry.getNewPath();
+
+					for (final LANGUAGE language : languages) {
+						if (language.isTarget(oldPath)
+								&& language.isTarget(newPath)) {
+							final String message = commit.getFullMessage();
+							final String id = commit.getId().getName();
+							final String author = commit.getAuthorIdent()
+									.getName();
+							final Revision revision = new Revision(software,
+									id, StringUtility.getDateString(date),
+									message, author);
+							revisions.add(revision);
+							if (isVerbose) {
+								System.out.println(id + " (" + date
+										+ ") has been identified.");
 							}
+							continue COMMIT;
 						}
 					}
 				}
