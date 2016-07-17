@@ -104,7 +104,11 @@ public class GITChangeExtractionThread extends Thread {
 			for (final DiffEntry entry : diffEntries) {
 				final String oldPath = entry.getOldPath();
 				final String newPath = entry.getNewPath();
-				if (!oldPath.endsWith(".java") || !newPath.endsWith(".java")) {
+
+				if (!languages.stream()
+						.anyMatch(lang -> lang.isTarget(oldPath))
+						|| !languages.stream().anyMatch(
+								lang -> lang.isTarget(newPath))) {
 					continue;
 				}
 
