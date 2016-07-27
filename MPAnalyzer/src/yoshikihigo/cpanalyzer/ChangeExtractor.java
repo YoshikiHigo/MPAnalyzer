@@ -18,6 +18,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
@@ -115,9 +116,19 @@ public class ChangeExtractor {
 				futures.add(future);
 			}
 		} else if (CPAConfig.getInstance().hasGITREPO()) {
+			
+			final String repoPath = CPAConfig.getInstance()
+					.getGITREPOSITORY_FOR_MINING();
+			Repository repository = null;
+			try{
+				repository = new FileRepository(new File(repoPath+ File.separator + ".git"));
+			}catch(final IOException e){
+				e.printStackTrace();
+			}
+			final ObjectReader reader = repository.newObjectReader();
 			for (final Revision revision : revisions) {
 				final Future<?> future = threadPool
-						.submit(new GITChangeExtractionThread(revision));
+						.submit(new GITChangeExtractionThread(revision, repository, reader));
 				futures.add(future);
 			}
 		}

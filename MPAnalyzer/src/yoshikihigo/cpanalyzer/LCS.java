@@ -32,6 +32,8 @@ public class LCS {
 			return new ArrayList<Change>();
 		}
 
+		final int CHANGE_SIZE = CPAConfig.getInstance().getCHANGESIZE();
+
 		final Cell[][] table = new Cell[array1.size()][array2.size()];
 		if (Arrays.equals(array1.get(0).hash, array2.get(0).hash)) {
 			table[0][0] = new Cell(1, true, 0, 0, null);
@@ -84,22 +86,26 @@ public class LCS {
 					final List<Statement> yStatements = ydiff.isEmpty() ? Collections
 							.<Statement> emptyList() : array2.subList(
 							ydiff.first(), ydiff.last() + 1);
-					final List<Token> xTokens = getTokens(xStatements);
-					final List<Token> yTokens = getTokens(yStatements);
-					final DiffType diffType = getType(xTokens, yTokens);
 
-					final Code beforeCodeFragment = new Code(software,
-							xStatements);
-					final Code afterCodeFragment = new Code(software,
-							yStatements);
-					final ChangeType changeType = beforeCodeFragment.nText
-							.isEmpty() ? ChangeType.ADD
-							: afterCodeFragment.nText.isEmpty() ? ChangeType.DELETE
-									: ChangeType.REPLACE;
-					final Change change = new Change(software, filepath,
-							author, beforeCodeFragment, afterCodeFragment,
-							revision, changeType, diffType);
-					changes.add(change);
+					if ((xStatements.size() <= CHANGE_SIZE)
+							&& (yStatements.size() <= CHANGE_SIZE)) {
+						final List<Token> xTokens = getTokens(xStatements);
+						final List<Token> yTokens = getTokens(yStatements);
+						final DiffType diffType = getType(xTokens, yTokens);
+
+						final Code beforeCodeFragment = new Code(software,
+								xStatements);
+						final Code afterCodeFragment = new Code(software,
+								yStatements);
+						final ChangeType changeType = beforeCodeFragment.nText
+								.isEmpty() ? ChangeType.ADD
+								: afterCodeFragment.nText.isEmpty() ? ChangeType.DELETE
+										: ChangeType.REPLACE;
+						final Change change = new Change(software, filepath,
+								author, beforeCodeFragment, afterCodeFragment,
+								revision, changeType, diffType);
+						changes.add(change);
+					}
 					xdiff.clear();
 					ydiff.clear();
 				}

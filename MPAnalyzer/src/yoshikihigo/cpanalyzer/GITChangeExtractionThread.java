@@ -1,16 +1,13 @@
 package yoshikihigo.cpanalyzer;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -34,22 +31,11 @@ public class GITChangeExtractionThread extends Thread {
 	private Repository repository;
 	private ObjectReader reader;
 
-	public GITChangeExtractionThread(final Revision revision) {
+	public GITChangeExtractionThread(final Revision revision,
+			final Repository repository, final ObjectReader reader) {
 		this.revision = revision;
-		this.repository = null;
-		this.reader = null;
-		final String repoPath = CPAConfig.getInstance()
-				.getGITREPOSITORY_FOR_MINING();
-		try {
-			synchronized (LOCK) {
-				this.repository = new FileRepository(new File(repoPath
-						+ File.separator + ".git"));
-				this.reader = this.repository.newObjectReader();
-			}
-		} catch (final IOException e) {
-			System.err.println("invalid repository path: " + repoPath);
-			System.exit(0);
-		}
+		this.repository = repository;
+		this.reader = reader;
 	}
 
 	@Override
@@ -58,10 +44,10 @@ public class GITChangeExtractionThread extends Thread {
 		final long id = Thread.currentThread().getId();
 		final Set<LANGUAGE> languages = CPAConfig.getInstance().getLANGUAGE();
 		final String software = CPAConfig.getInstance().getSOFTWARE();
-		final boolean onlyCondition = CPAConfig.getInstance()
+		final boolean ONLY_CONDITION = CPAConfig.getInstance()
 				.isONLY_CONDITION();
-		final boolean ignoreImport = CPAConfig.getInstance().isIGNORE_IMPORT();
-		final boolean isVerbose = CPAConfig.getInstance().isVERBOSE();
+		final boolean IGNORE_IMPORT = CPAConfig.getInstance().isIGNORE_IMPORT();
+		final boolean IS_VERBOSE = CPAConfig.getInstance().isVERBOSE();
 
 		RevCommit commit = null;
 		synchronized (LOCK) {
@@ -78,7 +64,7 @@ public class GITChangeExtractionThread extends Thread {
 			}
 		}
 
-		if (isVerbose) {
+		if (IS_VERBOSE) {
 			final StringBuilder progress = new StringBuilder();
 			progress.append(id);
 			progress.append(": checking commit ");
@@ -100,6 +86,7 @@ public class GITChangeExtractionThread extends Thread {
 			synchronized (LOCK) {
 				final RevCommit parent = commit.getParent(0);
 				diffEntries = formatter.scan(parent.getId(), commit.getId());
+				formatter.close();
 			}
 			for (final DiffEntry entry : diffEntries) {
 				final String oldPath = entry.getOldPath();
@@ -112,7 +99,7 @@ public class GITChangeExtractionThread extends Thread {
 					continue;
 				}
 
-				if (isVerbose) {
+				if (IS_VERBOSE) {
 					final StringBuilder progress = new StringBuilder();
 					progress.append(" ");
 					progress.append(id);
@@ -121,8 +108,12 @@ public class GITChangeExtractionThread extends Thread {
 					System.out.println(progress.toString());
 				}
 
-				final String beforeText = this.readText(entry.getOldId());
-				final String afterText = this.readText(entry.getNewId());
+				String beforeText = "";
+				String afterText = "";
+				synchronized (LOCK) {
+					beforeText = this.readText(entry.getOldId());
+					afterText = this.readText(entry.getNewId());
+				}
 
 				final LANGUAGE language = FileUtility.getLANGUAGE(oldPath);
 				final List<Statement> beforeStatements = StringUtility
@@ -134,29 +125,27 @@ public class GITChangeExtractionThread extends Thread {
 						afterStatements, software, oldPath,
 						this.revision.author, this.revision);
 
-				if (onlyCondition) {
-					ChangeDAO.SINGLETON.addChanges(changes.stream()
-							.filter(change -> change.isCondition())
-							.collect(Collectors.toList()));
+				for (final Change change : changes) {
+
+					if (ONLY_CONDITION && !change.isCondition()) {
+						continue;
+					}
+
+					if (IGNORE_IMPORT && change.isImport()) {
+						continue;
+					}
+
+					ChangeDAO.SINGLETON.addChange(change);
 				}
 
-				else if (ignoreImport) {
-					ChangeDAO.SINGLETON.addChanges(changes.stream()
-							.filter(change -> !change.isImport())
-							.collect(Collectors.toList()));
-				}
-
-				else {
-					ChangeDAO.SINGLETON.addChanges(changes);
-				}
 			}
+			diffEntries = null;
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-		formatter.close();
 	}
 
-	private synchronized String readText(final AbbreviatedObjectId blobId) {
+	private String readText(final AbbreviatedObjectId blobId) {
 		try {
 			final ObjectLoader loader = this.reader.open(blobId.toObjectId(),
 					Constants.OBJ_BLOB);

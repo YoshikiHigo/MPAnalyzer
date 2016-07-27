@@ -107,6 +107,15 @@ public class CPAConfig {
 		}
 
 		{
+			final Option option = new Option("cs", "changesize", true,
+					"upper limit of change size to retrieve");
+			option.setArgName("size (number of statements)");
+			option.setArgs(1);
+			option.setRequired(false);
+			options.addOption(option);
+		}
+
+		{
 			final Option option = new Option("test", "test", true,
 					"repository for testing");
 			option.setArgName("repository");
@@ -343,13 +352,13 @@ public class CPAConfig {
 	public Date getSTART_DATE_FOR_MINING() {
 		Date date = new Date(0);
 		if (this.commandLine.hasOption("startdate")) {
-			final SimpleDateFormat format = new SimpleDateFormat("dd:mm:yyyy");
+			final SimpleDateFormat format = new SimpleDateFormat("dd:MM:yyyy");
 			final String value = this.commandLine.getOptionValue("startdate");
 			try {
 				date = format.parse(value);
 			} catch (final java.text.ParseException e) {
 				System.out
-						.println("\"-startdate\" must be specified with dd:mm:yyyy format");
+						.println("\"-startdate\" must be specified with dd:MM:yyyy format");
 				System.exit(0);
 			}
 		}
@@ -360,13 +369,13 @@ public class CPAConfig {
 	public Date getEND_DATE_FOR_MINING() {
 		Date date = new Date();
 		if (this.commandLine.hasOption("enddate")) {
-			final SimpleDateFormat format = new SimpleDateFormat("dd:mm:yyyy");
+			final SimpleDateFormat format = new SimpleDateFormat("dd:MM:yyyy");
 			final String value = this.commandLine.getOptionValue("enddate");
 			try {
 				date = format.parse(value);
 			} catch (final java.text.ParseException e) {
 				System.out
-						.println("\"-enddate\" must be specified with dd:mm:yyyy format");
+						.println("\"-enddate\" must be specified with dd:MM:yyyy format");
 				System.exit(0);
 			}
 		}
@@ -380,6 +389,14 @@ public class CPAConfig {
 			System.exit(0);
 		}
 		return this.commandLine.getOptionValue("db");
+	}
+
+	public int getCHANGESIZE() {
+		if (!this.commandLine.hasOption("cs")) {
+			return Integer.MAX_VALUE;
+		} else {
+			return Integer.parseInt(this.commandLine.getOptionValue("cs"));
+		}
 	}
 
 	public String getREPOSITORY_FOR_TEST() {
