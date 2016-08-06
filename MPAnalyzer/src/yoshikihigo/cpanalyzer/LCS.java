@@ -17,19 +17,26 @@ import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class LCS {
 
-	public static List<Change> getChanges(final List<Statement> array1,
-			final List<Statement> array2, final String software,
-			final String filepath, final String author, final Revision revision) {
+	final public String software;
+	final public Revision revision;
+
+	public LCS(final String software, final Revision revision) {
+		this.software = software;
+		this.revision = revision;
+	}
+
+	public List<Change> getChanges(final List<Statement> array1,
+			final List<Statement> array2, final String filepath) {
 
 		if (array1.isEmpty() || array2.isEmpty()) {
-			return new ArrayList<Change>();
+			return Collections.emptyList();
 		}
 
 		final int large = CPAConfig.getInstance().getLARGE();
 		if (large < array1.size() || large < array2.size()) {
 			System.out.println("large file. (" + array1.size() + " x "
 					+ array2.size() + ")");
-			return new ArrayList<Change>();
+			return Collections.emptyList();
 		}
 
 		final int CHANGE_SIZE = CPAConfig.getInstance().getCHANGESIZE();
@@ -102,7 +109,7 @@ public class LCS {
 								: afterCodeFragment.nText.isEmpty() ? ChangeType.DELETE
 										: ChangeType.REPLACE;
 						final Change change = new Change(software, filepath,
-								author, beforeCodeFragment, afterCodeFragment,
+								beforeCodeFragment, afterCodeFragment,
 								revision, changeType, diffType);
 						changes.add(change);
 					}
@@ -132,14 +139,14 @@ public class LCS {
 		return changes;
 	}
 
-	public static List<Token> getTokens(final List<Statement> statements) {
+	private List<Token> getTokens(final List<Statement> statements) {
 		final List<Token> tokens = new ArrayList<>();
 		statements.stream().forEach(
 				statement -> tokens.addAll(statement.tokens));
 		return tokens;
 	}
 
-	public static DiffType getType(final List<Token> tokens1,
+	private DiffType getType(final List<Token> tokens1,
 			final List<Token> tokens2) {
 
 		if (tokens1.isEmpty() || tokens2.isEmpty()

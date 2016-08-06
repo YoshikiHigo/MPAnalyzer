@@ -118,7 +118,6 @@ public class Change implements Comparable<Change> {
 	public final String software;
 	public final int id;
 	public final String filepath;
-	public final String author;
 	public final Code before;
 	public final Code after;
 	public final Revision revision;
@@ -126,22 +125,19 @@ public class Change implements Comparable<Change> {
 	public final DiffType diffType;
 
 	public Change(final String software, final String filepath,
-			final String author, final Code before, final Code after,
-			final Revision revision, final ChangeType changeType,
-			final DiffType diffType) {
-		this(software, ID_GENERATOR.getAndIncrement(), filepath, author,
-				before, after, revision, changeType, diffType);
+			final Code before, final Code after, final Revision revision,
+			final ChangeType changeType, final DiffType diffType) {
+		this(software, ID_GENERATOR.getAndIncrement(), filepath, before, after,
+				revision, changeType, diffType);
 	}
 
 	public Change(final String software, final int id, final String filepath,
-			final String author, final Code before, final Code after,
-			final Revision revision, final ChangeType changeType,
-			final DiffType diffType) {
+			final Code before, final Code after, final Revision revision,
+			final ChangeType changeType, final DiffType diffType) {
 
 		this.software = software;
 		this.id = id;
 		this.filepath = filepath;
-		this.author = author;
 		this.before = before;
 		this.after = after;
 		this.revision = revision;

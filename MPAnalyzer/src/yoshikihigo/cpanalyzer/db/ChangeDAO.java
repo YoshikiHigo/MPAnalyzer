@@ -131,7 +131,7 @@ public class ChangeDAO {
 			this.changePS.setString(1, change.software);
 			this.changePS.setInt(2, change.id);
 			this.changePS.setString(3, change.filepath);
-			this.changePS.setString(4, change.author);
+			this.changePS.setString(4, change.revision.author);
 			this.changePS.setInt(5, change.before.id);
 			this.changePS.setBytes(6, change.before.hash);
 			this.changePS.setInt(7, change.after.id);

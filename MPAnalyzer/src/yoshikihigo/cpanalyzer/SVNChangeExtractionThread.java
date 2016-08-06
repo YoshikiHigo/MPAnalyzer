@@ -114,6 +114,8 @@ public class SVNChangeExtractionThread extends Thread {
 			return;
 		}
 
+		final LCS lcs = new LCS(software, this.afterRevision);
+
 		FILE: for (final String path : changedPaths) {
 
 			if (isVerbose) {
@@ -182,9 +184,8 @@ public class SVNChangeExtractionThread extends Thread {
 			final List<Statement> afterStatements = StringUtility
 					.splitToStatements(afterText.toString(), language);
 
-			final List<Change> changes = LCS
-					.getChanges(beforeStatements, afterStatements, software,
-							path, author, this.afterRevision);
+			final List<Change> changes = lcs.getChanges(beforeStatements,
+					afterStatements, path);
 
 			if (onlyCondition) {
 				ChangeDAO.SINGLETON.addChanges(changes.stream()

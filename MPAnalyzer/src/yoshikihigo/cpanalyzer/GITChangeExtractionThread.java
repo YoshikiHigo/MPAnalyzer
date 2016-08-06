@@ -29,12 +29,15 @@ public class GITChangeExtractionThread extends Thread {
 
 	final public Revision revision;
 	private Repository repository;
+	private PlotWalk revWalk;
 	private ObjectReader reader;
 
 	public GITChangeExtractionThread(final Revision revision,
-			final Repository repository, final ObjectReader reader) {
+			final Repository repository, final PlotWalk revWalk,
+			final ObjectReader reader) {
 		this.revision = revision;
 		this.repository = repository;
+		this.revWalk = revWalk;
 		this.reader = reader;
 	}
 
@@ -51,10 +54,10 @@ public class GITChangeExtractionThread extends Thread {
 
 		RevCommit commit = null;
 		synchronized (LOCK) {
-			try (final PlotWalk revWalk = new PlotWalk(this.repository)) {
+			try {
 				final ObjectId commitId = this.repository
 						.resolve(this.revision.id);
-				commit = revWalk.parseCommit(commitId);
+				commit = this.revWalk.parseCommit(commitId);
 			} catch (final IOException e) {
 				e.printStackTrace();
 				return;
@@ -88,6 +91,9 @@ public class GITChangeExtractionThread extends Thread {
 				diffEntries = formatter.scan(parent.getId(), commit.getId());
 				formatter.close();
 			}
+
+			final LCS lcs = new LCS(software, this.revision);
+
 			for (final DiffEntry entry : diffEntries) {
 				final String oldPath = entry.getOldPath();
 				final String newPath = entry.getNewPath();
@@ -121,9 +127,8 @@ public class GITChangeExtractionThread extends Thread {
 				final List<Statement> afterStatements = StringUtility
 						.splitToStatements(afterText.toString(), language);
 
-				final List<Change> changes = LCS.getChanges(beforeStatements,
-						afterStatements, software, oldPath,
-						this.revision.author, this.revision);
+				final List<Change> changes = lcs.getChanges(beforeStatements,
+						afterStatements, oldPath);
 
 				for (final Change change : changes) {
 

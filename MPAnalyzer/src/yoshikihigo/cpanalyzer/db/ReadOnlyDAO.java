@@ -103,8 +103,7 @@ public class ReadOnlyDAO {
 				final Revision revision = new Revision(software, revisionID,
 						date, message, author);
 				final Change change = new Change(software, changeID, filepath,
-						author, beforeCode, afterCode, revision, changeType,
-						diffType);
+						beforeCode, afterCode, revision, changeType, diffType);
 				changes.add(change);
 			}
 			statement.close();

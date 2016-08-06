@@ -3,11 +3,11 @@ package yoshikihigo.cpanalyzer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,6 +20,7 @@ import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.tmatesoft.svn.core.SVNException;
@@ -68,7 +69,7 @@ public class ChangeExtractor {
 		if (CPAConfig.getInstance().isVERBOSE()) {
 			System.out.println();
 		}
-		Revision[] revisions = new Revision[0];
+		List<Revision> revisions = Collections.emptyList();
 		if (CPAConfig.getInstance().hasSVNREPO()
 				&& CPAConfig.getInstance().hasGITREPO()) {
 			System.out
@@ -85,13 +86,15 @@ public class ChangeExtractor {
 			System.exit(0);
 		}
 		ChangeDAO.SINGLETON.initialize();
-		ChangeDAO.SINGLETON.addRevisions(revisions);
+		ChangeDAO.SINGLETON.addRevisions(revisions.toArray(new Revision[0]));
 		if (!CPAConfig.getInstance().isQUIET()) {
 			System.out.println("done.");
 		}
 
-		if ((0 == revisions.length) && !CPAConfig.getInstance().isQUIET()) {
-			System.out.println("no revision.");
+		if (revisions.isEmpty()) {
+			if (!CPAConfig.getInstance().isQUIET()) {
+				System.out.println("no revision.");
+			}
 			System.exit(0);
 		}
 
@@ -107,28 +110,32 @@ public class ChangeExtractor {
 		final List<Future<?>> futures = new ArrayList<>();
 
 		if (CPAConfig.getInstance().hasSVNREPO()) {
-			for (int index = 1; index < revisions.length; index++) {
-				final Revision beforeRevision = revisions[index - 1];
-				final Revision afterRevision = revisions[index];
+			for (; 2 <= revisions.size(); revisions.remove(0)) {
+				final Revision beforeRevision = revisions.get(0);
+				final Revision afterRevision = revisions.get(1);
 				final Future<?> future = threadPool
 						.submit(new SVNChangeExtractionThread(beforeRevision,
 								afterRevision));
 				futures.add(future);
 			}
 		} else if (CPAConfig.getInstance().hasGITREPO()) {
-			
+
 			final String repoPath = CPAConfig.getInstance()
 					.getGITREPOSITORY_FOR_MINING();
 			Repository repository = null;
-			try{
-				repository = new FileRepository(new File(repoPath+ File.separator + ".git"));
-			}catch(final IOException e){
+			PlotWalk revWalk = null;
+			try {
+				repository = new FileRepository(new File(repoPath
+						+ File.separator + ".git"));
+				revWalk = new PlotWalk(repository);
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 			final ObjectReader reader = repository.newObjectReader();
-			for (final Revision revision : revisions) {
+			for ( ; !revisions.isEmpty(); revisions.remove(0)) {
 				final Future<?> future = threadPool
-						.submit(new GITChangeExtractionThread(revision, repository, reader));
+						.submit(new GITChangeExtractionThread(revisions.get(0),
+								repository, revWalk, reader));
 				futures.add(future);
 			}
 		}
@@ -159,7 +166,7 @@ public class ChangeExtractor {
 		}
 	}
 
-	private static Revision[] getSVNRevisions() {
+	private static List<Revision> getSVNRevisions() {
 
 		final String repository = CPAConfig.getInstance()
 				.getSVNREPOSITORY_FOR_MINING();
@@ -175,7 +182,7 @@ public class ChangeExtractor {
 			startRevision = 0l;
 		}
 
-		final SortedSet<Revision> revisions = new TreeSet<>();
+		final List<Revision> revisions = new LinkedList<>();
 
 		SVNURL url;
 		SVNRepository svnRepository;
@@ -185,7 +192,7 @@ public class ChangeExtractor {
 			svnRepository = FSRepositoryFactory.create(url);
 		} catch (final SVNException | NullPointerException e) {
 			e.printStackTrace();
-			return revisions.toArray(new Revision[0]);
+			return Collections.emptyList();
 		}
 
 		try {
@@ -226,10 +233,11 @@ public class ChangeExtractor {
 			System.exit(0);
 		}
 
-		return revisions.toArray(new Revision[0]);
+		Collections.sort(revisions);
+		return revisions;
 	}
 
-	private static Revision[] getGITRevisions() {
+	private static List<Revision> getGITRevisions() {
 
 		final String repoPath = CPAConfig.getInstance()
 				.getGITREPOSITORY_FOR_MINING();
@@ -240,7 +248,7 @@ public class ChangeExtractor {
 		final Date endDate = CPAConfig.getInstance().getEND_DATE_FOR_MINING();
 		final boolean isVerbose = CPAConfig.getInstance().isVERBOSE();
 
-		final SortedSet<Revision> revisions = new TreeSet<>();
+		final List<Revision> revisions = new LinkedList<>();
 
 		Repository repo = null;
 		try {
@@ -310,6 +318,7 @@ public class ChangeExtractor {
 			System.exit(0);
 		}
 
-		return revisions.toArray(new Revision[0]);
+		Collections.sort(revisions);
+		return revisions;
 	}
 }
