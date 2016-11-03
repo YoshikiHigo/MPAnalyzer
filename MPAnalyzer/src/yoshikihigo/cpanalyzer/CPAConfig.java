@@ -1,6 +1,7 @@
 package yoshikihigo.cpanalyzer;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,22 +17,15 @@ import org.apache.commons.cli.PosixParser;
 public class CPAConfig {
 
 	static private CPAConfig SINGLETON = null;
-
-	static public boolean initialize(final String[] args) {
-
-		if (null != SINGLETON) {
-			return false;
-		}
-
-		final Options options = new Options();
-
+	static final public Options OPTIONS = new Options();
+	static {
 		{
 			final Option option = new Option("lang", "language", true,
 					"programming language for analysis");
 			option.setArgName("language");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -40,7 +34,7 @@ public class CPAConfig {
 			option.setArgName("software");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -49,7 +43,7 @@ public class CPAConfig {
 			option.setArgName("svnrepository");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -58,7 +52,7 @@ public class CPAConfig {
 			option.setArgName("gitrepository");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -67,7 +61,7 @@ public class CPAConfig {
 			option.setArgName("revision");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -76,7 +70,7 @@ public class CPAConfig {
 			option.setArgName("revision");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -85,7 +79,7 @@ public class CPAConfig {
 			option.setArgName("date (dd:mm:yyyy)");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -94,7 +88,7 @@ public class CPAConfig {
 			option.setArgName("date (dd:mm:yyyy)");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -103,7 +97,7 @@ public class CPAConfig {
 			option.setArgName("revision");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -112,7 +106,7 @@ public class CPAConfig {
 			option.setArgName("size (number of statements)");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -121,7 +115,7 @@ public class CPAConfig {
 			option.setArgName("repository");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -131,7 +125,7 @@ public class CPAConfig {
 			option.setArgName("revision");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -140,7 +134,7 @@ public class CPAConfig {
 			option.setArgName("revision");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -149,7 +143,7 @@ public class CPAConfig {
 			option.setArgName("thread");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -158,63 +152,63 @@ public class CPAConfig {
 			option.setArgName("size (number of statements)");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("ignind", "ignoreindent", false,
 					"canceling ignoring indent");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("ignspc", "ignorespace", false,
 					"canceling ignoring whitespace");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("ignimp", "ignoreimport", false,
 					"canceling ignoring import");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("igninc", "ignoreinclude", false,
 					"canceling ignoring include");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("n", "normalization", false,
 					"normalizing text for mining");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("onlycond", "onlycondition",
 					false, "extracting only condition");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("v", "verbose", false,
 					"verbose output for progressing");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("q", "quiet", false,
 					"do not output anything for progressing");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
@@ -223,38 +217,49 @@ public class CPAConfig {
 			option.setArgName("file");
 			option.setArgs(1);
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("a", "all", false,
 					"use all changes to make change patterns");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("f", "force", false,
 					"force to make database file even if the same name file already exists");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
 		}
 
 		{
 			final Option option = new Option("debug", "debug", false,
 					"print some informlation for debugging");
 			option.setRequired(false);
-			options.addOption(option);
+			OPTIONS.addOption(option);
+		}
+	}
+
+	static public Collection<Option> getOptions() {
+		return OPTIONS.getOptions();
+	}
+
+	static public boolean initialize(final String[] args) {
+
+		if (null != SINGLETON) {
+			return false;
 		}
 
 		try {
 			final CommandLineParser parser = new PosixParser();
-			final CommandLine commandLine = parser.parse(options, args);
+			final CommandLine commandLine = parser.parse(OPTIONS, args);
 			SINGLETON = new CPAConfig(commandLine);
 
 			if (SINGLETON.isVERBOSE() && SINGLETON.isQUIET()) {
 				System.err
-						.println("\"-v\" and \"-q\" can not be used together.");
+						.println("\"-v\" (\"--verbose\") and \"-q\" (\"--quiet\") can not be used together.");
 				System.exit(0);
 			}
 

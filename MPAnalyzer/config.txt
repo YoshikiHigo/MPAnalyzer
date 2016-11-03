@@ -1,0 +1,42 @@
+# programming language 
+language=
+
+# software name
+software= ant
+
+# absolute path for target GIT repository
+# either of GITREPOSITORY or SVNREPOSITORY can be specified
+gitrepository=
+
+# absolute path for target SVN repository
+svnrepository= /Users/higo/Desktop/data/repositories/repository-apache/ant
+
+# absolute or relative path for database 
+database= ant.db
+
+# the number of threads
+thread= 2
+
+# specify whether code is normalized or not; write YES or NO
+normalization= YES
+
+# specify whether you want verbose output or not; write YES or NO
+## either of verbose or quiet can be specified as YES
+verbose= YES
+
+# specify whether progress output is provided or not; write YES or NO
+quiet= NO
+
+# specify whether a change pattern is made from only 1 occurrence change; write YES or NO
+all= YES
+
+# specify whether existing database is overwritten or not; write YES or NO
+force= YES
+
+# specify ID of start and revisions of repository mining (only available for SVN repository)
+startrevision= 300000
+endrevision= 400000
+
+# specify start and end DATE (dd:mm:yyyy) of repository mining (only available for GIT repository)
+startdate= 
+enddate= 
