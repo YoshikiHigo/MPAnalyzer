@@ -1,6 +1,7 @@
 package yoshikihigo.cpanalyzer;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
@@ -10,6 +11,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNURL;
 
 import yoshikihigo.commentremover.CRConfig;
 import yoshikihigo.commentremover.CommentRemover;
@@ -290,5 +294,24 @@ public class StringUtility {
 	public static String removeTime(final String date) {
 		return date.indexOf(' ') > 0 ? date.substring(0, date.indexOf(' '))
 				: date;
+	}
+
+	static public SVNURL getSVNURL(final String repository, final String path) {
+		SVNURL fileurl = null;
+		try {
+			if (repository.startsWith("http://")) {
+				fileurl = SVNURL.parseURIEncoded(repository + "/" + path);
+			} else if (repository.startsWith("/")) {
+				fileurl = SVNURL.fromFile(new File(repository
+						+ System.getProperty("file.separator") + path));
+			} else {
+				throw new IllegalStateException(
+						"illegal URL (, which is specified by \"-repo\" option)");
+			}
+
+		} catch (final SVNException | IllegalStateException e) {
+			e.printStackTrace();
+		}
+		return fileurl;
 	}
 }

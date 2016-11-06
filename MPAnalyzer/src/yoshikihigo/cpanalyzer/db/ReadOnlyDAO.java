@@ -117,6 +117,10 @@ public class ReadOnlyDAO {
 		return changes;
 	}
 
+	synchronized public List<ChangePattern> getChangePatterns() {
+		return this.getChangePatterns(1, 0.0f);
+	}
+
 	synchronized public List<ChangePattern> getChangePatterns(
 			final int supportThreshold, final float confidenceThreshold) {
 
@@ -181,6 +185,39 @@ public class ReadOnlyDAO {
 		}
 
 		return revisions;
+	}
+
+	synchronized public List<Code> getCode(final byte[] hash) {
+
+		final List<Code> codes = new ArrayList<>();
+		final String text = "select software, id, rText, nText, start, end from codes where hash = ?";
+
+		try {
+			final PreparedStatement statement = this.connector
+					.prepareStatement(text);
+			statement.setBytes(1, hash);
+			final ResultSet result = statement.executeQuery();
+			while (result.next()) {
+				final String software = result.getString(1);
+				final int id = result.getInt(2);
+				final String rText = result.getString(3);
+				final String nText = result.getString(4);
+				final int start = result.getInt(5);
+				final int end = result.getInt(6);
+				final Code code = new Code(software, id, rText, nText, start,
+						end);
+				codes.add(code);
+			}
+
+			result.close();
+			statement.close();
+		}
+
+		catch (final SQLException e) {
+			e.printStackTrace();
+		}
+
+		return codes;
 	}
 
 	synchronized public void close() {

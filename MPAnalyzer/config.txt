@@ -1,5 +1,5 @@
 # programming language 
-language=
+language= Java
 
 # software name
 software= ant
@@ -9,7 +9,7 @@ software= ant
 gitrepository=
 
 # absolute path for target SVN repository
-svnrepository= /Users/higo/Desktop/data/repositories/repository-apache/ant
+svnrepository= /Users/higo/Desktop/data/repositories/repository-apache/ant/core/trunk
 
 # absolute or relative path for database 
 database= ant.db
@@ -40,3 +40,19 @@ endrevision= 400000
 # specify start and end DATE (dd:mm:yyyy) of repository mining (only available for GIT repository)
 startdate= 
 enddate= 
+
+# specify SVN/GIT repository and target revision/commit for exploring latent buggy code
+# either of SVN or GIT can be specified
+esvnrepository=/Users/higo/Desktop/data/repositories/repository-apache/ant/core/trunk
+esvnrevision=1700000
+egitrepository=
+egitcommit=
+
+# instead of SVN/GIT repository, a usual directory can be specified for exploring latent buggy code
+edirectory=
+
+# specify thresholds to select change patterns for exploring latent buggy code
+# esupport is the number of occurrences of change patterns
+# econfidence is ratio that before-text is changed to after-text
+esupport=2
+econfidence=0.8

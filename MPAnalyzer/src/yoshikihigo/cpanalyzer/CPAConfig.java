@@ -240,6 +240,70 @@ public class CPAConfig {
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
+
+		{
+			final Option option = new Option("esvnrepo", "esvnrepository",
+					true, "svn repository for exploring latent buggy code");
+			option.setArgName("svnrepository");
+			option.setArgs(1);
+			option.setRequired(false);
+			OPTIONS.addOption(option);
+		}
+
+		{
+			final Option option = new Option("egitrepo", "egitrepository",
+					true, "git repository for exploring latent buggy code");
+			option.setArgName("gitrepository");
+			option.setArgs(1);
+			option.setRequired(false);
+			OPTIONS.addOption(option);
+		}
+
+		{
+			final Option option = new Option("edir", "edirectory", true,
+					"source files for exploring latent buggy code");
+			option.setArgName("directory");
+			option.setArgs(1);
+			option.setRequired(false);
+			OPTIONS.addOption(option);
+		}
+
+		{
+			final Option revision = new Option("esvnrev", "esvnrevision", true,
+					"SVN target revision for exploring latent buggy code");
+			revision.setArgName("number");
+			revision.setArgs(1);
+			revision.setRequired(false);
+			OPTIONS.addOption(revision);
+		}
+
+		{
+			final Option commit = new Option("egitcommit", "egitcommit", true,
+					"GIT target commit for exploring latent buggy code");
+			commit.setArgName("id");
+			commit.setArgs(1);
+			commit.setRequired(false);
+			OPTIONS.addOption(commit);
+		}
+
+		{
+			final Option option = new Option("esupport", "esupport", true,
+					"minimum suppport of change patterns used for exploring latent buggy code");
+			option.setArgName("number");
+			option.setArgs(1);
+			option.setRequired(false);
+			OPTIONS.addOption(option);
+		}
+
+		{
+			final Option option = new Option("econfidence", "econfidence",
+					true,
+					"minimum confidence of change patterns used for exploring latent buggy code");
+			option.setArgName("number");
+			option.setArgs(1);
+			option.setRequired(false);
+			OPTIONS.addOption(option);
+		}
 	}
 
 	static public Collection<Option> getOptions() {
@@ -496,5 +560,76 @@ public class CPAConfig {
 
 	public boolean isFORCE() {
 		return this.commandLine.hasOption("f");
+	}
+
+	public boolean hasESVNREPO() {
+		return this.commandLine.hasOption("esvnrepo");
+	}
+
+	public String getESVNREPO() {
+		if (!this.commandLine.hasOption("esvnrepo")) {
+			System.err.println("option \"esvnrepo\" is not specified.");
+			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("esvnrepo");
+	}
+
+	public boolean hasEGITREPO() {
+		return this.commandLine.hasOption("egitrepo");
+	}
+
+	public String getEGITREPO() {
+		if (!this.commandLine.hasOption("egitrepo")) {
+			System.err.println("option \"egitrepo\" is not specified.");
+			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("egitrepo");
+	}
+
+	public boolean hasEDIR() {
+		return this.commandLine.hasOption("edir");
+	}
+
+	public String getEDIR() {
+		if (!this.commandLine.hasOption("edir")) {
+			System.err.println("option \"edir\" is not specified.");
+			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("egitrepo");
+	}
+
+	public boolean hasESVNREV() {
+		return this.commandLine.hasOption("esvnrev");
+	}
+
+	public int getESVNREV() {
+		if (!this.commandLine.hasOption("esvnrev")) {
+			System.err.println("option \"esvnrev\" is not specified.");
+			System.exit(0);
+		}
+		return Integer.parseInt(this.commandLine.getOptionValue("esvnrev"));
+	}
+
+	public boolean hasEGITCOMMIT() {
+		return this.commandLine.hasOption("egitcommit");
+	}
+
+	public String getEGITCOMMIT() {
+		if (!this.commandLine.hasOption("egitcommit")) {
+			System.err.println("option \"egitcommit\" is not specified.");
+			System.exit(0);
+		}
+		return this.commandLine.getOptionValue("egitcommit");
+	}
+
+	public int getESUPPORT() {
+		return this.commandLine.hasOption("esupport") ? Integer
+				.parseInt(this.commandLine.getOptionValue("esupport")) : 1;
+	}
+
+	public float getECONFIDENCE() {
+		return this.commandLine.hasOption("econfidence") ? Float
+				.parseFloat(this.commandLine.getOptionValue("econfidence"))
+				: 0.0f;
 	}
 }

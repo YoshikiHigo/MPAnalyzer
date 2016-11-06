@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.cli.Option;
 
+import yoshikihigo.cpanalyzer.gui2.Explorer;
+
 public class EXECUTEME {
 
 	public static final String CONFIG = new String("config.txt");
@@ -23,6 +25,7 @@ public class EXECUTEME {
 		final String[] arguments = getArguments(configs);
 		ChangeExtractor.main(arguments);
 		ChangePatternMaker.main(arguments);
+		Explorer.main(arguments);
 	}
 
 	public static Map<String, String> getConfigs() {
