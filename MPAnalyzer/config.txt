@@ -31,11 +31,11 @@ quiet= NO
 all= YES
 
 # specify whether existing database is overwritten or not; write YES or NO
-force= YES
+force= NO
 
 # specify ID of start and revisions of repository mining (only available for SVN repository)
-startrevision= 300000
-endrevision= 400000
+startrevision= 1
+endrevision= 1700000
 
 # specify start and end DATE (dd:mm:yyyy) of repository mining (only available for GIT repository)
 startdate= 
@@ -54,5 +54,5 @@ edirectory=
 # specify thresholds to select change patterns for exploring latent buggy code
 # esupport is the number of occurrences of change patterns
 # econfidence is ratio that before-text is changed to after-text
-esupport=2
-econfidence=0.8
+esupport=5
+econfidence=1.0

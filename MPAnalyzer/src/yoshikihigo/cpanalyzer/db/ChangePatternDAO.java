@@ -32,7 +32,7 @@ public class ChangePatternDAO {
 	private ChangePatternDAO() {
 	}
 
-	synchronized public void initialize() {
+	synchronized public boolean initialize() {
 
 		try {
 
@@ -40,7 +40,27 @@ public class ChangePatternDAO {
 			final String database = CPAConfig.getInstance().getDATABASE();
 			this.connector = DriverManager.getConnection("jdbc:sqlite:"
 					+ database);
-			final Statement statement = connector.createStatement();
+			final Statement statement = this.connector.createStatement();
+
+			{
+				final boolean force = CPAConfig.getInstance().isFORCE();
+				final ResultSet result = statement
+						.executeQuery("select count(*) from sqlite_master where type='table' and name='patterns'");
+				if (result.next()) {
+					final int value = result.getInt(1);
+					if (!force && (0 < value)) {
+						System.out
+								.println("table \"patterns\" already exists.");
+						statement.close();
+						return false;
+					}
+				} else {
+					System.out.println("database is invalid.");
+					statement.close();
+					System.exit(0);
+				}
+			}
+
 			statement
 					.executeUpdate("drop index if exists index_beforeHash_patterns");
 			statement
@@ -77,14 +97,15 @@ public class ChangePatternDAO {
 			e.printStackTrace();
 			System.exit(0);
 		}
+
+		return true;
 	}
 
 	synchronized public void makeIndicesOnCODES() {
 
 		try {
 			final Statement statement = this.connector.createStatement();
-			statement
-			.executeUpdate("create index index_id_codes on codes(id)");
+			statement.executeUpdate("create index index_id_codes on codes(id)");
 			statement
 					.executeUpdate("create index index_hash_codes on codes(hash)");
 			statement

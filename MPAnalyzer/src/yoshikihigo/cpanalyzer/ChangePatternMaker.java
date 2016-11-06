@@ -10,10 +10,11 @@ public class ChangePatternMaker {
 
 		CPAConfig.initialize(args);
 		final ChangePatternDAO dao = ChangePatternDAO.SINGLETON;
-		dao.initialize();
-		dao.makeIndicesOnCODES();
-		dao.makeIndicesOnCHANGES();
-		dao.makeChangePatterns();
+		if (dao.initialize()) {
+			dao.makeIndicesOnCODES();
+			dao.makeIndicesOnCHANGES();
+			dao.makeChangePatterns();
+		}
 		dao.close();
 
 		final long endTime = System.nanoTime();

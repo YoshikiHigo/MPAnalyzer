@@ -126,6 +126,12 @@ public class Explorer extends JFrame {
 		final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON
 				.getChangePatterns(support, confidence);
 
+		System.out.print("finding latent buggy code from ");
+		System.out.print(allStatements.size());
+		System.out.print(" files with ");
+		System.out.print(patterns.size());
+		System.out.print(" change patterns ... ");
+
 		final SortedMap<String, List<Warning>> fWarnings = new TreeMap<>();
 		final SortedMap<ChangePattern, List<Warning>> pWarnings = new TreeMap<>();
 		for (final Entry<String, List<Statement>> file : allStatements
@@ -154,6 +160,8 @@ public class Explorer extends JFrame {
 				w2.addAll(warnings);
 			}
 		}
+
+		System.out.print("done.");
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -218,7 +226,6 @@ public class Explorer extends JFrame {
 		try {
 			tmpDir = Files.createTempDirectory("CPAnalyzer-Explorer");
 			tmpDir.toFile().deleteOnExit();
-			System.out.println(tmpDir.toFile().getAbsolutePath());
 		} catch (final IOException e) {
 			e.printStackTrace();
 			System.exit(0);

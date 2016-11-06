@@ -46,14 +46,14 @@ public class ChangeExtractor {
 					if (!CPAConfig.getInstance().isQUIET()) {
 						System.err.println("The file cannot be removed.");
 					}
-					System.exit(0);
+					return;
 				} else {
 					if (!CPAConfig.getInstance().isQUIET()) {
-						System.out.println("The file has been removed.");
+						System.out.println("The db has been removed.");
 					}
 				}
 			} else {
-				System.exit(0);
+				return;
 			}
 		}
 
@@ -132,7 +132,7 @@ public class ChangeExtractor {
 				e.printStackTrace();
 			}
 			final ObjectReader reader = repository.newObjectReader();
-			for ( ; !revisions.isEmpty(); revisions.remove(0)) {
+			for (; !revisions.isEmpty(); revisions.remove(0)) {
 				final Future<?> future = threadPool
 						.submit(new GITChangeExtractionThread(revisions.get(0),
 								repository, revWalk, reader));
