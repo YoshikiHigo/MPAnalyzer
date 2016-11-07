@@ -301,12 +301,9 @@ public class StringUtility {
 		try {
 			if (repository.startsWith("http://")) {
 				fileurl = SVNURL.parseURIEncoded(repository + "/" + path);
-			} else if (repository.startsWith("/")) {
+			} else {
 				fileurl = SVNURL.fromFile(new File(repository
 						+ System.getProperty("file.separator") + path));
-			} else {
-				throw new IllegalStateException(
-						"illegal URL (, which is specified by \"-repo\" option)");
 			}
 
 		} catch (final SVNException | IllegalStateException e) {
