@@ -1,58 +1,82 @@
-# programming language 
-language= Java
+# programming language, can specify multiple languages by using ':'
+# 解析対象ソースファイルのプログラミン言語を指定する．':'で区切ることにより複数指定可
+language= Java:C
 
 # software name
+# 対象ソフトウェア名
 software= ant
 
 # absolute path for target GIT repository
 # either of GITREPOSITORY or SVNREPOSITORY can be specified
+# 解析対象GITリポジトリを絶対パスで指定．SVNリポジトリといずれか一方のみ指定可
 gitrepository=
 
 # absolute path for target SVN repository
+# 解析対象SVNリポジトリを絶対パスで指定．GITリポジトリのいずれか一方のみ指定可
 svnrepository= /Users/higo/Desktop/data/repositories/repository-apache/ant/core/trunk
 
 # absolute or relative path for database 
+# 解析結果保存用のデータベースファイル（絶対パスでも相対パスでもOK）
 database= ant.db
 
 # the number of threads
+# リポジトリ解析時に利用するスレッド数
 thread= 2
 
 # specify whether code is normalized or not; write YES or NO
+# 変更パターン抽出時にコードの正規化をするかどうか； YESかNOで指定
 normalization= YES
 
 # specify whether you want verbose output or not; write YES or NO
-## either of verbose or quiet can be specified as YES
+# either of 'verbose' or 'quiet' can be specified as YES
+# リポジトリ解析時に冗長な出力をするかどうか；YESかNOで指定
+# 'verbose'か'quiet'のいずれか一方のみ指定可
 verbose= YES
 
 # specify whether progress output is provided or not; write YES or NO
+# リポジトリ解析時に進捗状況を出力するかどうか；YESかNOで指定．
+# 'quiet'か'verbose'のいずれか一方のみ指定可
 quiet= NO
 
 # specify whether a change pattern is made from only 1 occurrence change; write YES or NO
+# 一度しか現れていない変更も変更パターンとして扱うかどうか；YESかNOで指定
 all= YES
 
 # specify whether existing database is overwritten or not; write YES or NO
+# 'database'で指定したファイルが存在していた場合に再度リポジトリ解析をするかどうか；YESかNOで指定
 force= NO
 
-# specify ID of start and revisions of repository mining (only available for SVN repository)
+# specify revision of start and revisions of repository mining (only available for SVN repository)
+# If these options are not specified, whole the repository is analyzed
+# リポジトリ解析の範囲をリビジョン番号で指定（SVNリポジトリのみ）
+# もし指定されない場合はリポジトリ全体が解析される
 startrevision= 1
 endrevision= 1700000
 
 # specify start and end DATE (dd:mm:yyyy) of repository mining (only available for GIT repository)
+# リポジトリ解析の範囲を日付（dd:mm:yyyy）で指定（GITリポジトリのみ）
+# もし指定されない場合はリポジトリ全体が解析される
 startdate= 
 enddate= 
 
 # specify SVN/GIT repository and target revision/commit for exploring latent buggy code
 # either of SVN or GIT can be specified
+# 潜在的なバグを検出する対象となるソースコードを指定する．
+## SVNリポジトリとリビジョン番号，もしくはGITリポジトリとコミットIDの組で指定
 esvnrepository=/Users/higo/Desktop/data/repositories/repository-apache/ant/core/trunk
 esvnrevision=1700000
 egitrepository=
 egitcommit=
 
 # instead of SVN/GIT repository, a usual directory can be specified for exploring latent buggy code
+# 潜在的なバグを検出する対象として普通のディレクトリを対象とすることもできる
 edirectory=
 
 # specify thresholds to select change patterns for exploring latent buggy code
 # esupport is the number of occurrences of change patterns
 # econfidence is ratio that before-text is changed to after-text
+# 潜在的なバグを検出するために用いる変更パターンの選別を行うオプション
+# esupportは変更パターンを構成する変更のインスタンスの数を表す
+# econfidenceは変更パターンの変更前コード断片が変更後コード断片に変化する割合を表す
 esupport=5
 econfidence=1.0
