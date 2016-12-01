@@ -17,9 +17,19 @@ import yoshikihigo.cpanalyzer.gui2.Explorer;
 
 public class EXECUTEME {
 
-	public static final String CONFIG = new String("config.txt");
+	private static String CONFIG = new String("config.txt");
 
 	public static void main(final String[] args) {
+
+		if (1 == args.length) {
+			CONFIG = args[0];
+		} else if (1 < args.length) {
+			System.err
+					.println("MPAnalyzer-EXECUTEME can take only a single argument.");
+			System.err
+					.println("The argument must be a path of configuration file.");
+			System.exit(0);
+		}
 
 		final Map<String, String> configs = getConfigs();
 		final String[] arguments = getArguments(configs);
