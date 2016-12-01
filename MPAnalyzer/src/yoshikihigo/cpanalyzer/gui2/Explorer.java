@@ -19,6 +19,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
@@ -55,6 +61,7 @@ public class Explorer extends JFrame {
 
 		CPAConfig.initialize(args);
 		ReadOnlyDAO.SINGLETON.initialize();
+		final boolean verbose = CPAConfig.getInstance().isVERBOSE();
 
 		if (CPAConfig.getInstance().getLANGUAGE().isEmpty()) {
 			System.out
@@ -132,33 +139,33 @@ public class Explorer extends JFrame {
 		System.out.print(patterns.size());
 		System.out.print(" change patterns ... ");
 
-		final SortedMap<String, List<Warning>> fWarnings = new TreeMap<>();
-		final SortedMap<ChangePattern, List<Warning>> pWarnings = new TreeMap<>();
+		final ConcurrentMap<String, List<Warning>> fWarnings = new ConcurrentHashMap<>();
+		final ConcurrentMap<ChangePattern, List<Warning>> pWarnings = new ConcurrentHashMap<>();
+		final int threads = CPAConfig.getInstance().getTHREAD();
+
+		final ExecutorService threadPool = Executors
+				.newFixedThreadPool(threads);
+		final List<Future<?>> futures = new ArrayList<>();
+
 		for (final Entry<String, List<Statement>> file : allStatements
 				.entrySet()) {
 			final String path = file.getKey();
 			final List<Statement> statements = file.getValue();
-			for (final ChangePattern pattern : patterns) {
 
-				final List<Warning> warnings = match(statements, pattern);
-				if (warnings.isEmpty()) {
-					continue;
-				}
+			final Future<?> future = threadPool.submit(new MatchingThread(path,
+					statements, patterns, fWarnings, pWarnings, verbose));
+			futures.add(future);
+		}
 
-				List<Warning> w1 = fWarnings.get(path);
-				if (null == w1) {
-					w1 = new ArrayList<>();
-					fWarnings.put(path, w1);
-				}
-				w1.addAll(warnings);
-
-				List<Warning> w2 = pWarnings.get(pattern);
-				if (null == w2) {
-					w2 = new ArrayList<>();
-					pWarnings.put(pattern, w2);
-				}
-				w2.addAll(warnings);
+		try {
+			for (final Future<?> future : futures) {
+				future.get();
 			}
+		} catch (final ExecutionException | InterruptedException e) {
+			e.printStackTrace();
+			System.exit(0);
+		} finally {
+			threadPool.shutdown();
 		}
 
 		System.out.print("done.");
@@ -174,49 +181,6 @@ public class Explorer extends JFrame {
 				new Explorer(files, fWarnings, pWarnings);
 			}
 		});
-	}
-
-	static private List<Warning> match(final List<Statement> statements,
-			final ChangePattern pattern) {
-
-		final String patternText = ReadOnlyDAO.SINGLETON.getCode(
-				pattern.beforeHash).get(0).rText;
-		final List<byte[]> patternHashs = Arrays
-				.asList(StringUtility.splitToLines(patternText)).stream()
-				.map(line -> Statement.getMD5(line))
-				.collect(Collectors.toList());
-
-		if (patternHashs.isEmpty()) {
-			return Collections.emptyList();
-		}
-
-		int pIndex = 0;
-		final List<Warning> warnings = new ArrayList<>();
-		final List<Statement> code = new ArrayList<>();
-		for (int index = 0; index < statements.size(); index++) {
-
-			if (Arrays.equals(statements.get(index).hash,
-					patternHashs.get(pIndex))) {
-				pIndex++;
-				code.add(statements.get(index));
-				if (pIndex == patternHashs.size()) {
-					final int fromLine = code.get(0).fromLine;
-					final int toLine = code.get(code.size() - 1).toLine;
-					final Warning warning = new Warning(fromLine, toLine,
-							pattern);
-					warnings.add(warning);
-					code.clear();
-					pIndex = 0;
-				}
-			}
-
-			else {
-				pIndex = 0;
-				code.clear();
-			}
-		}
-
-		return warnings;
 	}
 
 	static SortedMap<String, String> retrieveSVNFiles(final String repository,
@@ -478,5 +442,108 @@ public class Explorer extends JFrame {
 
 		this.setVisible(true);
 		mainPanel.setDividerLocation(mainPanel.getWidth() / 2);
+	}
+}
+
+class MatchingThread extends Thread {
+
+	final String path;
+	final List<Statement> statements;
+	final List<ChangePattern> patterns;
+	final ConcurrentMap<String, List<Warning>> fWarnings;
+	final ConcurrentMap<ChangePattern, List<Warning>> pWarnings;
+	final boolean verbose;
+
+	MatchingThread(final String path, final List<Statement> statements,
+			final List<ChangePattern> patterns,
+			final ConcurrentMap<String, List<Warning>> fWarnings,
+			final ConcurrentMap<ChangePattern, List<Warning>> pWarnings,
+			final boolean verbose) {
+
+		this.path = path;
+		this.statements = statements;
+		this.patterns = patterns;
+		this.fWarnings = fWarnings;
+		this.pWarnings = pWarnings;
+		this.verbose = verbose;
+	}
+
+	@Override
+	public void run() {
+
+		if (this.verbose) {
+			final StringBuilder progress = new StringBuilder();
+			progress.append(" ");
+			progress.append(Thread.currentThread().getId());
+			progress.append(": matching change patterns with ");
+			progress.append(this.path);
+			System.out.println(progress.toString());
+		}
+
+		for (final ChangePattern pattern : this.patterns) {
+
+			final List<Warning> warnings = this.match(this.statements, pattern);
+			if (warnings.isEmpty()) {
+				continue;
+			}
+
+			List<Warning> w1 = fWarnings.get(path);
+			if (null == w1) {
+				w1 = new ArrayList<>();
+				this.fWarnings.put(this.path, w1);
+			}
+			w1.addAll(warnings);
+
+			List<Warning> w2 = this.pWarnings.get(pattern);
+			if (null == w2) {
+				w2 = new ArrayList<>();
+				this.pWarnings.put(pattern, w2);
+			}
+			w2.addAll(warnings);
+		}
+		super.run();
+	}
+
+	private List<Warning> match(final List<Statement> statements,
+			final ChangePattern pattern) {
+
+		final String patternText = ReadOnlyDAO.SINGLETON.getCode(
+				pattern.beforeHash).get(0).rText;
+		final List<byte[]> patternHashs = Arrays
+				.asList(StringUtility.splitToLines(patternText)).stream()
+				.map(line -> Statement.getMD5(line))
+				.collect(Collectors.toList());
+
+		if (patternHashs.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		int pIndex = 0;
+		final List<Warning> warnings = new ArrayList<>();
+		final List<Statement> code = new ArrayList<>();
+		for (int index = 0; index < statements.size(); index++) {
+
+			if (Arrays.equals(statements.get(index).hash,
+					patternHashs.get(pIndex))) {
+				pIndex++;
+				code.add(statements.get(index));
+				if (pIndex == patternHashs.size()) {
+					final int fromLine = code.get(0).fromLine;
+					final int toLine = code.get(code.size() - 1).toLine;
+					final Warning warning = new Warning(fromLine, toLine,
+							pattern);
+					warnings.add(warning);
+					code.clear();
+					pIndex = 0;
+				}
+			}
+
+			else {
+				pIndex = 0;
+				code.clear();
+			}
+		}
+
+		return warnings;
 	}
 }
