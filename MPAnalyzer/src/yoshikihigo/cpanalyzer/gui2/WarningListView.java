@@ -213,16 +213,18 @@ public class WarningListView extends JTable implements Observer {
 		}
 
 		this.getColumnModel().getColumn(0).setMinWidth(40);
-		this.getColumnModel().getColumn(1).setMinWidth(70);
+		this.getColumnModel().getColumn(1).setMinWidth(45);
 		this.getColumnModel().getColumn(2).setMinWidth(0);
-		this.getColumnModel().getColumn(3).setMinWidth(70);
-		this.getColumnModel().getColumn(4).setMinWidth(55);
-		this.getColumnModel().getColumn(5).setMinWidth(70);
-		this.getColumnModel().getColumn(6).setMinWidth(70);
-		this.getColumnModel().getColumn(7).setMinWidth(80);
-		this.getColumnModel().getColumn(8).setMinWidth(70);
-		this.getColumnModel().getColumn(9).setMinWidth(70);
-
+		this.getColumnModel().getColumn(2).setMaxWidth(0);
+		this.getColumnModel().getColumn(3).setMinWidth(45);
+		this.getColumnModel().getColumn(4).setMinWidth(45);
+		this.getColumnModel().getColumn(5).setMinWidth(45);
+		this.getColumnModel().getColumn(6).setMinWidth(45);
+		this.getColumnModel().getColumn(7).setMinWidth(45);
+		this.getColumnModel().getColumn(8).setMinWidth(45);
+		this.getColumnModel().getColumn(9).setMinWidth(45);
+		this.getColumnModel().getColumn(10).setMinWidth(45);
+		
 		this.getSelectionModel()
 				.addListSelectionListener(this.selectionHandler);
 	}

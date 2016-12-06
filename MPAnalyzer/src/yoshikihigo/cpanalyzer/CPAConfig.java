@@ -1,5 +1,6 @@
 package yoshikihigo.cpanalyzer;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -20,8 +21,7 @@ public class CPAConfig {
 	static final public Options OPTIONS = new Options();
 	static {
 		{
-			final Option option = new Option("lang", "language", true,
-					"programming language for analysis");
+			final Option option = new Option("lang", "language", true, "programming language for analysis");
 			option.setArgName("language");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -29,8 +29,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("soft", "software", true,
-					"software name");
+			final Option option = new Option("soft", "software", true, "software name");
 			option.setArgName("software");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -38,8 +37,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("svnrepo", "svnrepository", true,
-					"svn repository for mining");
+			final Option option = new Option("svnrepo", "svnrepository", true, "svn repository for mining");
 			option.setArgName("svnrepository");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -47,8 +45,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("gitrepo", "gitrepository", true,
-					"git repository for mining");
+			final Option option = new Option("gitrepo", "gitrepository", true, "git repository for mining");
 			option.setArgName("gitrepository");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -65,8 +62,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("endrev", "endrevision", true,
-					"end revision of repository for mining");
+			final Option option = new Option("endrev", "endrevision", true, "end revision of repository for mining");
 			option.setArgName("revision");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -74,8 +70,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("startdate", "startdate", true,
-					"start date of repository for mining");
+			final Option option = new Option("startdate", "startdate", true, "start date of repository for mining");
 			option.setArgName("date (dd:mm:yyyy)");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -83,8 +78,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("enddate", "enddate", true,
-					"end date of repository for mining");
+			final Option option = new Option("enddate", "enddate", true, "end date of repository for mining");
 			option.setArgName("date (dd:mm:yyyy)");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -92,8 +86,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("db", "database", true,
-					"database for storing modification patterns");
+			final Option option = new Option("db", "database", true, "database for storing modification patterns");
 			option.setArgName("revision");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -101,8 +94,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("cs", "changesize", true,
-					"upper limit of change size to retrieve");
+			final Option option = new Option("cs", "changesize", true, "upper limit of change size to retrieve");
 			option.setArgName("size (number of statements)");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -110,8 +102,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("test", "test", true,
-					"repository for testing");
+			final Option option = new Option("test", "test", true, "repository for testing");
 			option.setArgName("repository");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -119,8 +110,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("teststartrev",
-					"teststartrevision", true,
+			final Option option = new Option("teststartrev", "teststartrevision", true,
 					"start revision of repository for test");
 			option.setArgName("revision");
 			option.setArgs(1);
@@ -129,8 +119,8 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("testendrev", "testendrevision",
-					true, "end revision of repository for test");
+			final Option option = new Option("testendrev", "testendrevision", true,
+					"end revision of repository for test");
 			option.setArgName("revision");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -138,8 +128,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("thd", "thread", true,
-					"end revision of repository for test");
+			final Option option = new Option("thd", "thread", true, "end revision of repository for test");
 			option.setArgName("thread");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -147,8 +136,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("large", "large", true,
-					"threshold for ignoring large files");
+			final Option option = new Option("large", "large", true, "threshold for ignoring large files");
 			option.setArgName("size (number of statements)");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -156,64 +144,55 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("ignind", "ignoreindent", false,
-					"canceling ignoring indent");
+			final Option option = new Option("ignind", "ignoreindent", false, "canceling ignoring indent");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("ignspc", "ignorespace", false,
-					"canceling ignoring whitespace");
+			final Option option = new Option("ignspc", "ignorespace", false, "canceling ignoring whitespace");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("ignimp", "ignoreimport", false,
-					"canceling ignoring import");
+			final Option option = new Option("ignimp", "ignoreimport", false, "canceling ignoring import");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("igninc", "ignoreinclude", false,
-					"canceling ignoring include");
+			final Option option = new Option("igninc", "ignoreinclude", false, "canceling ignoring include");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("n", "normalization", false,
-					"normalizing text for mining");
+			final Option option = new Option("n", "normalization", false, "normalizing text for mining");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("onlycond", "onlycondition",
-					false, "extracting only condition");
+			final Option option = new Option("onlycond", "onlycondition", false, "extracting only condition");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("v", "verbose", false,
-					"verbose output for progressing");
+			final Option option = new Option("v", "verbose", false, "verbose output for progressing");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("q", "quiet", false,
-					"do not output anything for progressing");
+			final Option option = new Option("q", "quiet", false, "do not output anything for progressing");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("csv", "csv", true,
-					"CSV file for writing modification patterns");
+			final Option option = new Option("csv", "csv", true, "CSV file for writing modification patterns");
 			option.setArgName("file");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -221,8 +200,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("a", "all", false,
-					"use all changes to make change patterns");
+			final Option option = new Option("a", "all", false, "use all changes to make change patterns");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
@@ -235,15 +213,14 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("debug", "debug", false,
-					"print some informlation for debugging");
+			final Option option = new Option("debug", "debug", false, "print some informlation for debugging");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
 		}
 
 		{
-			final Option option = new Option("esvnrepo", "esvnrepository",
-					true, "svn repository for exploring latent buggy code");
+			final Option option = new Option("esvnrepo", "esvnrepository", true,
+					"svn repository for exploring latent buggy code");
 			option.setArgName("svnrepository");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -251,8 +228,8 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("egitrepo", "egitrepository",
-					true, "git repository for exploring latent buggy code");
+			final Option option = new Option("egitrepo", "egitrepository", true,
+					"git repository for exploring latent buggy code");
 			option.setArgName("gitrepository");
 			option.setArgs(1);
 			option.setRequired(false);
@@ -287,6 +264,15 @@ public class CPAConfig {
 		}
 
 		{
+			final Option commit = new Option("echarset", "echarset", true,
+					"charset of source code for exploring latent buggy code");
+			commit.setArgName("charset");
+			commit.setArgs(1);
+			commit.setRequired(false);
+			OPTIONS.addOption(commit);
+		}
+
+		{
 			final Option option = new Option("esupport", "esupport", true,
 					"minimum suppport of change patterns used for exploring latent buggy code");
 			option.setArgName("number");
@@ -296,8 +282,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("econfidence", "econfidence",
-					true,
+			final Option option = new Option("econfidence", "econfidence", true,
 					"minimum confidence of change patterns used for exploring latent buggy code");
 			option.setArgName("number");
 			option.setArgs(1);
@@ -322,8 +307,7 @@ public class CPAConfig {
 			SINGLETON = new CPAConfig(commandLine);
 
 			if (SINGLETON.isVERBOSE() && SINGLETON.isQUIET()) {
-				System.err
-						.println("\"-v\" (\"--verbose\") and \"-q\" (\"--quiet\") can not be used together.");
+				System.err.println("\"-v\" (\"--verbose\") and \"-q\" (\"--quiet\") can not be used together.");
 				System.exit(0);
 			}
 
@@ -361,8 +345,7 @@ public class CPAConfig {
 			while (tokenizer.hasMoreTokens()) {
 				try {
 					final String value = tokenizer.nextToken();
-					final LANGUAGE language = LANGUAGE.valueOf(value
-							.toUpperCase());
+					final LANGUAGE language = LANGUAGE.valueOf(value.toUpperCase());
 					languages.add(language);
 				} catch (final IllegalArgumentException e) {
 					System.err.println("invalid option value for \"-lang\"");
@@ -426,8 +409,7 @@ public class CPAConfig {
 			try {
 				date = format.parse(value);
 			} catch (final java.text.ParseException e) {
-				System.out
-						.println("\"-startdate\" must be specified with dd:MM:yyyy format");
+				System.out.println("\"-startdate\" must be specified with dd:MM:yyyy format");
 				System.exit(0);
 			}
 		}
@@ -443,8 +425,7 @@ public class CPAConfig {
 			try {
 				date = format.parse(value);
 			} catch (final java.text.ParseException e) {
-				System.out
-						.println("\"-enddate\" must be specified with dd:MM:yyyy format");
+				System.out.println("\"-enddate\" must be specified with dd:MM:yyyy format");
 				System.exit(0);
 			}
 		}
@@ -478,28 +459,24 @@ public class CPAConfig {
 
 	public long getSTART_REVISION_FOR_TEST() {
 		if (this.commandLine.hasOption("teststartrev")) {
-			return Long.parseLong(this.commandLine
-					.getOptionValue("teststartrev"));
+			return Long.parseLong(this.commandLine.getOptionValue("teststartrev"));
 		}
 		return -1;
 	}
 
 	public long getEND_REVISION_FOR_TEST() {
 		if (this.commandLine.hasOption("testendrev")) {
-			return Long
-					.parseLong(this.commandLine.getOptionValue("testendrev"));
+			return Long.parseLong(this.commandLine.getOptionValue("testendrev"));
 		}
 		return -1;
 	}
 
 	public int getTHREAD() {
-		return this.commandLine.hasOption("thd") ? Integer
-				.parseInt(this.commandLine.getOptionValue("thd")) : 1;
+		return this.commandLine.hasOption("thd") ? Integer.parseInt(this.commandLine.getOptionValue("thd")) : 1;
 	}
 
 	public int getLARGE() {
-		return this.commandLine.hasOption("large") ? Integer
-				.parseInt(this.commandLine.getOptionValue("large")) : 10000;
+		return this.commandLine.hasOption("large") ? Integer.parseInt(this.commandLine.getOptionValue("large")) : 10000;
 	}
 
 	public boolean isIGNORE_INDENT() {
@@ -595,7 +572,12 @@ public class CPAConfig {
 			System.err.println("option \"edir\" is not specified.");
 			System.exit(0);
 		}
-		return this.commandLine.getOptionValue("egitrepo");
+		final File file = new File(this.commandLine.getOptionValue("edir"));
+		if (!file.exists()) {
+			System.err.println("specified path by option \"edir\" does not exist.");
+			System.exit(0);
+		}
+		return file.getAbsolutePath();
 	}
 
 	public boolean hasESVNREV() {
@@ -622,14 +604,17 @@ public class CPAConfig {
 		return this.commandLine.getOptionValue("egitcommit");
 	}
 
+	public String getECHARSET() {
+		return this.commandLine.hasOption("echarset") ? this.commandLine.getOptionValue("echarset") : "";
+	}
+
 	public int getESUPPORT() {
-		return this.commandLine.hasOption("esupport") ? Integer
-				.parseInt(this.commandLine.getOptionValue("esupport")) : 1;
+		return this.commandLine.hasOption("esupport") ? Integer.parseInt(this.commandLine.getOptionValue("esupport"))
+				: 1;
 	}
 
 	public float getECONFIDENCE() {
-		return this.commandLine.hasOption("econfidence") ? Float
-				.parseFloat(this.commandLine.getOptionValue("econfidence"))
-				: 0.0f;
+		return this.commandLine.hasOption("econfidence")
+				? Float.parseFloat(this.commandLine.getOptionValue("econfidence")) : 0.0f;
 	}
 }

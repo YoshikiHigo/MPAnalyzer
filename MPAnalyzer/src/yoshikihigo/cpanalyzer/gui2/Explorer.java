@@ -64,31 +64,26 @@ public class Explorer extends JFrame {
 		final boolean verbose = CPAConfig.getInstance().isVERBOSE();
 
 		if (CPAConfig.getInstance().getLANGUAGE().isEmpty()) {
-			System.out
-					.println("\"-lang\" option is required to specify target languages");
+			System.out.println("\"-lang\" option is required to specify target languages");
 			System.exit(0);
 		}
 
 		System.out.println("Useful functions:");
-		System.out
-				.println(" double-clicking LEFT button on WARNINGLIST -> focusing the specified pattern");
-		System.out
-				.println(" double-clicking RIGHT button on WARNINGLIST -> marking the specified pattern as trivial");
+		System.out.println(" double-clicking LEFT button on WARNINGLIST -> focusing the specified pattern");
+		System.out.println(" double-clicking RIGHT button on WARNINGLIST -> marking the specified pattern as trivial");
 		System.out
 				.println(" double-clicking LEFT button on the header of PASTCHANGES -> showing up commit information");
 		System.out.println();
 
 		final SortedMap<String, String> files = new TreeMap<>();
-		if (CPAConfig.getInstance().hasESVNREPO()
-				&& CPAConfig.getInstance().hasESVNREV()) {
+		if (CPAConfig.getInstance().hasESVNREPO() && CPAConfig.getInstance().hasESVNREV()) {
 
 			final String repository = CPAConfig.getInstance().getESVNREPO();
 			final int revision = CPAConfig.getInstance().getESVNREV();
 			files.putAll(retrieveSVNFiles(repository, revision));
 		}
 
-		else if (CPAConfig.getInstance().hasEGITREPO()
-				&& CPAConfig.getInstance().hasEGITCOMMIT()) {
+		else if (CPAConfig.getInstance().hasEGITREPO() && CPAConfig.getInstance().hasEGITCOMMIT()) {
 
 			final String gitrepo = CPAConfig.getInstance().getEGITREPO();
 			final String gitcommit = CPAConfig.getInstance().getEGITCOMMIT();
@@ -102,14 +97,10 @@ public class Explorer extends JFrame {
 		}
 
 		else {
-			System.out
-					.println("target for exploring latent buggy code is not specified correctly.");
-			System.out
-					.println(" if you want to use a GIT repository, specify \"egitrepo\" and \"egitcommit\".");
-			System.out
-					.println(" if you want to use a SVN repository, specify \"esvnrepo\" and \"esvnrev\".");
-			System.out
-					.println(" if you want to use a usual directory, specify \"edir\".");
+			System.out.println("target for exploring latent buggy code is not specified correctly.");
+			System.out.println(" if you want to use a GIT repository, specify \"egitrepo\" and \"egitcommit\".");
+			System.out.println(" if you want to use a SVN repository, specify \"esvnrepo\" and \"esvnrev\".");
+			System.out.println(" if you want to use a usual directory, specify \"edir\".");
 			System.exit(0);
 		}
 
@@ -120,8 +111,7 @@ public class Explorer extends JFrame {
 			final String contents = entry.getValue();
 			for (final LANGUAGE lang : languages) {
 				if (lang.isTarget(path)) {
-					final List<Statement> statements = StringUtility
-							.splitToStatements(contents, lang);
+					final List<Statement> statements = StringUtility.splitToStatements(contents, lang);
 					allStatements.put(path, statements);
 					break;
 				}
@@ -130,8 +120,7 @@ public class Explorer extends JFrame {
 
 		final int support = CPAConfig.getInstance().getESUPPORT();
 		final float confidence = CPAConfig.getInstance().getECONFIDENCE();
-		final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON
-				.getChangePatterns(support, confidence);
+		final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON.getChangePatterns(support, confidence);
 
 		System.out.print("finding latent buggy code from ");
 		System.out.print(allStatements.size());
@@ -143,17 +132,15 @@ public class Explorer extends JFrame {
 		final ConcurrentMap<ChangePattern, List<Warning>> pWarnings = new ConcurrentHashMap<>();
 		final int threads = CPAConfig.getInstance().getTHREAD();
 
-		final ExecutorService threadPool = Executors
-				.newFixedThreadPool(threads);
+		final ExecutorService threadPool = Executors.newFixedThreadPool(threads);
 		final List<Future<?>> futures = new ArrayList<>();
 
-		for (final Entry<String, List<Statement>> file : allStatements
-				.entrySet()) {
+		for (final Entry<String, List<Statement>> file : allStatements.entrySet()) {
 			final String path = file.getKey();
 			final List<Statement> statements = file.getValue();
 
-			final Future<?> future = threadPool.submit(new MatchingThread(path,
-					statements, patterns, fWarnings, pWarnings, verbose));
+			final Future<?> future = threadPool
+					.submit(new MatchingThread(path, statements, patterns, fWarnings, pWarnings, verbose));
 			futures.add(future);
 		}
 
@@ -183,8 +170,7 @@ public class Explorer extends JFrame {
 		});
 	}
 
-	static SortedMap<String, String> retrieveSVNFiles(final String repository,
-			final int revision) {
+	static SortedMap<String, String> retrieveSVNFiles(final String repository, final int revision) {
 
 		Path tmpDir = null;
 		try {
@@ -224,8 +210,7 @@ public class Explorer extends JFrame {
 
 		for (final String path : paths) {
 			try {
-				final List<String> lines = Files.readAllLines(Paths.get(path),
-						StandardCharsets.ISO_8859_1);
+				final List<String> lines = Files.readAllLines(Paths.get(path), StandardCharsets.ISO_8859_1);
 				final String text = String.join(System.lineSeparator(), lines);
 				files.put(path.substring(directory.length() + 1), text);
 
@@ -237,8 +222,7 @@ public class Explorer extends JFrame {
 		return files;
 	}
 
-	static List<String> retrievePaths(final File directory,
-			final Set<LANGUAGE> languages) {
+	static List<String> retrievePaths(final File directory, final Set<LANGUAGE> languages) {
 
 		final List<String> paths = new ArrayList<>();
 
@@ -262,8 +246,7 @@ public class Explorer extends JFrame {
 		return paths;
 	}
 
-	static SortedMap<String, String> retrieveGITFiles(final String repository,
-			final String revision) {
+	static SortedMap<String, String> retrieveGITFiles(final String repository, final String revision) {
 
 		final SortedMap<String, String> fileMap = new TreeMap<>();
 
@@ -294,8 +277,7 @@ public class Explorer extends JFrame {
 
 			for (final String file : files) {
 				final TreeWalk nodeWalk = TreeWalk.forPath(reader, file, tree);
-				final byte[] data = reader.open(nodeWalk.getObjectId(0))
-						.getBytes();
+				final byte[] data = reader.open(nodeWalk.getObjectId(0)).getBytes();
 				final String text = new String(data, "utf-8");
 				fileMap.put(file, text);
 			}
@@ -307,8 +289,7 @@ public class Explorer extends JFrame {
 		return fileMap;
 	}
 
-	public Explorer(final Map<String, String> files,
-			final Map<String, List<Warning>> fWarnings,
+	public Explorer(final Map<String, String> files, final Map<String, List<Warning>> fWarnings,
 			final Map<ChangePattern, List<Warning>> pWarnings) {
 
 		super("Ammonia");
@@ -318,8 +299,7 @@ public class Explorer extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		this.getContentPane().setLayout(new BorderLayout());
-		final PatternFilteringPanel patternFilteringPanel = new PatternFilteringPanel(
-				fWarnings, pWarnings);
+		final PatternFilteringPanel patternFilteringPanel = new PatternFilteringPanel(fWarnings, pWarnings);
 		this.getContentPane().add(patternFilteringPanel, BorderLayout.NORTH);
 		final JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		this.getContentPane().add(mainPanel, BorderLayout.CENTER);
@@ -329,119 +309,76 @@ public class Explorer extends JFrame {
 		mainPanel.setRightComponent(rightPane);
 		final JPanel fileListPanel = new JPanel(new BorderLayout());
 		leftPane.setTopComponent(fileListPanel);
-		fileListPanel.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"FILE LIST"));
+		fileListPanel.setBorder(new TitledBorder(new LineBorder(Color.black), "FILE LIST"));
 
-		final FilePathKeywordField pathKeywordField = new FilePathKeywordField(
-				fWarnings);
+		final FilePathKeywordField pathKeywordField = new FilePathKeywordField(fWarnings);
 		fileListPanel.add(pathKeywordField, BorderLayout.NORTH);
 		final FileListView filelist = new FileListView(fWarnings);
 		fileListPanel.add(filelist.scrollPane, BorderLayout.CENTER);
 
-		final TargetSourceCodeWindow sourcecode = new TargetSourceCodeWindow(
-				files, fWarnings);
+		final TargetSourceCodeWindow sourcecode = new TargetSourceCodeWindow(files, fWarnings);
 		leftPane.add(sourcecode.getScrollPane(), JSplitPane.BOTTOM);
 
-		final WarningListView warninglist = new WarningListView(fWarnings,
-				pWarnings);
+		final WarningListView warninglist = new WarningListView(fWarnings, pWarnings);
 		rightPane.add(warninglist.scrollPane, JSplitPane.TOP);
 
 		final PastChangesView patternWindow = new PastChangesView();
 		rightPane.add(patternWindow, JSplitPane.BOTTOM);
 
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH)
-				.addObserver(filelist);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH)
-				.addObserver(sourcecode);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH)
-				.addObserver(warninglist);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH)
-				.addObserver(patternWindow);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH)
-				.addObserver(patternFilteringPanel);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH)
-				.addObserver(pathKeywordField);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH).addObserver(filelist);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH).addObserver(sourcecode);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH).addObserver(warninglist);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH).addObserver(patternWindow);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH).addObserver(patternFilteringPanel);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_PATH).addObserver(pathKeywordField);
 
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING)
-				.addObserver(filelist);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING)
-				.addObserver(sourcecode);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING)
-				.addObserver(warninglist);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING)
-				.addObserver(patternWindow);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING)
-				.addObserver(patternFilteringPanel);
-		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING)
-				.addObserver(pathKeywordField);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING).addObserver(filelist);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING).addObserver(sourcecode);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING).addObserver(warninglist);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING).addObserver(patternWindow);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING).addObserver(patternFilteringPanel);
+		SelectedEntities.getInstance(SelectedEntities.SELECTED_WARNING).addObserver(pathKeywordField);
 
-		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN)
-				.addObserver(filelist);
-		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN)
-				.addObserver(sourcecode);
-		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN)
-				.addObserver(warninglist);
-		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN)
-				.addObserver(patternWindow);
-		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN)
-				.addObserver(patternFilteringPanel);
-		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN)
-				.addObserver(pathKeywordField);
+		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN).addObserver(filelist);
+		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN).addObserver(sourcecode);
+		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN).addObserver(warninglist);
+		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN).addObserver(patternWindow);
+		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN).addObserver(patternFilteringPanel);
+		SelectedEntities.getInstance(SelectedEntities.TRIVIAL_PATTERN).addObserver(pathKeywordField);
 
-		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN)
-				.addObserver(filelist);
-		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN)
-				.addObserver(sourcecode);
-		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN)
-				.addObserver(warninglist);
-		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN)
-				.addObserver(patternWindow);
-		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN)
-				.addObserver(patternFilteringPanel);
-		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN)
-				.addObserver(pathKeywordField);
+		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN).addObserver(filelist);
+		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN).addObserver(sourcecode);
+		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN).addObserver(warninglist);
+		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN).addObserver(patternWindow);
+		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN).addObserver(patternFilteringPanel);
+		SelectedEntities.getInstance(SelectedEntities.FOCUSING_PATTERN).addObserver(pathKeywordField);
 
-		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN)
-				.addObserver(filelist);
-		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN)
-				.addObserver(sourcecode);
-		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN)
-				.addObserver(warninglist);
-		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN)
-				.addObserver(patternWindow);
-		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN)
-				.addObserver(patternFilteringPanel);
-		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN)
-				.addObserver(pathKeywordField);
+		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN).addObserver(filelist);
+		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN).addObserver(sourcecode);
+		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN).addObserver(warninglist);
+		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN).addObserver(patternWindow);
+		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN).addObserver(patternFilteringPanel);
+		SelectedEntities.getInstance(SelectedEntities.LOGKEYWORD_PATTERN).addObserver(pathKeywordField);
 
-		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN)
-				.addObserver(filelist);
-		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN)
-				.addObserver(sourcecode);
-		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN)
-				.addObserver(warninglist);
-		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN)
-				.addObserver(patternWindow);
-		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN)
-				.addObserver(patternFilteringPanel);
-		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN)
-				.addObserver(pathKeywordField);
+		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN).addObserver(filelist);
+		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN).addObserver(sourcecode);
+		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN).addObserver(warninglist);
+		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN).addObserver(patternWindow);
+		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN).addObserver(patternFilteringPanel);
+		SelectedEntities.getInstance(SelectedEntities.METRICS_PATTERN).addObserver(pathKeywordField);
 
-		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN)
-				.addObserver(filelist);
-		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN)
-				.addObserver(sourcecode);
-		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN)
-				.addObserver(warninglist);
-		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN)
-				.addObserver(patternWindow);
-		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN)
-				.addObserver(patternFilteringPanel);
-		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN)
-				.addObserver(pathKeywordField);
+		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN).addObserver(filelist);
+		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN).addObserver(sourcecode);
+		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN).addObserver(warninglist);
+		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN).addObserver(patternWindow);
+		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN).addObserver(patternFilteringPanel);
+		SelectedEntities.getInstance(SelectedEntities.PATHKEYWORD_PATTERN).addObserver(pathKeywordField);
 
 		this.setVisible(true);
 		mainPanel.setDividerLocation(mainPanel.getWidth() / 2);
+		leftPane.setDividerLocation(leftPane.getHeight() / 2);
+		rightPane.setDividerLocation(180);
+
 	}
 }
 
@@ -454,11 +391,9 @@ class MatchingThread extends Thread {
 	final ConcurrentMap<ChangePattern, List<Warning>> pWarnings;
 	final boolean verbose;
 
-	MatchingThread(final String path, final List<Statement> statements,
-			final List<ChangePattern> patterns,
+	MatchingThread(final String path, final List<Statement> statements, final List<ChangePattern> patterns,
 			final ConcurrentMap<String, List<Warning>> fWarnings,
-			final ConcurrentMap<ChangePattern, List<Warning>> pWarnings,
-			final boolean verbose) {
+			final ConcurrentMap<ChangePattern, List<Warning>> pWarnings, final boolean verbose) {
 
 		this.path = path;
 		this.statements = statements;
@@ -504,15 +439,11 @@ class MatchingThread extends Thread {
 		super.run();
 	}
 
-	private List<Warning> match(final List<Statement> statements,
-			final ChangePattern pattern) {
+	private List<Warning> match(final List<Statement> statements, final ChangePattern pattern) {
 
-		final String patternText = ReadOnlyDAO.SINGLETON.getCode(
-				pattern.beforeHash).get(0).rText;
-		final List<byte[]> patternHashs = Arrays
-				.asList(StringUtility.splitToLines(patternText)).stream()
-				.map(line -> Statement.getMD5(line))
-				.collect(Collectors.toList());
+		final String patternText = ReadOnlyDAO.SINGLETON.getCode(pattern.beforeHash).get(0).rText;
+		final List<byte[]> patternHashs = Arrays.asList(StringUtility.splitToLines(patternText)).stream()
+				.map(line -> Statement.getMD5(line)).collect(Collectors.toList());
 
 		if (patternHashs.isEmpty()) {
 			return Collections.emptyList();
@@ -523,15 +454,13 @@ class MatchingThread extends Thread {
 		final List<Statement> code = new ArrayList<>();
 		for (int index = 0; index < statements.size(); index++) {
 
-			if (Arrays.equals(statements.get(index).hash,
-					patternHashs.get(pIndex))) {
+			if (Arrays.equals(statements.get(index).hash, patternHashs.get(pIndex))) {
 				pIndex++;
 				code.add(statements.get(index));
 				if (pIndex == patternHashs.size()) {
 					final int fromLine = code.get(0).fromLine;
 					final int toLine = code.get(code.size() - 1).toLine;
-					final Warning warning = new Warning(fromLine, toLine,
-							pattern);
+					final Warning warning = new Warning(fromLine, toLine, pattern);
 					warnings.add(warning);
 					code.clear();
 					pIndex = 0;

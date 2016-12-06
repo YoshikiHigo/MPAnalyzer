@@ -13,23 +13,22 @@ public class WarningListViewModel extends AbstractTableModel {
 	static final int COL_ID = 0;
 	static final int COL_LOCATION = 1;
 	static final int COL_SIZE = 2;
-	static final int COL_PASTCHANGES = 3;
-	static final int COL_FILES = 4;
-	static final int COL_COMMITS = 5;
-	static final int COL_AUTHORS = 6;
-	static final int COL_LASTDATE = 7;
-	static final int COL_PATTERNID = 8;
-	static final int COL_MATCHEDCODE = 9;
+	static final int COL_OPERATION = 3;
+	static final int COL_PASTCHANGES = 4;
+	static final int COL_FILES = 5;
+	static final int COL_COMMITS = 6;
+	static final int COL_AUTHORS = 7;
+	static final int COL_LASTDATE = 8;
+	static final int COL_PATTERNID = 9;
+	static final int COL_MATCHEDCODE = 10;
 
-	static final String[] TITLES = new String[] { "ID", "PLACE", "SIZE",
-			"SUPPORT", "FILES", "COMMITS", "AUTHORS", "LASTDATE", "Pattern ID",
-			"MATCHED" };
+	static final String[] TITLES = new String[] { "ID", "PLACE", "SIZE", "OPERATION", "SUPPORT", "FILES", "COMMITS",
+			"AUTHORS", "LASTDATE", "Pattern ID", "MATCHED" };
 
 	final List<Warning> warnings;
 	final private Map<ChangePattern, List<Warning>> pWarnings;
 
-	public WarningListViewModel(final List<Warning> warnings,
-			final Map<ChangePattern, List<Warning>> pWarnings) {
+	public WarningListViewModel(final List<Warning> warnings, final Map<ChangePattern, List<Warning>> pWarnings) {
 		this.warnings = new ArrayList<>();
 		this.warnings.addAll(warnings);
 		this.pWarnings = pWarnings;
@@ -56,6 +55,9 @@ public class WarningListViewModel extends AbstractTableModel {
 		}
 		case COL_SIZE: {
 			return warning.toLine - warning.fromLine + 1;
+		}
+		case COL_OPERATION: {
+			return warning.pattern.changeType.name();
 		}
 		case COL_PASTCHANGES: {
 			return warning.pattern.support;
@@ -92,6 +94,9 @@ public class WarningListViewModel extends AbstractTableModel {
 		case COL_LOCATION:
 			return Warning.class;
 		case COL_SIZE:
+			return Integer.class;
+		case COL_OPERATION:
+			return String.class;
 		case COL_PASTCHANGES:
 		case COL_FILES:
 		case COL_COMMITS:

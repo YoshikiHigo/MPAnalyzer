@@ -47,14 +47,12 @@ import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 public class PastChangesView extends JTabbedPane implements Observer {
 
 	public PastChangesView() {
-		this.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"PAST CHANGES"));
+		this.setBorder(new TitledBorder(new LineBorder(Color.black), "PAST CHANGES"));
 
 		this.addChangeListener(e -> {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-			final PastChange pastChange = (PastChange) this
-					.getSelectedComponent();
+			final PastChange pastChange = (PastChange) this.getSelectedComponent();
 			if (null != pastChange) {
 				pastChange.loadCode(this.getHeight());
 			}
@@ -70,31 +68,26 @@ public class PastChangesView extends JTabbedPane implements Observer {
 
 			final SelectedEntities selectedEntities = (SelectedEntities) o;
 
-			if (selectedEntities.getLabel().equals(
-					SelectedEntities.SELECTED_WARNING)) {
+			if (selectedEntities.getLabel().equals(SelectedEntities.SELECTED_WARNING)) {
 
 				this.removeAll();
 
 				if (selectedEntities.isSet()) {
-					final Warning warning = (Warning) selectedEntities.get()
-							.get(0);
+					final Warning warning = (Warning) selectedEntities.get().get(0);
 
-					final List<Change> changes = ReadOnlyDAO.SINGLETON
-							.getChanges(warning.pattern.beforeHash,
-									warning.pattern.afterHash);
+					final List<Change> changes = ReadOnlyDAO.SINGLETON.getChanges(warning.pattern.beforeHash,
+							warning.pattern.afterHash);
 
 					for (final Change change : changes) {
 						final PastChange pastChange = new PastChange(change);
-						this.addTab(Integer.toString(this.getTabCount() + 1),
-								pastChange);
+						this.addTab(Integer.toString(this.getTabCount() + 1), pastChange);
 					}
 				}
 
 				this.repaint();
 			}
 
-			else if (selectedEntities.getLabel().equals(
-					SelectedEntities.SELECTED_PATH)) {
+			else if (selectedEntities.getLabel().equals(SelectedEntities.SELECTED_PATH)) {
 				this.removeAll();
 				this.repaint();
 			}
@@ -111,11 +104,9 @@ class PastChange extends JPanel {
 		super(new BorderLayout());
 		this.change = change;
 
-		final JLabel label1 = new JLabel("Revision: " + change.revision
-				+ ", Author: " + change.revision.author + ", Path: "
-				+ change.filepath);
-		final JLabel label2 = new JLabel("Commit log: "
-				+ change.revision.message);
+		final JLabel label1 = new JLabel(
+				"Revision: " + change.revision + ", Author: " + change.revision.author + ", Path: " + change.filepath);
+		final JLabel label2 = new JLabel("Commit log: " + change.revision.message);
 		final JPanel labelPanel = new JPanel(new BorderLayout());
 		labelPanel.add(label1, BorderLayout.NORTH);
 		labelPanel.add(label2, BorderLayout.CENTER);
@@ -162,21 +153,15 @@ class PastChange extends JPanel {
 		String beforeText = "";
 		String afterText = "";
 		if (CPAConfig.getInstance().hasSVNREPO()) {
-			beforeText = this.getSVNText(this.change.filepath,
-					Integer.parseInt(this.change.revision.id) - 1);
-			afterText = this.getSVNText(this.change.filepath,
-					Integer.parseInt(this.change.revision.id));
+			beforeText = this.getSVNText(this.change.filepath, Integer.parseInt(this.change.revision.id) - 1);
+			afterText = this.getSVNText(this.change.filepath, Integer.parseInt(this.change.revision.id));
 		} else if (CPAConfig.getInstance().hasGITREPO()) {
-			beforeText = this.getGITText(this.change.filepath,
-					this.change.revision.id, false);
-			afterText = this.getGITText(this.change.filepath,
-					this.change.revision.id, true);
+			beforeText = this.getGITText(this.change.filepath, this.change.revision.id, false);
+			afterText = this.getGITText(this.change.filepath, this.change.revision.id, true);
 		}
 
-		final ChangeInstanceView beforeView = new ChangeInstanceView(
-				"BEFORE TEXT", beforeText);
-		final ChangeInstanceView afterView = new ChangeInstanceView(
-				"AFTER TEXT", afterText);
+		final ChangeInstanceView beforeView = new ChangeInstanceView("BEFORE TEXT", beforeText);
+		final ChangeInstanceView afterView = new ChangeInstanceView("AFTER TEXT", afterText);
 
 		this.srcPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		this.srcPane.add(beforeView.scrollPane, JSplitPane.TOP);
@@ -184,27 +169,29 @@ class PastChange extends JPanel {
 		this.add(this.srcPane, BorderLayout.CENTER);
 		this.srcPane.setDividerLocation((height - 100) / 2);
 
-		beforeView.addHighlight(this.change.before.getStartLine(),
-				this.change.before.getEndLine());
-		afterView.addHighlight(this.change.after.getStartLine(),
-				this.change.after.getEndLine());
+		final int beforeChangeStartLine = this.change.before.getStartLine();
+		final int beforeChangeEndLine = this.change.before.getEndLine();
+		final int afterChangeStartLine = this.change.after.getStartLine();
+		final int afterChangeEndLine = this.change.after.getEndLine();
 
-		beforeView.displayAt(this.change.before.getEndLine());
-		afterView.displayAt(this.change.after.getEndLine());
+		beforeView.addHighlight(beforeChangeStartLine, beforeChangeEndLine);
+		afterView.addHighlight(afterChangeStartLine, afterChangeEndLine);
+
+		beforeView.displayAt((0 < beforeChangeEndLine) ? beforeChangeEndLine : afterChangeEndLine);
+		afterView.displayAt((0 < afterChangeEndLine) ? afterChangeEndLine : beforeChangeEndLine);
 	}
 
 	private String getSVNText(final String path, final int revision) {
 
-		final String repository = CPAConfig.getInstance()
-				.getSVNREPOSITORY_FOR_MINING();
+		final String repository = CPAConfig.getInstance().getSVNREPOSITORY_FOR_MINING();
 		final SVNURL url = StringUtility.getSVNURL(repository, path);
 		FSRepositoryFactory.setup();
 		SVNWCClient wcClient = SVNClientManager.newInstance().getWCClient();
 
 		final StringBuilder text = new StringBuilder();
 		try {
-			wcClient.doGetFileContents(url, SVNRevision.create(revision),
-					SVNRevision.create(revision), false, new OutputStream() {
+			wcClient.doGetFileContents(url, SVNRevision.create(revision), SVNRevision.create(revision), false,
+					new OutputStream() {
 						@Override
 						public void write(int b) throws IOException {
 							text.append((char) b);
@@ -218,14 +205,11 @@ class PastChange extends JPanel {
 		return text.toString();
 	}
 
-	private String getGITText(final String path, final String revision,
-			final boolean after) {
+	private String getGITText(final String path, final String revision, final boolean after) {
 
-		final String gitrepo = CPAConfig.getInstance()
-				.getGITREPOSITORY_FOR_MINING();
+		final String gitrepo = CPAConfig.getInstance().getGITREPOSITORY_FOR_MINING();
 		String text = "";
-		try (final FileRepository repo = new FileRepository(new File(gitrepo
-				+ "/.git"));
+		try (final FileRepository repo = new FileRepository(new File(gitrepo + "/.git"));
 				final ObjectReader reader = repo.newObjectReader();
 				final RevWalk revWalk = new RevWalk(reader)) {
 
@@ -265,26 +249,21 @@ class PastChange extends JPanel {
 			final Insets margin = new Insets(5, 50, 5, 5);
 			this.setMargin(margin);
 
-			final TargetSourceCodeUI sourceCodeUI = new TargetSourceCodeUI(
-					this, margin);
+			final TargetSourceCodeUI sourceCodeUI = new TargetSourceCodeUI(this, margin);
 			this.setUI(sourceCodeUI);
 			this.setTabSize(2);
 
 			this.scrollPane = new JScrollPane();
 			this.scrollPane.setViewportView(this);
-			this.scrollPane
-					.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-			this.scrollPane
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-			this.scrollPane.setBorder(new TitledBorder(new LineBorder(
-					Color.black), title));
+			this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+			this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black), title));
 			this.setText(code);
 		}
 
 		private void addHighlight(final int startline, final int endline) {
 
-			final DefaultHighlightPainter painter = new DefaultHighlightPainter(
-					new Color(200, 0, 0, 50));
+			final DefaultHighlightPainter painter = new DefaultHighlightPainter(new Color(200, 0, 0, 50));
 
 			try {
 
@@ -299,8 +278,7 @@ class PastChange extends JPanel {
 					endOffset = super.getLineEndOffset(endline - 1);
 				}
 
-				this.getHighlighter().addHighlight(startOffset, endOffset,
-						painter);
+				this.getHighlighter().addHighlight(startOffset, endOffset, painter);
 
 			} catch (final BadLocationException e) {
 				e.printStackTrace();
