@@ -39,8 +39,15 @@ public class ChangeExtractor {
 		final String db = CPAConfig.getInstance().getDATABASE();
 		final File dbFile = new File(db);
 		if (dbFile.exists()) {
-			System.out.println(db + " already exists in your file system.");
 			final boolean isForce = CPAConfig.getInstance().isFORCE();
+			final boolean isInsert = CPAConfig.getInstance().isINSERT();
+			if (isForce && isInsert) {
+				System.err
+						.println("options \"-f\" and \"-i\" cannot be used together.");
+				return;
+			}
+
+			System.out.println(db + " already exists in your file system.");
 			if (isForce) {
 				if (!dbFile.delete()) {
 					if (!CPAConfig.getInstance().isQUIET()) {
@@ -52,7 +59,14 @@ public class ChangeExtractor {
 						System.out.println("The db has been removed.");
 					}
 				}
-			} else {
+			}
+
+			else if (isInsert) {
+				System.out
+						.println("analysis results will be inserted to the existing db.");
+			}
+
+			else {
 				return;
 			}
 		}
