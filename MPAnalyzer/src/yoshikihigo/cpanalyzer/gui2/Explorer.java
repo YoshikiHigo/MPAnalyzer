@@ -13,12 +13,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -52,6 +55,7 @@ import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
+import yoshikihigo.cpanalyzer.data.MD5;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 
@@ -105,14 +109,26 @@ public class Explorer extends JFrame {
 		}
 
 		final Set<LANGUAGE> languages = CPAConfig.getInstance().getLANGUAGE();
-		final SortedMap<String, List<Statement>> allStatements = new TreeMap<>();
+		final SortedMap<String, List<Statement>> pathToStatements = new TreeMap<>();
+		final Map<MD5, SortedSet<String>> hashToPaths = new HashMap<>();
 		for (final Entry<String, String> entry : files.entrySet()) {
 			final String path = entry.getKey();
 			final String contents = entry.getValue();
 			for (final LANGUAGE lang : languages) {
 				if (lang.isTarget(path)) {
 					final List<Statement> statements = StringUtility.splitToStatements(contents, lang);
-					allStatements.put(path, statements);
+					pathToStatements.put(path, statements);
+
+					for (final Statement statement : statements) {
+						final MD5 hash = new MD5(statement.hash);
+						SortedSet<String> paths = hashToPaths.get(hash);
+						if (null == paths) {
+							paths = new TreeSet<>();
+							hashToPaths.put(hash, paths);
+						}
+						paths.add(path);
+					}
+
 					break;
 				}
 			}
@@ -123,24 +139,44 @@ public class Explorer extends JFrame {
 		final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON.getChangePatterns(support, confidence);
 
 		System.out.print("finding latent buggy code from ");
-		System.out.print(allStatements.size());
+		System.out.print(pathToStatements.size());
 		System.out.print(" files with ");
 		System.out.print(patterns.size());
 		System.out.print(" change patterns ... ");
 
-		final ConcurrentMap<String, List<Warning>> fWarnings = new ConcurrentHashMap<>();
-		final ConcurrentMap<ChangePattern, List<Warning>> pWarnings = new ConcurrentHashMap<>();
 		final int threads = CPAConfig.getInstance().getTHREAD();
 
 		final ExecutorService threadPool = Executors.newFixedThreadPool(threads);
 		final List<Future<?>> futures = new ArrayList<>();
 
-		for (final Entry<String, List<Statement>> file : allStatements.entrySet()) {
-			final String path = file.getKey();
-			final List<Statement> statements = file.getValue();
+		final ConcurrentMap<String, List<Warning>> fWarnings = new ConcurrentHashMap<>();
+		final ConcurrentMap<ChangePattern, List<Warning>> pWarnings = new ConcurrentHashMap<>();
+
+		PATTERN: for (final ChangePattern pattern : patterns) {
+
+			final String patternText = ReadOnlyDAO.SINGLETON.getCode(pattern.beforeHash).get(0).rText;
+			final List<byte[]> patternHashs = Arrays.asList(StringUtility.splitToLines(patternText)).stream()
+					.map(line -> Statement.getMD5(line)).collect(Collectors.toList());
+
+			if (patternHashs.isEmpty()) {
+				continue PATTERN;
+			}
+
+			final MD5 hash1 = new MD5(patternHashs.get(0));
+			if (!hashToPaths.containsKey(hash1)) {
+				continue PATTERN;
+			}
+			final SortedSet<String> paths = hashToPaths.get(hash1);
+			for (int index = 1; index < patternHashs.size(); index++) {
+				final MD5 hash2 = new MD5(patternHashs.get(index));
+				if (!hashToPaths.containsKey(hash2)) {
+					continue PATTERN;
+				}
+				paths.retainAll(hashToPaths.get(hash2));
+			}
 
 			final Future<?> future = threadPool
-					.submit(new MatchingThread(path, statements, patterns, fWarnings, pWarnings, verbose));
+					.submit(new MatchingThread(paths, pathToStatements, pattern, fWarnings, pWarnings, verbose));
 			futures.add(future);
 		}
 
@@ -289,6 +325,43 @@ public class Explorer extends JFrame {
 		return fileMap;
 	}
 
+	static private List<Warning> findMatchedCode(final List<Statement> statements, final ChangePattern pattern) {
+
+		final String patternText = ReadOnlyDAO.SINGLETON.getCode(pattern.beforeHash).get(0).rText;
+		final List<byte[]> patternHashs = Arrays.asList(StringUtility.splitToLines(patternText)).stream()
+				.map(line -> Statement.getMD5(line)).collect(Collectors.toList());
+
+		if (patternHashs.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		int pIndex = 0;
+		final List<Warning> warnings = new ArrayList<>();
+		final List<Statement> code = new ArrayList<>();
+		for (int index = 0; index < statements.size(); index++) {
+
+			if (Arrays.equals(statements.get(index).hash, patternHashs.get(pIndex))) {
+				pIndex++;
+				code.add(statements.get(index));
+				if (pIndex == patternHashs.size()) {
+					final int fromLine = code.get(0).fromLine;
+					final int toLine = code.get(code.size() - 1).toLine;
+					final Warning warning = new Warning(fromLine, toLine, pattern);
+					warnings.add(warning);
+					code.clear();
+					pIndex = 0;
+				}
+			}
+
+			else {
+				pIndex = 0;
+				code.clear();
+			}
+		}
+
+		return warnings;
+	}
+
 	public Explorer(final Map<String, String> files, final Map<String, List<Warning>> fWarnings,
 			final Map<ChangePattern, List<Warning>> pWarnings) {
 
@@ -384,20 +457,20 @@ public class Explorer extends JFrame {
 
 class MatchingThread extends Thread {
 
-	final String path;
-	final List<Statement> statements;
-	final List<ChangePattern> patterns;
+	final SortedSet<String> paths;
+	final SortedMap<String, List<Statement>> pathToStatements;
+	final ChangePattern pattern;
 	final ConcurrentMap<String, List<Warning>> fWarnings;
 	final ConcurrentMap<ChangePattern, List<Warning>> pWarnings;
 	final boolean verbose;
 
-	MatchingThread(final String path, final List<Statement> statements, final List<ChangePattern> patterns,
-			final ConcurrentMap<String, List<Warning>> fWarnings,
+	MatchingThread(final SortedSet<String> paths, final SortedMap<String, List<Statement>> pathToStatements,
+			final ChangePattern pattern, final ConcurrentMap<String, List<Warning>> fWarnings,
 			final ConcurrentMap<ChangePattern, List<Warning>> pWarnings, final boolean verbose) {
 
-		this.path = path;
-		this.statements = statements;
-		this.patterns = patterns;
+		this.paths = paths;
+		this.pathToStatements = pathToStatements;
+		this.pattern = pattern;
 		this.fWarnings = fWarnings;
 		this.pWarnings = pWarnings;
 		this.verbose = verbose;
@@ -410,36 +483,39 @@ class MatchingThread extends Thread {
 			final StringBuilder progress = new StringBuilder();
 			progress.append(" ");
 			progress.append(Thread.currentThread().getId());
-			progress.append(": matching change patterns with ");
-			progress.append(this.path);
+			progress.append(": matching code with change pattern ");
+			progress.append(this.pattern.id);
 			System.out.println(progress.toString());
 		}
 
-		for (final ChangePattern pattern : this.patterns) {
+		PATH: for (final String path : this.paths) {
+			final List<Statement> statements = this.pathToStatements.get(path);
 
-			final List<Warning> warnings = this.match(this.statements, pattern);
+			final List<Warning> warnings = this.findMatchedCode(statements, this.pattern);
 			if (warnings.isEmpty()) {
-				continue;
+				continue PATH;
 			}
 
-			List<Warning> w1 = fWarnings.get(path);
+			List<Warning> w1 = this.fWarnings.get(path);
 			if (null == w1) {
 				w1 = new ArrayList<>();
-				this.fWarnings.put(this.path, w1);
+				this.fWarnings.put(path, w1);
 			}
 			w1.addAll(warnings);
 
-			List<Warning> w2 = this.pWarnings.get(pattern);
+			List<Warning> w2 = this.pWarnings.get(this.pattern);
 			if (null == w2) {
 				w2 = new ArrayList<>();
-				this.pWarnings.put(pattern, w2);
+				this.pWarnings.put(this.pattern, w2);
 			}
 			w2.addAll(warnings);
+
 		}
+
 		super.run();
 	}
 
-	private List<Warning> match(final List<Statement> statements, final ChangePattern pattern) {
+	private List<Warning> findMatchedCode(final List<Statement> statements, final ChangePattern pattern) {
 
 		final String patternText = ReadOnlyDAO.SINGLETON.getCode(pattern.beforeHash).get(0).rText;
 		final List<byte[]> patternHashs = Arrays.asList(StringUtility.splitToLines(patternText)).stream()
