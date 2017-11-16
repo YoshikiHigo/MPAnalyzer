@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.lexer.token.ABSTRACT;
 import yoshikihigo.cpanalyzer.lexer.token.ANNOTATION;
+import yoshikihigo.cpanalyzer.lexer.token.BOOLEANLITERAL;
 import yoshikihigo.cpanalyzer.lexer.token.CHARLITERAL;
 import yoshikihigo.cpanalyzer.lexer.token.CLASS;
 import yoshikihigo.cpanalyzer.lexer.token.COLON;
@@ -49,8 +50,9 @@ import yoshikihigo.cpanalyzer.lexer.token.WHITESPACE;
 
 public class Statement {
 
-	public static List<Statement> getJCStatements(final List<Token> allTokens)
-			throws EmptyStackException {
+	public static List<Statement> getJCStatements(final List<Token> allTokens) throws EmptyStackException {
+
+		final CPAConfig config = CPAConfig.getInstance();
 
 		final List<Statement> statements = new ArrayList<>();
 		List<Token> tokens = new ArrayList<>();
@@ -61,7 +63,7 @@ public class Statement {
 		int inParenDepth = 0;
 		int inTernaryOperationDepth = 0;
 		int index = 0;
-		final boolean isDebug = CPAConfig.getInstance().isDEBUG();
+		final boolean isDebug = config.isDEBUG();
 
 		try {
 			for (final Token token : allTokens) {
@@ -97,11 +99,8 @@ public class Statement {
 					}
 				}
 
-				if ((0 == inParenDepth)
-						&& (0 == inTernaryOperationDepth)
-						&& (token instanceof LEFTBRACKET
-								|| token instanceof RIGHTBRACKET
-								|| token instanceof SEMICOLON || token instanceof COLON)) {
+				if ((0 == inParenDepth) && (0 == inTernaryOperationDepth) && (token instanceof LEFTBRACKET
+						|| token instanceof RIGHTBRACKET || token instanceof SEMICOLON || token instanceof COLON)) {
 
 					if (1 < tokens.size()) {
 
@@ -113,10 +112,13 @@ public class Statement {
 						final int fromLine = tokens.get(0).line;
 						final int toLine = tokens.get(tokens.size() - 1).line;
 						final String rText = makeText(tokens);
-						final String nText = makeJCText(tokens);
+						final List<Token> nonTrivialTokens = config.isCOUNT_MODIFIER() ? tokens
+								: removeJCTrivialTokens(tokens);
+						final List<Token> normalizedTokens = config.isNORMALIZATION()
+								? normalizeJCTokens(nonTrivialTokens) : nonTrivialTokens;
+						final String nText = makeText(normalizedTokens);
 						final byte[] hash = getMD5(nText);
-						final Statement statement = new Statement(fromLine,
-								toLine, nestDepth, 1 < nestDepth, tokens,
+						final Statement statement = new Statement(fromLine, toLine, nestDepth, 1 < nestDepth, tokens,
 								rText, nText, hash);
 						statements.add(statement);
 						tokens = new ArrayList<Token>();
@@ -132,8 +134,7 @@ public class Statement {
 				}
 
 				if ((0 == inParenDepth) && (token instanceof LEFTBRACKET)) {
-					nestLevel.push(Integer
-							.valueOf(nestLevel.peek().intValue() + 1));
+					nestLevel.push(Integer.valueOf(nestLevel.peek().intValue() + 1));
 				}
 
 				if ((0 < inTernaryOperationDepth) && (token instanceof COLON)) {
@@ -142,12 +143,10 @@ public class Statement {
 
 				if (token instanceof LEFTPAREN) {
 					inParenDepth++;
-					if ((1 < tokens.size())
-							&& (tokens.get(tokens.size() - 2) instanceof ANNOTATION)) {
+					if ((1 < tokens.size()) && (tokens.get(tokens.size() - 2) instanceof ANNOTATION)) {
 						inAnnotationDepth++;
 						tokens.remove(tokens.size() - 1);
-						final ANNOTATION annotation = new ANNOTATION(
-								token.value);
+						final ANNOTATION annotation = new ANNOTATION(token.value);
 						annotation.index = index++;
 						annotation.line = token.line;
 						tokens.add(annotation);
@@ -163,8 +162,7 @@ public class Statement {
 		return statements;
 	}
 
-	public static List<Statement> getPYStatements(final List<Token> allTokens)
-			throws EmptyStackException {
+	public static List<Statement> getPYStatements(final List<Token> allTokens) throws EmptyStackException {
 
 		final List<Statement> statements = new ArrayList<Statement>();
 		List<Token> tokens = new ArrayList<Token>();
@@ -191,15 +189,12 @@ public class Statement {
 					isIndent = false;
 				}
 
-				if (!(token instanceof TAB) && !(token instanceof WHITESPACE)
-						&& !(token instanceof LINEEND)) {
+				if (!(token instanceof TAB) && !(token instanceof WHITESPACE) && !(token instanceof LINEEND)) {
 					token.index = index++;
 				}
 
-				if (!(token instanceof TAB) && !(token instanceof WHITESPACE)
-						&& !(token instanceof LINEEND)
-						&& !(token instanceof SEMICOLON)
-						&& !(token instanceof LINEINTERRUPTION)) {
+				if (!(token instanceof TAB) && !(token instanceof WHITESPACE) && !(token instanceof LINEEND)
+						&& !(token instanceof SEMICOLON) && !(token instanceof LINEINTERRUPTION)) {
 					tokens.add(token);
 				}
 
@@ -236,40 +231,31 @@ public class Statement {
 				}
 
 				// make a statement
-				if (!interrupted
-						&& (0 == inParenDepth)
-						&& (0 == inBracketDepth)
-						&& (0 == inSquareBracketDepth)
+				if (!interrupted && (0 == inParenDepth) && (0 == inBracketDepth) && (0 == inSquareBracketDepth)
 						&& ((token instanceof LINEEND) || (token instanceof SEMICOLON))) {
 					if (!tokens.isEmpty()) {
 
 						if (!methodDefinitionDepth.isEmpty()
-								&& (nestLevel <= methodDefinitionDepth.peek()
-										.intValue())) {
+								&& (nestLevel <= methodDefinitionDepth.peek().intValue())) {
 							methodDefinitionDepth.pop();
 						}
 
 						if (isPYMethodDefinition(tokens)) {
-							methodDefinitionDepth.push(Integer
-									.valueOf(nestLevel));
+							methodDefinitionDepth.push(Integer.valueOf(nestLevel));
 						}
 
-						if (!methodDefinitionDepth.isEmpty()
-								&& (nestLevel < methodDefinitionDepth.peek()
-										.intValue())) {
+						if (!methodDefinitionDepth.isEmpty() && (nestLevel < methodDefinitionDepth.peek().intValue())) {
 							methodDefinitionDepth.pop();
 						}
 
 						final int fromLine = tokens.get(0).line;
 						final int toLine = tokens.get(tokens.size() - 1).line;
-						final boolean isTarget = (!methodDefinitionDepth
-								.isEmpty() && (methodDefinitionDepth.peek()
-								.intValue() < nestLevel));
+						final boolean isTarget = (!methodDefinitionDepth.isEmpty()
+								&& (methodDefinitionDepth.peek().intValue() < nestLevel));
 						final String rText = makeText(tokens);
 						final String nText = makePYText(tokens);
 						final byte[] hash = getMD5(nText);
-						final Statement statement = new Statement(fromLine,
-								toLine, nestLevel, isTarget, tokens, rText,
+						final Statement statement = new Statement(fromLine, toLine, nestLevel, isTarget, tokens, rText,
 								nText, hash);
 						statements.add(statement);
 						tokens = new ArrayList<Token>();
@@ -294,22 +280,20 @@ public class Statement {
 		return statements;
 	}
 
-	private static String makeJCText(final List<Token> tokens) {
+	private static List<Token> normalizeJCTokens(final List<Token> tokens) {
 
-		final List<Token> nonTrivialTokens = removeJCTrivialTokens(tokens);
-		final StringBuilder builder = new StringBuilder();
+		final List<Token> normalizedTokens = new ArrayList<>();
 		final Map<String, String> identifiers = new HashMap<>();
 		final Map<String, String> types = new HashMap<>();
 
-		for (int index = 0; index < nonTrivialTokens.size(); index++) {
+		for (int index = 0; index < tokens.size(); index++) {
 
-			final Token token = nonTrivialTokens.get(index);
+			final Token token = tokens.get(index);
 
 			if (token instanceof IDENTIFIER) {
 
-				if (index < nonTrivialTokens.size()
-						&& nonTrivialTokens.get(index + 1) instanceof LEFTPAREN) {
-					builder.append(token.value);
+				if (index < tokens.size() && tokens.get(index + 1) instanceof LEFTPAREN) {
+					normalizedTokens.add(token);
 				}
 
 				else if (Character.isLowerCase(token.value.charAt(0))) {
@@ -318,37 +302,57 @@ public class Statement {
 						normalizedValue = "$V" + identifiers.size();
 						identifiers.put(token.value, normalizedValue);
 					}
-					builder.append(normalizedValue);
+					final IDENTIFIER normalizedIdentifier = new IDENTIFIER(normalizedValue);
+					normalizedIdentifier.index = token.index;
+					normalizedIdentifier.line = token.line;
+					normalizedTokens.add(normalizedIdentifier);
 				}
 
 				else if (Character.isUpperCase(token.value.charAt(0))) {
-//					String normalizedValue = types.get(token.value);
-//					if (null == normalizedValue) {
-//						normalizedValue = "$T" + types.size();
-//						types.put(token.value, normalizedValue);
-//					}
-//					builder.append(normalizedValue);
-					builder.append(token.value);
+					// String normalizedValue = types.get(token.value);
+					// if (null == normalizedValue) {
+					// normalizedValue = "$T" + types.size();
+					// types.put(token.value, normalizedValue);
+					// }
+					// builder.append(normalizedValue);
+					normalizedTokens.add(token);
 				}
 			}
 
-			else if ((token instanceof CHARLITERAL)
-					|| (token instanceof NUMBERLITERAL)
-					|| (token instanceof STRINGLITERAL
-							|| (token instanceof TRUE) || (token instanceof FALSE))) {
-				builder.append("$L");
+			else if (token instanceof CHARLITERAL) {
+				final CHARLITERAL literal = new CHARLITERAL("C");
+				literal.index = token.index;
+				literal.line = token.line;
+				normalizedTokens.add(literal);
+			}
+
+			else if (token instanceof NUMBERLITERAL) {
+				final NUMBERLITERAL literal = new NUMBERLITERAL("N");
+				literal.index = token.index;
+				literal.line = token.line;
+				normalizedTokens.add(literal);
+			}
+
+			else if (token instanceof STRINGLITERAL) {
+				final STRINGLITERAL literal = new STRINGLITERAL("S");
+				literal.index = token.index;
+				literal.line = token.line;
+				normalizedTokens.add(literal);
+			}
+
+			else if ((token instanceof TRUE) || (token instanceof FALSE)) {
+				final BOOLEANLITERAL literal = new BOOLEANLITERAL("B");
+				literal.index = token.index;
+				literal.line = token.line;
+				normalizedTokens.add(literal);
 			}
 
 			else {
-				builder.append(token.value);
+				normalizedTokens.add(token);
 			}
-
-			builder.append(" ");
 		}
-		builder.deleteCharAt(builder.length() - 1);
 
-		final String text = builder.toString();
-		return text.toString();
+		return normalizedTokens;
 	}
 
 	private static String makePYText(final List<Token> tokens) {
@@ -363,8 +367,7 @@ public class Statement {
 
 			if (token instanceof IDENTIFIER) {
 
-				if (nonTrivialTokens.size() == (index + 1)
-						|| !(nonTrivialTokens.get(index + 1) instanceof LEFTPAREN)) {
+				if (nonTrivialTokens.size() == (index + 1) || !(nonTrivialTokens.get(index + 1) instanceof LEFTPAREN)) {
 					final String name = token.value;
 					String normalizedName = identifiers.get(name);
 					if (null == normalizedName) {
@@ -391,8 +394,8 @@ public class Statement {
 	}
 
 	private static String makeText(final List<Token> tokens) {
-		final String[] array = tokens.stream().map(token -> token.value)
-				.collect(Collectors.toList()).toArray(new String[0]);
+		final String[] array = tokens.stream().map(token -> token.value).collect(Collectors.toList())
+				.toArray(new String[0]);
 		final String text = String.join(" ", array);
 		return text;
 	}
@@ -401,9 +404,8 @@ public class Statement {
 		final List<Token> nonTrivialTokens = new ArrayList<>();
 		for (final Token token : tokens) {
 
-			if (token instanceof ABSTRACT || token instanceof FINAL
-					|| token instanceof PRIVATE || token instanceof PROTECTED
-					|| token instanceof PUBLIC || token instanceof STATIC
+			if (token instanceof ABSTRACT || token instanceof FINAL || token instanceof PRIVATE
+					|| token instanceof PROTECTED || token instanceof PUBLIC || token instanceof STATIC
 					|| token instanceof STRICTFP || token instanceof TRANSIENT) {
 				// not used for making hash
 				continue;
@@ -472,9 +474,8 @@ public class Statement {
 	final public String nText;
 	final public byte[] hash;
 
-	public Statement(final int fromLine, final int toLine, final int nestLevel,
-			final boolean isTarget, final List<Token> tokens,
-			final String rText, final String nText, final byte[] hash) {
+	public Statement(final int fromLine, final int toLine, final int nestLevel, final boolean isTarget,
+			final List<Token> tokens, final String rText, final String nText, final byte[] hash) {
 		this.fromLine = fromLine;
 		this.toLine = toLine;
 		this.tokens = tokens;

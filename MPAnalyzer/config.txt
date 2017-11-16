@@ -9,11 +9,11 @@ software= ant
 # absolute path for target GIT repository
 # either of GITREPOSITORY or SVNREPOSITORY can be specified
 # 解析対象GITリポジトリを絶対パスで指定．SVNリポジトリといずれか一方のみ指定可
-gitrepository=
+gitrepository=F:\cygwin64\home\yoshi\repositories\apache-ant.git
 
 # absolute path for target SVN repository
 # 解析対象SVNリポジトリを絶対パスで指定．GITリポジトリのいずれか一方のみ指定可
-svnrepository= /Users/higo/Desktop/data/repositories/repository-apache/ant/core/trunk
+svnrepository=
 
 # absolute or relative path for database 
 # 解析結果保存用のデータベースファイル（絶対パスでも相対パスでもOK）
@@ -23,9 +23,17 @@ database= ant.db
 # リポジトリ解析時に利用するスレッド数
 thread= 2
 
-# specify whether code is normalized or not; write YES or NO
-# 変更パターン抽出時にコードの正規化をするかどうか； YESかNOで指定
+# specify whether to count trivial tokens such as modifiers or not; write YES or NO
+# 変更パターン抽出時に修飾子等のトークンを考慮するかどうか； YESかNOで指定
+countmodifier= YES
+
+# specify whether variables/literals are normalized or not; write YES or NO
+# 変更パターン抽出時に変数およびリテラルの正規化をするかどうか； YESかNOで指定
 normalization= YES
+
+# specify max change size to extract; the number of statements
+# 抽出する変更パターンの最大の大きさ; プログラム文の数で指定
+changesize= 1
 
 # specify whether you want verbose output or not; write YES or NO
 # either of 'verbose' or 'quiet' can be specified as YES
@@ -40,7 +48,7 @@ quiet= NO
 
 # specify whether a change pattern is made from only 1 occurrence change; write YES or NO
 # 一度しか現れていない変更も変更パターンとして扱うかどうか；YESかNOで指定
-all= YES
+all= NO
 
 # specify whether existing database is overwritten or not; write YES or NO
 # 'database'で指定したファイルが存在していた場合に再度リポジトリ解析をするかどうか；YESかNOで指定
@@ -50,8 +58,8 @@ force= NO
 # If these options are not specified, whole the repository is analyzed
 # リポジトリ解析の範囲をリビジョン番号で指定（SVNリポジトリのみ）
 # もし指定されない場合はリポジトリ全体が解析される
-startrevision= 1
-endrevision= 1700000
+startrevision= 
+endrevision= 
 
 # specify start and end DATE (dd:mm:yyyy) of repository mining (only available for GIT repository)
 # リポジトリ解析の範囲を日付（dd:mm:yyyy）で指定（GITリポジトリのみ）
@@ -63,10 +71,10 @@ enddate=
 # either of SVN or GIT can be specified
 # 潜在的なバグを検出する対象となるソースコードを指定する．
 ## SVNリポジトリとリビジョン番号，もしくはGITリポジトリとコミットIDの組で指定
-esvnrepository=/Users/higo/Desktop/data/repositories/repository-apache/ant/core/trunk
-esvnrevision=1700000
-egitrepository=
-egitcommit=
+esvnrepository=
+esvnrevision=
+egitrepository=F:\cygwin64\home\yoshi\repositories\apache-ant.git
+egitcommit=a92845215f55eb63f0ad911c1610eac4dfaf82b4
 
 # instead of SVN/GIT repository, a usual directory can be specified for exploring latent buggy code
 # 潜在的なバグを検出する対象として普通のディレクトリを対象とすることもできる
@@ -78,5 +86,5 @@ edirectory=
 # 潜在的なバグを検出するために用いる変更パターンの選別を行うオプション
 # esupportは変更パターンを構成する変更のインスタンスの数を表す
 # econfidenceは変更パターンの変更前コード断片が変更後コード断片に変化する割合を表す
-esupport=5
+esupport=2
 econfidence=1.0
