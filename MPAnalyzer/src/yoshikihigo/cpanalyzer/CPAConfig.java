@@ -174,7 +174,7 @@ public class CPAConfig {
 		}
 
 		{
-			final Option option = new Option("normalize", "normalization", false,
+			final Option option = new Option("n", "normalization", false,
 					"normalizing variables and literals for mining");
 			option.setRequired(false);
 			OPTIONS.addOption(option);
@@ -513,7 +513,7 @@ public class CPAConfig {
 	}
 
 	public boolean isNORMALIZATION() {
-		return this.commandLine.hasOption("normalize");
+		return this.commandLine.hasOption("n");
 	}
 
 	public boolean isONLY_CONDITION() {
