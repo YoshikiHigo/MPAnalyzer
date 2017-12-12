@@ -28,6 +28,7 @@ import yoshikihigo.cpanalyzer.lexer.token.INTERFACE;
 import yoshikihigo.cpanalyzer.lexer.token.LEFTBRACKET;
 import yoshikihigo.cpanalyzer.lexer.token.LEFTPAREN;
 import yoshikihigo.cpanalyzer.lexer.token.LEFTSQUAREBRACKET;
+import yoshikihigo.cpanalyzer.lexer.token.LESS;
 import yoshikihigo.cpanalyzer.lexer.token.LINEEND;
 import yoshikihigo.cpanalyzer.lexer.token.LINEINTERRUPTION;
 import yoshikihigo.cpanalyzer.lexer.token.NUMBERLITERAL;
@@ -55,7 +56,7 @@ public class Statement {
 		final CPAConfig config = CPAConfig.getInstance();
 
 		final List<Statement> statements = new ArrayList<>();
-		List<Token> tokens = new ArrayList<>();
+		List<Token> buildingStatementTokens = new ArrayList<>();
 
 		final Stack<Integer> nestLevel = new Stack<>();
 		nestLevel.push(Integer.valueOf(1));
@@ -63,6 +64,7 @@ public class Statement {
 		int inParenDepth = 0;
 		int inTernaryOperationDepth = 0;
 		int index = 0;
+		Token previousToken = null;
 		final boolean isDebug = config.isDEBUG();
 
 		try {
@@ -73,10 +75,10 @@ public class Statement {
 					final ANNOTATION annotation = new ANNOTATION(token.value);
 					annotation.index = index++;
 					annotation.line = token.line;
-					tokens.add(annotation);
+					buildingStatementTokens.add(annotation);
 				} else {
 					token.index = index++;
-					tokens.add(token);
+					buildingStatementTokens.add(token);
 				}
 
 				if ((0 == inParenDepth) && (token instanceof RIGHTBRACKET)) {
@@ -88,7 +90,7 @@ public class Statement {
 					}
 				}
 
-				if (token instanceof QUESTION) {
+				if ((token instanceof QUESTION) && !(previousToken instanceof LESS)) {
 					inTernaryOperationDepth++;
 				}
 
@@ -102,26 +104,27 @@ public class Statement {
 				if ((0 == inParenDepth) && (0 == inTernaryOperationDepth) && (token instanceof LEFTBRACKET
 						|| token instanceof RIGHTBRACKET || token instanceof SEMICOLON || token instanceof COLON)) {
 
-					if (1 < tokens.size()) {
+					if (1 < buildingStatementTokens.size()) {
 
-						if (isJCTypeDefinition(tokens)) {
+						if (isJCTypeDefinition(buildingStatementTokens)) {
 							nestLevel.push(Integer.valueOf(0));
 						}
 						final int nestDepth = nestLevel.peek().intValue();
 
-						final int fromLine = tokens.get(0).line;
-						final int toLine = tokens.get(tokens.size() - 1).line;
-						final String rText = makeText(tokens);
-						final List<Token> nonTrivialTokens = config.isCOUNT_MODIFIER() ? tokens
-								: removeJCTrivialTokens(tokens);
+						final int fromLine = buildingStatementTokens.get(0).line;
+						final int toLine = buildingStatementTokens.get(buildingStatementTokens.size() - 1).line;
+						final String rText = makeText(buildingStatementTokens);
+						final List<Token> nonTrivialTokens = config.isCOUNT_MODIFIER() ? buildingStatementTokens
+								: removeJCTrivialTokens(buildingStatementTokens);
 						final List<Token> normalizedTokens = config.isNORMALIZATION()
-								? normalizeJCTokens(nonTrivialTokens) : nonTrivialTokens;
+								? normalizeJCTokens(nonTrivialTokens)
+								: nonTrivialTokens;
 						final String nText = makeText(normalizedTokens);
 						final byte[] hash = getMD5(nText);
-						final Statement statement = new Statement(fromLine, toLine, nestDepth, 1 < nestDepth, tokens,
-								rText, nText, hash);
+						final Statement statement = new Statement(fromLine, toLine, nestDepth, 1 < nestDepth,
+								buildingStatementTokens, rText, nText, hash);
 						statements.add(statement);
-						tokens = new ArrayList<Token>();
+						buildingStatementTokens = new ArrayList<Token>();
 
 						if (isDebug) {
 							System.out.println(statement.toString());
@@ -129,7 +132,7 @@ public class Statement {
 					}
 
 					else {
-						tokens.clear();
+						buildingStatementTokens.clear();
 					}
 				}
 
@@ -143,15 +146,18 @@ public class Statement {
 
 				if (token instanceof LEFTPAREN) {
 					inParenDepth++;
-					if ((1 < tokens.size()) && (tokens.get(tokens.size() - 2) instanceof ANNOTATION)) {
+					if ((1 < buildingStatementTokens.size()) && (buildingStatementTokens
+							.get(buildingStatementTokens.size() - 2) instanceof ANNOTATION)) {
 						inAnnotationDepth++;
-						tokens.remove(tokens.size() - 1);
+						buildingStatementTokens.remove(buildingStatementTokens.size() - 1);
 						final ANNOTATION annotation = new ANNOTATION(token.value);
 						annotation.index = index++;
 						annotation.line = token.line;
-						tokens.add(annotation);
+						buildingStatementTokens.add(annotation);
 					}
 				}
+
+				previousToken = token;
 			}
 		}
 
