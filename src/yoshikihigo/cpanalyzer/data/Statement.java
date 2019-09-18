@@ -116,9 +116,10 @@ public class Statement {
 						final String rText = makeText(buildingStatementTokens);
 						final List<Token> nonTrivialTokens = config.isCOUNT_MODIFIER() ? buildingStatementTokens
 								: removeJCTrivialTokens(buildingStatementTokens);
-						final List<Token> normalizedTokens = config.isNORMALIZATION()
-								? normalizeJCTokens(nonTrivialTokens)
-								: nonTrivialTokens;
+//						final List<Token> normalizedTokens = config.isNORMALIZATION()
+//								? normalizeJCTokens(nonTrivialTokens)
+//								: nonTrivialTokens;
+						final List<Token> normalizedTokens = normalizeJCTokens(nonTrivialTokens);
 						final String nText = makeText(normalizedTokens);
 						final byte[] hash = getMD5(nText);
 						final Statement statement = new Statement(fromLine, toLine, nestDepth, 1 < nestDepth,
@@ -326,28 +327,32 @@ public class Statement {
 			}
 
 			else if (token instanceof CHARLITERAL) {
-				final CHARLITERAL literal = new CHARLITERAL("C");
+				//final CHARLITERAL literal = new CHARLITERAL("C");
+				final CHARLITERAL literal = new CHARLITERAL("$L");
 				literal.index = token.index;
 				literal.line = token.line;
 				normalizedTokens.add(literal);
 			}
 
 			else if (token instanceof NUMBERLITERAL) {
-				final NUMBERLITERAL literal = new NUMBERLITERAL("N");
+				//final NUMBERLITERAL literal = new NUMBERLITERAL("N");
+				final NUMBERLITERAL literal = new NUMBERLITERAL("$L");
 				literal.index = token.index;
 				literal.line = token.line;
 				normalizedTokens.add(literal);
 			}
 
 			else if (token instanceof STRINGLITERAL) {
-				final STRINGLITERAL literal = new STRINGLITERAL("S");
+			    //final STRINGLITERAL literal = new STRINGLITERAL("S");
+				final STRINGLITERAL literal = new STRINGLITERAL("$L");
 				literal.index = token.index;
 				literal.line = token.line;
 				normalizedTokens.add(literal);
 			}
 
 			else if ((token instanceof TRUE) || (token instanceof FALSE)) {
-				final BOOLEANLITERAL literal = new BOOLEANLITERAL("B");
+				//final BOOLEANLITERAL literal = new BOOLEANLITERAL("B");
+				final BOOLEANLITERAL literal = new BOOLEANLITERAL("$L");
 				literal.index = token.index;
 				literal.line = token.line;
 				normalizedTokens.add(literal);

@@ -24,8 +24,8 @@ public class ChangeDAO {
 			+ "primary key(software, id)";
 	static public final String CHANGES_SCHEMA = "software string, "
 			+ "id integer, " + "filepath string, " + "author string, "
-			+ "beforeID integer, " + "beforeHash blob, " + "afterID integer, "
-			+ "afterHash blob, " + "revision string, " + "date string, "
+			+ "beforeID integer, " + "beforeHash string, " + "afterID integer, "
+			+ "afterHash string, " + "revision string, " + "date string, "
 			+ "changetype integer, " + "difftype integer, "
 			+ "primary key(software, id)";
 
@@ -133,9 +133,9 @@ public class ChangeDAO {
 			this.changePS.setString(3, change.filepath);
 			this.changePS.setString(4, change.revision.author);
 			this.changePS.setInt(5, change.before.id);
-			this.changePS.setBytes(6, change.before.hash);
+			this.changePS.setString(6, change.before.nText);
 			this.changePS.setInt(7, change.after.id);
-			this.changePS.setBytes(8, change.after.hash);
+			this.changePS.setString(8, change.after.nText);
 			this.changePS.setString(9, change.revision.id);
 			this.changePS.setString(10, change.revision.date);
 			this.changePS.setInt(11, change.changeType.getValue());
