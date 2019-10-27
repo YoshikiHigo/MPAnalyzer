@@ -70,7 +70,7 @@ public class Statement {
 		try {
 			for (final Token token : allTokens) {
 
-				token.index = index++;
+				//token.index = index++;
 				if (0 < inAnnotationDepth) {
 					final ANNOTATION annotation = new ANNOTATION(token.value);
 					annotation.index = index++;
