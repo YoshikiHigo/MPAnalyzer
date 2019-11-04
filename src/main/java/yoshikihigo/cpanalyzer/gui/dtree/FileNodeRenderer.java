@@ -10,100 +10,99 @@ import javax.swing.tree.TreeCellRenderer;
 
 class FileNodeRenderer extends JLabel implements TreeCellRenderer {
 
-	public FileNodeRenderer() {
-		this.setOpaque(true);
-	}
+  public FileNodeRenderer() {
+    this.setOpaque(true);
+  }
 
-	public Component getTreeCellRendererComponent(JTree tree, Object value,
-			boolean selected, boolean expanded, boolean leaf, int row,
-			boolean hasFocus) {
+  public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected,
+      boolean expanded, boolean leaf, int row, boolean hasFocus) {
 
-		final FileNode node = (FileNode) value;
+    final FileNode node = (FileNode) value;
 
-		if (leaf) {
+    if (leaf) {
 
-			if (0 == node.getCloneNumber()) {
+      if (0 == node.getCloneNumber()) {
 
-				setText(node.getName());
+        setText(node.getName());
 
-				if (selected) {
-					this.setBackground(Color.blue);
-					this.setForeground(Color.white);
-				} else {
-					this.setBackground(Color.white);
-					this.setForeground(Color.black);
-				}
+        if (selected) {
+          this.setBackground(Color.blue);
+          this.setForeground(Color.white);
+        } else {
+          this.setBackground(Color.white);
+          this.setForeground(Color.black);
+        }
 
-			} 
-			
-			else {
+      }
 
-				setText(node.toString());
+      else {
 
-				if (selected) {
-					this.setBackground(Color.blue);
-					this.setForeground(Color.red);
-				} else {
-					this.setBackground(Color.white);
-					this.setForeground(Color.blue);
-				}
-			}
+        setText(node.toString());
 
-			this.setIcon(UIManager.getIcon("Tree.leafIcon"));
+        if (selected) {
+          this.setBackground(Color.blue);
+          this.setForeground(Color.red);
+        } else {
+          this.setBackground(Color.white);
+          this.setForeground(Color.blue);
+        }
+      }
 
-		} 
-		
-		else {
+      this.setIcon(UIManager.getIcon("Tree.leafIcon"));
 
-			if (expanded) {
+    }
 
-				setText(node.getName());
+    else {
 
-				if (selected) {
-					this.setBackground(Color.blue);
-					this.setForeground(Color.white);
-				} else {
-					this.setBackground(Color.white);
-					this.setForeground(Color.black);
-				}
+      if (expanded) {
 
-				this.setIcon(UIManager.getIcon("Tree.openIcon"));
+        setText(node.getName());
 
-			} 
-			
-			else {
+        if (selected) {
+          this.setBackground(Color.blue);
+          this.setForeground(Color.white);
+        } else {
+          this.setBackground(Color.white);
+          this.setForeground(Color.black);
+        }
 
-				if (0 == node.getCloneNumber()) {
+        this.setIcon(UIManager.getIcon("Tree.openIcon"));
 
-					setText(node.getName());
+      }
 
-					if (selected) {
-						this.setBackground(Color.blue);
-						this.setForeground(Color.white);
-					} else {
-						this.setBackground(Color.white);
-						this.setForeground(Color.black);
-					}
+      else {
 
-				} 
-				
-				else {
+        if (0 == node.getCloneNumber()) {
 
-					setText(node.toString());
+          setText(node.getName());
 
-					if (selected) {
-						this.setBackground(Color.blue);
-						this.setForeground(Color.red);
-					} else {
-						this.setBackground(Color.white);
-						this.setForeground(Color.blue);
-					}
-				}
+          if (selected) {
+            this.setBackground(Color.blue);
+            this.setForeground(Color.white);
+          } else {
+            this.setBackground(Color.white);
+            this.setForeground(Color.black);
+          }
 
-				this.setIcon(UIManager.getIcon("Tree.closedIcon"));
-			}
-		}
+        }
 
-		return this;
-	}
+        else {
+
+          setText(node.toString());
+
+          if (selected) {
+            this.setBackground(Color.blue);
+            this.setForeground(Color.red);
+          } else {
+            this.setBackground(Color.white);
+            this.setForeground(Color.blue);
+          }
+        }
+
+        this.setIcon(UIManager.getIcon("Tree.closedIcon"));
+      }
+    }
+
+    return this;
+  }
 }

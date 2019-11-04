@@ -89,394 +89,391 @@ import yoshikihigo.cpanalyzer.lexer.token.YIELD;
 
 public class PythonLineLexer extends LineLexer {
 
-	enum PythonSTATE {
-		CODE, SINGLEQUOTELITERAL, DOUBLEQUOTELITERAL, BACKQUOTELITERAL;
-	}
+  enum PythonSTATE {
+    CODE, SINGLEQUOTELITERAL, DOUBLEQUOTELITERAL, BACKQUOTELITERAL;
+  }
 
-	final private Stack<PythonSTATE> states;
+  final private Stack<PythonSTATE> states;
 
-	public PythonLineLexer() {
-		this.states = new Stack<>();
-		this.states.push(PythonSTATE.CODE);
-	}
+  public PythonLineLexer() {
+    this.states = new Stack<>();
+    this.states.push(PythonSTATE.CODE);
+  }
 
-	@Override
-	public List<Token> lexLine(final String line) {
+  @Override
+  public List<Token> lexLine(final String line) {
 
-		final List<Token> tokens = new ArrayList<>();
-		final StringBuilder text = new StringBuilder(line);
-		boolean interrupted = false;
+    final List<Token> tokens = new ArrayList<>();
+    final StringBuilder text = new StringBuilder(line);
+    boolean interrupted = false;
 
-		while (0 < text.length()) {
+    while (0 < text.length()) {
 
-			final String string = text.toString();
-			if (PythonSTATE.CODE == this.states.peek()) {
+      final String string = text.toString();
+      if (PythonSTATE.CODE == this.states.peek()) {
 
-				if (string.startsWith("**=")) {
-					text.delete(0, 3);
-					tokens.add(new STARSTAREQUAL());
-				} else if (string.startsWith("//=")) {
-					text.delete(0, 3);
-					tokens.add(new DIVIDEDIVIDEEQUAL());
-				} else if (string.startsWith("<<=")) {
-					text.delete(0, 3);
-					tokens.add(new LEFTSHIFTEQUAL());
-				} else if (string.startsWith(">>=")) {
-					text.delete(0, 3);
-					tokens.add(new RIGHTSHIFTEQUAL());
-				} else if (string.startsWith("-=")) {
-					text.delete(0, 2);
-					tokens.add(new MINUSEQUAL());
-				} else if (string.startsWith("+=")) {
-					text.delete(0, 2);
-					tokens.add(new PLUSEQUAL());
-				} else if (string.startsWith("/=")) {
-					text.delete(0, 2);
-					tokens.add(new DIVIDEEQUAL());
-				} else if (string.startsWith("*=")) {
-					text.delete(0, 2);
-					tokens.add(new STAREQUAL());
-				} else if (string.startsWith("%=")) {
-					text.delete(0, 2);
-					tokens.add(new MODEQUAL());
+        if (string.startsWith("**=")) {
+          text.delete(0, 3);
+          tokens.add(new STARSTAREQUAL());
+        } else if (string.startsWith("//=")) {
+          text.delete(0, 3);
+          tokens.add(new DIVIDEDIVIDEEQUAL());
+        } else if (string.startsWith("<<=")) {
+          text.delete(0, 3);
+          tokens.add(new LEFTSHIFTEQUAL());
+        } else if (string.startsWith(">>=")) {
+          text.delete(0, 3);
+          tokens.add(new RIGHTSHIFTEQUAL());
+        } else if (string.startsWith("-=")) {
+          text.delete(0, 2);
+          tokens.add(new MINUSEQUAL());
+        } else if (string.startsWith("+=")) {
+          text.delete(0, 2);
+          tokens.add(new PLUSEQUAL());
+        } else if (string.startsWith("/=")) {
+          text.delete(0, 2);
+          tokens.add(new DIVIDEEQUAL());
+        } else if (string.startsWith("*=")) {
+          text.delete(0, 2);
+          tokens.add(new STAREQUAL());
+        } else if (string.startsWith("%=")) {
+          text.delete(0, 2);
+          tokens.add(new MODEQUAL());
 
-				} else if (string.startsWith("&=")) {
-					text.delete(0, 2);
-					tokens.add(new ANDEQUAL());
-				} else if (string.startsWith("|=")) {
-					text.delete(0, 2);
-					tokens.add(new OREQUAL());
-				} else if (string.startsWith("^=")) {
-					text.delete(0, 2);
-					tokens.add(new EXCLUSIVEOREQUAL());
+        } else if (string.startsWith("&=")) {
+          text.delete(0, 2);
+          tokens.add(new ANDEQUAL());
+        } else if (string.startsWith("|=")) {
+          text.delete(0, 2);
+          tokens.add(new OREQUAL());
+        } else if (string.startsWith("^=")) {
+          text.delete(0, 2);
+          tokens.add(new EXCLUSIVEOREQUAL());
 
-				} else if (string.startsWith("<=")) {
-					text.delete(0, 2);
-					tokens.add(new LESSEQUAL());
-				} else if (string.startsWith(">=")) {
-					text.delete(0, 2);
-					tokens.add(new GREATEQUAL());
-				} else if (string.startsWith("==")) {
-					text.delete(0, 2);
-					tokens.add(new EQUAL());
-				} else if (string.startsWith("<>")) {
-					text.delete(0, 2);
-					tokens.add(new NOTEQUAL2());
-				} else if (string.startsWith("!")) {
-					text.delete(0, 1);
-					tokens.add(new NOT());
-				}
+        } else if (string.startsWith("<=")) {
+          text.delete(0, 2);
+          tokens.add(new LESSEQUAL());
+        } else if (string.startsWith(">=")) {
+          text.delete(0, 2);
+          tokens.add(new GREATEQUAL());
+        } else if (string.startsWith("==")) {
+          text.delete(0, 2);
+          tokens.add(new EQUAL());
+        } else if (string.startsWith("<>")) {
+          text.delete(0, 2);
+          tokens.add(new NOTEQUAL2());
+        } else if (string.startsWith("!")) {
+          text.delete(0, 1);
+          tokens.add(new NOT());
+        }
 
-				else if (string.startsWith(":")) {
-					text.delete(0, 1);
-					tokens.add(new COLON());
-				} else if (string.startsWith(";")) {
-					text.delete(0, 1);
-					tokens.add(new SEMICOLON());
-				} else if (string.startsWith("=")) {
-					text.delete(0, 1);
-					tokens.add(new ASSIGN());
-				} else if (string.startsWith("-")) {
-					text.delete(0, 1);
-					tokens.add(new MINUS());
-				} else if (string.startsWith("+")) {
-					text.delete(0, 1);
-					tokens.add(new PLUS());
-				} else if (string.startsWith("/")) {
-					text.delete(0, 1);
-					tokens.add(new DIVIDE());
-				} else if (string.startsWith("*")) {
-					text.delete(0, 1);
-					tokens.add(new STAR());
-				} else if (string.startsWith("%")) {
-					text.delete(0, 1);
-					tokens.add(new MOD());
-				} else if (string.startsWith("?")) {
-					text.delete(0, 1);
-					tokens.add(new QUESTION());
-				} else if (string.startsWith("<")) {
-					text.delete(0, 1);
-					tokens.add(new LESS());
-				} else if (string.startsWith(">")) {
-					text.delete(0, 1);
-					tokens.add(new GREAT());
-				} else if (string.startsWith("&")) {
-					text.delete(0, 1);
-					tokens.add(new AND());
-				} else if (string.startsWith("|")) {
-					text.delete(0, 1);
-					tokens.add(new OR());
-				} else if (string.startsWith("~")) {
-					text.delete(0, 1);
-					tokens.add(new TILDA());
-				} else if (string.startsWith("^")) {
-					text.delete(0, 1);
-					tokens.add(new EXCLUSIVEOR());
-				} else if (string.startsWith("(")) {
-					text.delete(0, 1);
-					tokens.add(new LEFTPAREN());
-				} else if (string.startsWith(")")) {
-					text.delete(0, 1);
-					tokens.add(new RIGHTPAREN());
-				} else if (string.startsWith("{")) {
-					text.delete(0, 1);
-					tokens.add(new LEFTBRACKET());
-				} else if (string.startsWith("}")) {
-					text.delete(0, 1);
-					tokens.add(new RIGHTBRACKET());
-				} else if (string.startsWith("[")) {
-					text.delete(0, 1);
-					tokens.add(new LEFTSQUAREBRACKET());
-				} else if (string.startsWith("]")) {
-					text.delete(0, 1);
-					tokens.add(new RIGHTSQUAREBRACKET());
-				} else if (string.startsWith(",")) {
-					text.delete(0, 1);
-					tokens.add(new COMMA());
-				} else if (string.startsWith(".")) {
-					text.delete(0, 1);
-					tokens.add(new DOT());
-				} else if (string.startsWith(" ")) {
-					text.delete(0, 1);
-					tokens.add(new WHITESPACE());
-				} else if (string.startsWith("\\")) {
-					text.delete(0, 1);
-					tokens.add(new LINEINTERRUPTION());
-					interrupted = false;
-				}
+        else if (string.startsWith(":")) {
+          text.delete(0, 1);
+          tokens.add(new COLON());
+        } else if (string.startsWith(";")) {
+          text.delete(0, 1);
+          tokens.add(new SEMICOLON());
+        } else if (string.startsWith("=")) {
+          text.delete(0, 1);
+          tokens.add(new ASSIGN());
+        } else if (string.startsWith("-")) {
+          text.delete(0, 1);
+          tokens.add(new MINUS());
+        } else if (string.startsWith("+")) {
+          text.delete(0, 1);
+          tokens.add(new PLUS());
+        } else if (string.startsWith("/")) {
+          text.delete(0, 1);
+          tokens.add(new DIVIDE());
+        } else if (string.startsWith("*")) {
+          text.delete(0, 1);
+          tokens.add(new STAR());
+        } else if (string.startsWith("%")) {
+          text.delete(0, 1);
+          tokens.add(new MOD());
+        } else if (string.startsWith("?")) {
+          text.delete(0, 1);
+          tokens.add(new QUESTION());
+        } else if (string.startsWith("<")) {
+          text.delete(0, 1);
+          tokens.add(new LESS());
+        } else if (string.startsWith(">")) {
+          text.delete(0, 1);
+          tokens.add(new GREAT());
+        } else if (string.startsWith("&")) {
+          text.delete(0, 1);
+          tokens.add(new AND());
+        } else if (string.startsWith("|")) {
+          text.delete(0, 1);
+          tokens.add(new OR());
+        } else if (string.startsWith("~")) {
+          text.delete(0, 1);
+          tokens.add(new TILDA());
+        } else if (string.startsWith("^")) {
+          text.delete(0, 1);
+          tokens.add(new EXCLUSIVEOR());
+        } else if (string.startsWith("(")) {
+          text.delete(0, 1);
+          tokens.add(new LEFTPAREN());
+        } else if (string.startsWith(")")) {
+          text.delete(0, 1);
+          tokens.add(new RIGHTPAREN());
+        } else if (string.startsWith("{")) {
+          text.delete(0, 1);
+          tokens.add(new LEFTBRACKET());
+        } else if (string.startsWith("}")) {
+          text.delete(0, 1);
+          tokens.add(new RIGHTBRACKET());
+        } else if (string.startsWith("[")) {
+          text.delete(0, 1);
+          tokens.add(new LEFTSQUAREBRACKET());
+        } else if (string.startsWith("]")) {
+          text.delete(0, 1);
+          tokens.add(new RIGHTSQUAREBRACKET());
+        } else if (string.startsWith(",")) {
+          text.delete(0, 1);
+          tokens.add(new COMMA());
+        } else if (string.startsWith(".")) {
+          text.delete(0, 1);
+          tokens.add(new DOT());
+        } else if (string.startsWith(" ")) {
+          text.delete(0, 1);
+          tokens.add(new WHITESPACE());
+        } else if (string.startsWith("\\")) {
+          text.delete(0, 1);
+          tokens.add(new LINEINTERRUPTION());
+          interrupted = false;
+        }
 
-				else if ('\"' == string.charAt(0)) {
-					this.states.push(PythonSTATE.DOUBLEQUOTELITERAL);
-					int index = 1;
-					LITERAL: while (index < string.length()) {
-						if ('\"' == string.charAt(index)) {
-							this.states.pop();
-							break;
-						} else if ('\\' == string.charAt(index)) {
-							index++;
-							if (index == string.length()) {
-								break LITERAL;
-							}
-						}
-						index++;
-					}
-					final String value = text.substring(1, index);
-					text.delete(0, index + 1);
-					tokens.add(new STRINGLITERAL(value));
-				}
+        else if ('\"' == string.charAt(0)) {
+          this.states.push(PythonSTATE.DOUBLEQUOTELITERAL);
+          int index = 1;
+          LITERAL: while (index < string.length()) {
+            if ('\"' == string.charAt(index)) {
+              this.states.pop();
+              break;
+            } else if ('\\' == string.charAt(index)) {
+              index++;
+              if (index == string.length()) {
+                break LITERAL;
+              }
+            }
+            index++;
+          }
+          final String value = text.substring(1, index);
+          text.delete(0, index + 1);
+          tokens.add(new STRINGLITERAL(value));
+        }
 
-				else if ('\'' == string.charAt(0)) {
-					this.states.push(PythonSTATE.SINGLEQUOTELITERAL);
-					int index = 1;
-					LITERAL: while (index < string.length()) {
-						if ('\'' == string.charAt(index)) {
-							this.states.pop();
-							break;
-						} else if ('\\' == string.charAt(index)) {
-							index++;
-							if (index == string.length()) {
-								break LITERAL;
-							}
-						}
-						index++;
-					}
-					final String value = text.substring(1, index);
-					text.delete(0, index + 1);
-					tokens.add(new CHARLITERAL(value));
-				}
+        else if ('\'' == string.charAt(0)) {
+          this.states.push(PythonSTATE.SINGLEQUOTELITERAL);
+          int index = 1;
+          LITERAL: while (index < string.length()) {
+            if ('\'' == string.charAt(index)) {
+              this.states.pop();
+              break;
+            } else if ('\\' == string.charAt(index)) {
+              index++;
+              if (index == string.length()) {
+                break LITERAL;
+              }
+            }
+            index++;
+          }
+          final String value = text.substring(1, index);
+          text.delete(0, index + 1);
+          tokens.add(new CHARLITERAL(value));
+        }
 
-				else if ('`' == string.charAt(0)) {
-					this.states.push(PythonSTATE.BACKQUOTELITERAL);
-					int index = 1;
-					LITERAL: while (index < string.length()) {
-						if ('`' == string.charAt(index)) {
-							this.states.pop();
-							break;
-						} else if ('\\' == string.charAt(index)) {
-							index++;
-							if (index == string.length()) {
-								break LITERAL;
-							}
-						}
-						index++;
-					}
-					final String value = text.substring(1, index);
-					text.delete(0, index + 1);
-					tokens.add(new BACKQUOTELITERAL(value));
-				}
+        else if ('`' == string.charAt(0)) {
+          this.states.push(PythonSTATE.BACKQUOTELITERAL);
+          int index = 1;
+          LITERAL: while (index < string.length()) {
+            if ('`' == string.charAt(index)) {
+              this.states.pop();
+              break;
+            } else if ('\\' == string.charAt(index)) {
+              index++;
+              if (index == string.length()) {
+                break LITERAL;
+              }
+            }
+            index++;
+          }
+          final String value = text.substring(1, index);
+          text.delete(0, index + 1);
+          tokens.add(new BACKQUOTELITERAL(value));
+        }
 
-				else if (isDigit(string.charAt(0))) {
-					int index = 1;
-					while (index < string.length()) {
-						if (!isDigit(string.charAt(index))) {
-							break;
-						}
-						index++;
-					}
-					text.delete(0, index);
-					final String sconstant = string.substring(0, index);
-					tokens.add(new NUMBERLITERAL(sconstant));
-				}
+        else if (isDigit(string.charAt(0))) {
+          int index = 1;
+          while (index < string.length()) {
+            if (!isDigit(string.charAt(index))) {
+              break;
+            }
+            index++;
+          }
+          text.delete(0, index);
+          final String sconstant = string.substring(0, index);
+          tokens.add(new NUMBERLITERAL(sconstant));
+        }
 
-				else if (isAlphabet(string.charAt(0))
-						|| ('_' == string.charAt(0))) {
-					int index = 1;
-					while (index < string.length()) {
-						if (!isAlphabet(string.charAt(index))
-								&& !isDigit(string.charAt(index))
-								&& '_' != string.charAt(index)) {
-							break;
-						}
-						index++;
-					}
-					text.delete(0, index);
-					final String identifier = string.substring(0, index);
+        else if (isAlphabet(string.charAt(0)) || ('_' == string.charAt(0))) {
+          int index = 1;
+          while (index < string.length()) {
+            if (!isAlphabet(string.charAt(index)) && !isDigit(string.charAt(index))
+                && '_' != string.charAt(index)) {
+              break;
+            }
+            index++;
+          }
+          text.delete(0, index);
+          final String identifier = string.substring(0, index);
 
-					if (identifier.equals("False")) {
-						tokens.add(new FALSE2());
-					} else if (identifier.equals("None")) {
-						tokens.add(new NONE());
-					} else if (identifier.equals("True")) {
-						tokens.add(new TRUE2());
-					} else if (identifier.equals("and")) {
-						tokens.add(new AND2());
-					} else if (identifier.equals("assert")) {
-						tokens.add(new ASSERT());
-					} else if (identifier.equals("class")) {
-						tokens.add(new CLASS());
-					} else if (identifier.equals("continue")) {
-						tokens.add(new CONTINUE());
-					} else if (identifier.equals("def")) {
-						tokens.add(new DEF());
-					} else if (identifier.equals("del")) {
-						tokens.add(new DEL());
-					} else if (identifier.equals("elif")) {
-						tokens.add(new ELIF());
-					} else if (identifier.equals("else")) {
-						tokens.add(new ELSE());
-					} else if (identifier.equals("except")) {
-						tokens.add(new EXCEPT());
-					} else if (identifier.equals("finally")) {
-						tokens.add(new FINALLY());
-					} else if (identifier.equals("for")) {
-						tokens.add(new FOR());
-					} else if (identifier.equals("from")) {
-						tokens.add(new FROM());
-					} else if (identifier.equals("global")) {
-						tokens.add(new GLOBAL());
-					} else if (identifier.equals("if")) {
-						tokens.add(new IF());
-					} else if (identifier.equals("import")) {
-						tokens.add(new IMPORT());
-					} else if (identifier.equals("in")) {
-						tokens.add(new IN());
-					} else if (identifier.equals("is")) {
-						tokens.add(new IS());
-					} else if (identifier.equals("lambda")) {
-						tokens.add(new LAMBDA());
-					} else if (identifier.equals("nonlocal")) {
-						tokens.add(new NONLOCAL());
-					} else if (identifier.equals("not")) {
-						tokens.add(new NOT2());
-					} else if (identifier.equals("or")) {
-						tokens.add(new OR2());
-					} else if (identifier.equals("pass")) {
-						tokens.add(new PASS());
-					} else if (identifier.equals("raise")) {
-						tokens.add(new RAISE());
-					} else if (identifier.equals("return")) {
-						tokens.add(new RETURN());
-					} else if (identifier.equals("try")) {
-						tokens.add(new TRY());
-					} else if (identifier.equals("while")) {
-						tokens.add(new WHILE());
-					} else if (identifier.equals("with")) {
-						tokens.add(new WITH());
-					} else if (identifier.equals("yield")) {
-						tokens.add(new YIELD());
-					} else {
-						tokens.add(new IDENTIFIER(identifier));
-					}
-				}
+          if (identifier.equals("False")) {
+            tokens.add(new FALSE2());
+          } else if (identifier.equals("None")) {
+            tokens.add(new NONE());
+          } else if (identifier.equals("True")) {
+            tokens.add(new TRUE2());
+          } else if (identifier.equals("and")) {
+            tokens.add(new AND2());
+          } else if (identifier.equals("assert")) {
+            tokens.add(new ASSERT());
+          } else if (identifier.equals("class")) {
+            tokens.add(new CLASS());
+          } else if (identifier.equals("continue")) {
+            tokens.add(new CONTINUE());
+          } else if (identifier.equals("def")) {
+            tokens.add(new DEF());
+          } else if (identifier.equals("del")) {
+            tokens.add(new DEL());
+          } else if (identifier.equals("elif")) {
+            tokens.add(new ELIF());
+          } else if (identifier.equals("else")) {
+            tokens.add(new ELSE());
+          } else if (identifier.equals("except")) {
+            tokens.add(new EXCEPT());
+          } else if (identifier.equals("finally")) {
+            tokens.add(new FINALLY());
+          } else if (identifier.equals("for")) {
+            tokens.add(new FOR());
+          } else if (identifier.equals("from")) {
+            tokens.add(new FROM());
+          } else if (identifier.equals("global")) {
+            tokens.add(new GLOBAL());
+          } else if (identifier.equals("if")) {
+            tokens.add(new IF());
+          } else if (identifier.equals("import")) {
+            tokens.add(new IMPORT());
+          } else if (identifier.equals("in")) {
+            tokens.add(new IN());
+          } else if (identifier.equals("is")) {
+            tokens.add(new IS());
+          } else if (identifier.equals("lambda")) {
+            tokens.add(new LAMBDA());
+          } else if (identifier.equals("nonlocal")) {
+            tokens.add(new NONLOCAL());
+          } else if (identifier.equals("not")) {
+            tokens.add(new NOT2());
+          } else if (identifier.equals("or")) {
+            tokens.add(new OR2());
+          } else if (identifier.equals("pass")) {
+            tokens.add(new PASS());
+          } else if (identifier.equals("raise")) {
+            tokens.add(new RAISE());
+          } else if (identifier.equals("return")) {
+            tokens.add(new RETURN());
+          } else if (identifier.equals("try")) {
+            tokens.add(new TRY());
+          } else if (identifier.equals("while")) {
+            tokens.add(new WHILE());
+          } else if (identifier.equals("with")) {
+            tokens.add(new WITH());
+          } else if (identifier.equals("yield")) {
+            tokens.add(new YIELD());
+          } else {
+            tokens.add(new IDENTIFIER(identifier));
+          }
+        }
 
-				else if ('@' == string.charAt(0)) {
+        else if ('@' == string.charAt(0)) {
 
-					int index = 1;
-					while (index < string.length()) {
-						if (' ' == string.charAt(index)
-								|| '\t' == string.charAt(index)) {
+          int index = 1;
+          while (index < string.length()) {
+            if (' ' == string.charAt(index) || '\t' == string.charAt(index)) {
 
-						}
-						index++;
-					}
-					text.delete(0, index);
-					final String value = string.substring(0, index);
-					tokens.add(new ANNOTATION(value));
-				}
+            }
+            index++;
+          }
+          text.delete(0, index);
+          final String value = string.substring(0, index);
+          tokens.add(new ANNOTATION(value));
+        }
 
-				else if (' ' == string.charAt(0)) {
-					text.deleteCharAt(0);
-				}
+        else if (' ' == string.charAt(0)) {
+          text.deleteCharAt(0);
+        }
 
-				else if ('\t' == string.charAt(0)) {
-					text.deleteCharAt(0);
-					tokens.add(new TAB());
-				}
+        else if ('\t' == string.charAt(0)) {
+          text.deleteCharAt(0);
+          tokens.add(new TAB());
+        }
 
-				else {
-					assert false : "unexpected situation: " + string;
-					break;
-				}
+        else {
+          assert false : "unexpected situation: " + string;
+          break;
+        }
 
-			} else if (PythonSTATE.SINGLEQUOTELITERAL == this.states.peek()) {
+      } else if (PythonSTATE.SINGLEQUOTELITERAL == this.states.peek()) {
 
-				int index = 1;
-				LITERAL: while (index < string.length()) {
-					if ('\'' == string.charAt(index)) {
-						this.states.pop();
-						break;
-					} else if ('\\' == string.charAt(index)) {
-						index++;
-						if (index == string.length()) {
-							break LITERAL;
-						}
-					}
-					index++;
-				}
-				final String value = text.substring(1, index);
-				text.delete(0, index + 1);
-				tokens.add(new CHARLITERAL(value));
+        int index = 1;
+        LITERAL: while (index < string.length()) {
+          if ('\'' == string.charAt(index)) {
+            this.states.pop();
+            break;
+          } else if ('\\' == string.charAt(index)) {
+            index++;
+            if (index == string.length()) {
+              break LITERAL;
+            }
+          }
+          index++;
+        }
+        final String value = text.substring(1, index);
+        text.delete(0, index + 1);
+        tokens.add(new CHARLITERAL(value));
 
-			} else if (PythonSTATE.DOUBLEQUOTELITERAL == this.states.peek()) {
+      } else if (PythonSTATE.DOUBLEQUOTELITERAL == this.states.peek()) {
 
-				int index = 1;
-				LITERAL: while (index < string.length()) {
-					if ('\"' == string.charAt(index)) {
-						this.states.pop();
-						break;
-					} else if ('\\' == string.charAt(index)) {
-						index++;
-						if (index == string.length()) {
-							break LITERAL;
-						}
-					}
-					index++;
-				}
-				final String value = text.substring(1, index);
-				text.delete(0, index + 1);
-				tokens.add(new STRINGLITERAL(value));
-			}
+        int index = 1;
+        LITERAL: while (index < string.length()) {
+          if ('\"' == string.charAt(index)) {
+            this.states.pop();
+            break;
+          } else if ('\\' == string.charAt(index)) {
+            index++;
+            if (index == string.length()) {
+              break LITERAL;
+            }
+          }
+          index++;
+        }
+        final String value = text.substring(1, index);
+        text.delete(0, index + 1);
+        tokens.add(new STRINGLITERAL(value));
+      }
 
-			else {
-				assert false : "unexpected situation: " + string;
-				break;
-			}
-		}
+      else {
+        assert false : "unexpected situation: " + string;
+        break;
+      }
+    }
 
-		if (!interrupted) {
-			tokens.add(new LINEEND());
-		}
+    if (!interrupted) {
+      tokens.add(new LINEEND());
+    }
 
-		return tokens;
-	}
+    return tokens;
+  }
 }

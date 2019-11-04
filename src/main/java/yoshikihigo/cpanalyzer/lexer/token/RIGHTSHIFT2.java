@@ -2,7 +2,7 @@ package yoshikihigo.cpanalyzer.lexer.token;
 
 public class RIGHTSHIFT2 extends Token {
 
-	public RIGHTSHIFT2() {
-		super(">>>");
-	}
+  public RIGHTSHIFT2() {
+    super(">>>");
+  }
 }

@@ -11,147 +11,146 @@ import java.util.TreeSet;
 
 public class ObservedFiles extends Observable {
 
-	public enum FLABEL {
-		SELECTED, OVERLOOKED;
-	}
+  public enum FLABEL {
+    SELECTED, OVERLOOKED;
+  }
 
-	private static final Map<FLABEL, ObservedFiles> INSTANCES = new HashMap<FLABEL, ObservedFiles>();
+  private static final Map<FLABEL, ObservedFiles> INSTANCES = new HashMap<FLABEL, ObservedFiles>();
 
-	private final SortedSet<String> files;
-	public final FLABEL label;
-	private Observer source;
+  private final SortedSet<String> files;
+  public final FLABEL label;
+  private Observer source;
 
-	private ObservedFiles(final FLABEL label) {
+  private ObservedFiles(final FLABEL label) {
 
-		if (null == label) {
-			throw new NullPointerException();
-		}
+    if (null == label) {
+      throw new NullPointerException();
+    }
 
-		this.files = new TreeSet<String>();
-		this.source = null;
-		this.label = label;
-	}
+    this.files = new TreeSet<String>();
+    this.source = null;
+    this.label = label;
+  }
 
-	public static final ObservedFiles getInstance(final FLABEL label) {
-		ObservedFiles instance = INSTANCES.get(label);
-		if (null == instance) {
-			instance = new ObservedFiles(label);
-			INSTANCES.put(label, instance);
-		}
-		return instance;
-	}
+  public static final ObservedFiles getInstance(final FLABEL label) {
+    ObservedFiles instance = INSTANCES.get(label);
+    if (null == instance) {
+      instance = new ObservedFiles(label);
+      INSTANCES.put(label, instance);
+    }
+    return instance;
+  }
 
-	public boolean add(final String file, final Observer source) {
+  public boolean add(final String file, final Observer source) {
 
-		if (null == file) {
-			return false;
-		}
+    if (null == file) {
+      return false;
+    }
 
-		this.files.add(file);
-		this.source = source;
+    this.files.add(file);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean addAll(final Collection<String> files, final Observer source) {
+  public boolean addAll(final Collection<String> files, final Observer source) {
 
-		if (null == files) {
-			return false;
-		}
+    if (null == files) {
+      return false;
+    }
 
-		this.files.addAll(files);
-		this.source = source;
+    this.files.addAll(files);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean remove(final String file, final Observer source) {
+  public boolean remove(final String file, final Observer source) {
 
-		if (null == file) {
-			return false;
-		}
+    if (null == file) {
+      return false;
+    }
 
-		this.files.remove(file);
-		this.source = source;
+    this.files.remove(file);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean removeAll(final Collection<String> files,
-			final Observer source) {
+  public boolean removeAll(final Collection<String> files, final Observer source) {
 
-		if (null == files) {
-			return false;
-		}
+    if (null == files) {
+      return false;
+    }
 
-		this.files.removeAll(files);
-		this.source = source;
+    this.files.removeAll(files);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean set(final String file, final Observer source) {
+  public boolean set(final String file, final Observer source) {
 
-		if (null == file) {
-			return false;
-		}
+    if (null == file) {
+      return false;
+    }
 
-		this.files.clear();
-		this.files.add(file);
-		this.source = source;
+    this.files.clear();
+    this.files.add(file);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean setAll(final Collection<String> files, final Observer source) {
+  public boolean setAll(final Collection<String> files, final Observer source) {
 
-		if (null == files) {
-			return false;
-		}
+    if (null == files) {
+      return false;
+    }
 
-		this.files.clear();
-		this.files.addAll(files);
-		this.source = source;
+    this.files.clear();
+    this.files.addAll(files);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean isSet() {
-		return !this.files.isEmpty();
-	}
+  public boolean isSet() {
+    return !this.files.isEmpty();
+  }
 
-	public void clear(final Observer source) {
+  public void clear(final Observer source) {
 
-		this.files.clear();
-		this.source = source;
+    this.files.clear();
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
-	}
+    this.setChanged();
+    this.notifyObservers(source);
+  }
 
-	public SortedSet<String> get() {
-		return Collections.unmodifiableSortedSet(this.files);
-	}
+  public SortedSet<String> get() {
+    return Collections.unmodifiableSortedSet(this.files);
+  }
 
-	public Observer getSource() {
-		return this.source;
-	}
+  public Observer getSource() {
+    return this.source;
+  }
 }

@@ -13,151 +13,147 @@ import yoshikihigo.cpanalyzer.data.ChangePattern;
 
 public class ObservedChangePatterns extends Observable {
 
-	public enum CPLABEL {
-		ALL, FILTERED, SELECTED, OVERLOOKED;
-	}
+  public enum CPLABEL {
+    ALL, FILTERED, SELECTED, OVERLOOKED;
+  }
 
-	private static final Map<CPLABEL, ObservedChangePatterns> INSTANCES = new HashMap<CPLABEL, ObservedChangePatterns>();
+  private static final Map<CPLABEL, ObservedChangePatterns> INSTANCES =
+      new HashMap<CPLABEL, ObservedChangePatterns>();
 
-	private final SortedSet<ChangePattern> patterns;
-	public final CPLABEL label;
-	private Observer source;
+  private final SortedSet<ChangePattern> patterns;
+  public final CPLABEL label;
+  private Observer source;
 
-	private ObservedChangePatterns(final CPLABEL label) {
+  private ObservedChangePatterns(final CPLABEL label) {
 
-		if (null == label) {
-			throw new NullPointerException();
-		}
+    if (null == label) {
+      throw new NullPointerException();
+    }
 
-		this.patterns = new TreeSet<ChangePattern>();
-		this.source = null;
-		this.label = label;
-	}
+    this.patterns = new TreeSet<ChangePattern>();
+    this.source = null;
+    this.label = label;
+  }
 
-	public static final ObservedChangePatterns getInstance(
-			final CPLABEL label) {
-		ObservedChangePatterns instance = INSTANCES.get(label);
-		if (null == instance) {
-			instance = new ObservedChangePatterns(label);
-			INSTANCES.put(label, instance);
-		}
-		return instance;
-	}
+  public static final ObservedChangePatterns getInstance(final CPLABEL label) {
+    ObservedChangePatterns instance = INSTANCES.get(label);
+    if (null == instance) {
+      instance = new ObservedChangePatterns(label);
+      INSTANCES.put(label, instance);
+    }
+    return instance;
+  }
 
-	public boolean add(final ChangePattern pattern, final Observer source) {
+  public boolean add(final ChangePattern pattern, final Observer source) {
 
-		if (null == pattern) {
-			return false;
-		}
+    if (null == pattern) {
+      return false;
+    }
 
-		this.patterns.add(pattern);
-		this.source = source;
+    this.patterns.add(pattern);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean addAll(final Collection<ChangePattern> patterns,
-			final Observer source) {
+  public boolean addAll(final Collection<ChangePattern> patterns, final Observer source) {
 
-		if (null == patterns) {
-			return false;
-		}
+    if (null == patterns) {
+      return false;
+    }
 
-		this.patterns.addAll(patterns);
-		this.source = source;
+    this.patterns.addAll(patterns);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean remove(final ChangePattern pattern,
-			final Observer source) {
+  public boolean remove(final ChangePattern pattern, final Observer source) {
 
-		if (null == pattern) {
-			return false;
-		}
+    if (null == pattern) {
+      return false;
+    }
 
-		this.patterns.remove(pattern);
-		this.source = source;
+    this.patterns.remove(pattern);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean removeAll(final Collection<ChangePattern> patterns,
-			final Observer source) {
+  public boolean removeAll(final Collection<ChangePattern> patterns, final Observer source) {
 
-		if (null == patterns) {
-			return false;
-		}
+    if (null == patterns) {
+      return false;
+    }
 
-		this.patterns.removeAll(patterns);
-		this.source = source;
+    this.patterns.removeAll(patterns);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean set(final ChangePattern pattern, final Observer source) {
+  public boolean set(final ChangePattern pattern, final Observer source) {
 
-		if (null == pattern) {
-			return false;
-		}
+    if (null == pattern) {
+      return false;
+    }
 
-		this.patterns.clear();
-		this.patterns.add(pattern);
-		this.source = source;
+    this.patterns.clear();
+    this.patterns.add(pattern);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean setAll(final Collection<ChangePattern> patterns,
-			final Observer source) {
+  public boolean setAll(final Collection<ChangePattern> patterns, final Observer source) {
 
-		if (null == patterns) {
-			return false;
-		}
+    if (null == patterns) {
+      return false;
+    }
 
-		this.patterns.clear();
-		this.patterns.addAll(patterns);
-		this.source = source;
+    this.patterns.clear();
+    this.patterns.addAll(patterns);
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
+    this.setChanged();
+    this.notifyObservers(source);
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean isSet() {
-		return !this.patterns.isEmpty();
-	}
+  public boolean isSet() {
+    return !this.patterns.isEmpty();
+  }
 
-	public void clear(final Observer source) {
+  public void clear(final Observer source) {
 
-		this.patterns.clear();
-		this.source = source;
+    this.patterns.clear();
+    this.source = source;
 
-		this.setChanged();
-		this.notifyObservers(source);
-	}
+    this.setChanged();
+    this.notifyObservers(source);
+  }
 
-	public SortedSet<ChangePattern> get() {
-		return Collections.unmodifiableSortedSet(this.patterns);
-	}
+  public SortedSet<ChangePattern> get() {
+    return Collections.unmodifiableSortedSet(this.patterns);
+  }
 
-	public Observer getSource() {
-		return this.source;
-	}
+  public Observer getSource() {
+    return this.source;
+  }
 }

@@ -2,7 +2,7 @@ package yoshikihigo.cpanalyzer.lexer.token;
 
 public class EXTENDS extends Token {
 
-	public EXTENDS() {
-		super("extends");
-	}
+  public EXTENDS() {
+    super("extends");
+  }
 }

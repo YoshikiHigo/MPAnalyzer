@@ -22,112 +22,118 @@ import yoshikihigo.cpanalyzer.gui.graph.PCGraph;
 
 public class MainWindow extends JFrame {
 
-	public static void main(String[] args) {
+  public static void main(String[] args) {
 
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (final Exception e) {
-		}
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    } catch (final Exception e) {
+    }
 
-		CPAConfig.initialize(args);
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new MainWindow();
-			}
-		});
-	}
+    CPAConfig.initialize(args);
+    SwingUtilities.invokeLater(new Runnable() {
 
-	public MainWindow() {
-		super("");
+      public void run() {
+        new MainWindow();
+      }
+    });
+  }
 
-		ReadOnlyDAO.SINGLETON.initialize();
+  public MainWindow() {
+    super("");
 
-		final Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setSize(new Dimension(d.width - 5, d.height - 27));
-		this.addWindowListener(new MainWindowListener());
+    ReadOnlyDAO.SINGLETON.initialize();
 
-		final ThresholdPanel threshold = new ThresholdPanel();
-		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(threshold);
-		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
-				threshold);
-		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
-				threshold);
-		this.getContentPane().add(threshold, BorderLayout.NORTH);
+    final Dimension d = Toolkit.getDefaultToolkit()
+        .getScreenSize();
+    this.setSize(new Dimension(d.width - 5, d.height - 27));
+    this.addWindowListener(new MainWindowListener());
 
-		final JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		final PCGraph graph = new PCGraph();
-		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(graph);
-		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(graph);
-		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(graph);
-		topPane.add(graph, JSplitPane.LEFT);
+    final ThresholdPanel threshold = new ThresholdPanel();
+    ObservedChangePatterns.getInstance(CPLABEL.ALL)
+        .addObserver(threshold);
+    ObservedChangePatterns.getInstance(CPLABEL.FILTERED)
+        .addObserver(threshold);
+    ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
+        .addObserver(threshold);
+    this.getContentPane()
+        .add(threshold, BorderLayout.NORTH);
 
-		final JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		final CPList list = new CPList();
-		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(list);
-		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(list);
-		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(list);
-		rightPane.setTopComponent(list.scrollPane);
-		final CLPanel clPanel = new CLPanel();
-		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
-				clPanel);
-		rightPane.setBottomComponent(clPanel.scrollPane);
-		topPane.add(rightPane, JSplitPane.RIGHT);
+    final JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+    final PCGraph graph = new PCGraph();
+    ObservedChangePatterns.getInstance(CPLABEL.ALL)
+        .addObserver(graph);
+    ObservedChangePatterns.getInstance(CPLABEL.FILTERED)
+        .addObserver(graph);
+    ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
+        .addObserver(graph);
+    topPane.add(graph, JSplitPane.LEFT);
 
-		final CPCode beforeCode = new CPCode(CODE.BEFORE);
-		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(beforeCode);
-		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
-				beforeCode);
-		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
-				beforeCode);
+    final JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    final CPList list = new CPList();
+    ObservedChangePatterns.getInstance(CPLABEL.ALL)
+        .addObserver(list);
+    ObservedChangePatterns.getInstance(CPLABEL.FILTERED)
+        .addObserver(list);
+    ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
+        .addObserver(list);
+    rightPane.setTopComponent(list.scrollPane);
+    final CLPanel clPanel = new CLPanel();
+    ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
+        .addObserver(clPanel);
+    rightPane.setBottomComponent(clPanel.scrollPane);
+    topPane.add(rightPane, JSplitPane.RIGHT);
 
-		final CPCode afterCode = new CPCode(CODE.AFTER);
-		ObservedChangePatterns.getInstance(CPLABEL.ALL).addObserver(afterCode);
-		ObservedChangePatterns.getInstance(CPLABEL.FILTERED).addObserver(
-				afterCode);
-		ObservedChangePatterns.getInstance(CPLABEL.SELECTED).addObserver(
-				afterCode);
+    final CPCode beforeCode = new CPCode(CODE.BEFORE);
+    ObservedChangePatterns.getInstance(CPLABEL.ALL)
+        .addObserver(beforeCode);
+    ObservedChangePatterns.getInstance(CPLABEL.FILTERED)
+        .addObserver(beforeCode);
+    ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
+        .addObserver(beforeCode);
 
-		final JSplitPane bottomPane = new JSplitPane(
-				JSplitPane.HORIZONTAL_SPLIT);
-		bottomPane.add(beforeCode.scrollPane, JTabbedPane.LEFT);
-		bottomPane.add(afterCode.scrollPane, JTabbedPane.RIGHT);
+    final CPCode afterCode = new CPCode(CODE.AFTER);
+    ObservedChangePatterns.getInstance(CPLABEL.ALL)
+        .addObserver(afterCode);
+    ObservedChangePatterns.getInstance(CPLABEL.FILTERED)
+        .addObserver(afterCode);
+    ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
+        .addObserver(afterCode);
 
-		final JSplitPane mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		mainPane.add(topPane, JTabbedPane.TOP);
-		mainPane.add(bottomPane, JTabbedPane.BOTTOM);
+    final JSplitPane bottomPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+    bottomPane.add(beforeCode.scrollPane, JTabbedPane.LEFT);
+    bottomPane.add(afterCode.scrollPane, JTabbedPane.RIGHT);
 
-		this.getContentPane().add(mainPane, BorderLayout.CENTER);
+    final JSplitPane mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    mainPane.add(topPane, JTabbedPane.TOP);
+    mainPane.add(bottomPane, JTabbedPane.BOTTOM);
 
-		rightPane.setDividerLocation(d.height - 550);
-		topPane.setDividerLocation(d.width / 2);
-		bottomPane.setDividerLocation(d.width / 2);
-		mainPane.setDividerLocation(d.height - 350);
+    this.getContentPane()
+        .add(mainPane, BorderLayout.CENTER);
 
-		this.setVisible(true);
-	}
+    rightPane.setDividerLocation(d.height - 550);
+    topPane.setDividerLocation(d.width / 2);
+    bottomPane.setDividerLocation(d.width / 2);
+    mainPane.setDividerLocation(d.height - 350);
 
-	static class MainWindowListener implements WindowListener {
+    this.setVisible(true);
+  }
 
-		public void windowActivated(WindowEvent e) {
-		}
+  static class MainWindowListener implements WindowListener {
 
-		public void windowClosed(WindowEvent e) {
-		}
+    public void windowActivated(WindowEvent e) {}
 
-		public void windowClosing(WindowEvent e) {
-			System.exit(0);
-		}
+    public void windowClosed(WindowEvent e) {}
 
-		public void windowDeactivated(WindowEvent e) {
-		}
+    public void windowClosing(WindowEvent e) {
+      System.exit(0);
+    }
 
-		public void windowDeiconified(WindowEvent e) {
-		}
+    public void windowDeactivated(WindowEvent e) {}
 
-		public void windowIconified(WindowEvent e) {
-		}
+    public void windowDeiconified(WindowEvent e) {}
 
-		public void windowOpened(WindowEvent e) {
-		}
-	}
+    public void windowIconified(WindowEvent e) {}
+
+    public void windowOpened(WindowEvent e) {}
+  }
 }

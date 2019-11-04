@@ -2,7 +2,7 @@ package yoshikihigo.cpanalyzer.lexer.token;
 
 public class ASM extends Token {
 
-	public ASM() {
-		super("asm");
-	}
+  public ASM() {
+    super("asm");
+  }
 }

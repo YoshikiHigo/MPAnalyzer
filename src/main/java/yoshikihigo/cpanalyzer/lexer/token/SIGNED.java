@@ -2,7 +2,7 @@ package yoshikihigo.cpanalyzer.lexer.token;
 
 public class SIGNED extends Token {
 
-	public SIGNED() {
-		super("signed");
-	}
+  public SIGNED() {
+    super("signed");
+  }
 }

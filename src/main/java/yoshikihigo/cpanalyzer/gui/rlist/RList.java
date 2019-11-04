@@ -33,142 +33,133 @@ import yoshikihigo.cpanalyzer.data.Revision;
 
 public class RList extends JPanel {
 
-	final public JScrollPane scrollPane;
+  final public JScrollPane scrollPane;
 
-	final ButtonGroup group;
-	final Map<JRadioButton, Revision> buttonRevisionMap;
+  final ButtonGroup group;
+  final Map<JRadioButton, Revision> buttonRevisionMap;
 
-	public RList() {
-		super();
-		this.group = new ButtonGroup();
-		this.buttonRevisionMap = new HashMap<JRadioButton, Revision>();
-		try {
-			final SortedSet<Revision> revisions = new TreeSet<Revision>(
-					new Comparator<Revision>() {
-						@Override
-						public int compare(final Revision r1, final Revision r2) {
-							return r2.date.compareTo(r1.date);
-						}
-					});
+  public RList() {
+    super();
+    this.group = new ButtonGroup();
+    this.buttonRevisionMap = new HashMap<JRadioButton, Revision>();
+    try {
+      final SortedSet<Revision> revisions = new TreeSet<Revision>(new Comparator<Revision>() {
 
-			// revisions.addAll(ReadOnlyDAO.getInstance().getRevisions());
-			revisions.addAll(getRevisionsFromRepository());
+        @Override
+        public int compare(final Revision r1, final Revision r2) {
+          return r2.date.compareTo(r1.date);
+        }
+      });
 
-			// final int threshold = 100;
-			// this.setLayout(new GridLayout(
-			// revisions.size() < threshold ? revisions.size() : threshold,
-			// 1));
-			this.setLayout(new GridLayout(revisions.size() > 100 ? 100
-					: revisions.size(), 1));
-			int number = 1;
-			for (final Revision revision : revisions) {
-				final StringBuilder text = new StringBuilder();
-				text.append(revision.id);
-				text.append(" (");
-				text.append(revision.date);
-				text.append(")");
-				final JRadioButton button = new JRadioButton(text.toString(),
-						true);
-				this.group.add(button);
-				this.add(button);
-				this.buttonRevisionMap.put(button, revision);
-				if (100 < ++number) {
-					break;
-				}
-			}
-		} catch (final Exception e) {
-			this.add(new JLabel("Error happened in getting revisions."));
-		}
+      // revisions.addAll(ReadOnlyDAO.getInstance().getRevisions());
+      revisions.addAll(getRevisionsFromRepository());
 
-		this.scrollPane = new JScrollPane();
-		this.scrollPane.setViewportView(this);
-		this.scrollPane
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		this.scrollPane
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black),
-				"Revisions"));
-	}
+      // final int threshold = 100;
+      // this.setLayout(new GridLayout(
+      // revisions.size() < threshold ? revisions.size() : threshold,
+      // 1));
+      this.setLayout(new GridLayout(revisions.size() > 100 ? 100 : revisions.size(), 1));
+      int number = 1;
+      for (final Revision revision : revisions) {
+        final StringBuilder text = new StringBuilder();
+        text.append(revision.id);
+        text.append(" (");
+        text.append(revision.date);
+        text.append(")");
+        final JRadioButton button = new JRadioButton(text.toString(), true);
+        this.group.add(button);
+        this.add(button);
+        this.buttonRevisionMap.put(button, revision);
+        if (100 < ++number) {
+          break;
+        }
+      }
+    } catch (final Exception e) {
+      this.add(new JLabel("Error happened in getting revisions."));
+    }
 
-	public final Revision getSelectedRevision() {
+    this.scrollPane = new JScrollPane();
+    this.scrollPane.setViewportView(this);
+    this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black), "Revisions"));
+  }
 
-		for (final Entry<JRadioButton, Revision> entry : this.buttonRevisionMap
-				.entrySet()) {
-			if (entry.getKey().isSelected()) {
-				return entry.getValue();
-			}
-		}
-		return null;
+  public final Revision getSelectedRevision() {
 
-		// Object[] selectedObjects = this.group.getSelection()
-		// .getSelectedObjects();
-		// if (null != selectedObjects) {
-		// return Long.parseLong((String) selectedObjects[0]);
-		// } else {
-		// return 0;
-		// }
-	}
+    for (final Entry<JRadioButton, Revision> entry : this.buttonRevisionMap.entrySet()) {
+      if (entry.getKey()
+          .isSelected()) {
+        return entry.getValue();
+      }
+    }
+    return null;
 
-	private SortedSet<Revision> getRevisionsFromRepository() {
+    // Object[] selectedObjects = this.group.getSelection()
+    // .getSelectedObjects();
+    // if (null != selectedObjects) {
+    // return Long.parseLong((String) selectedObjects[0]);
+    // } else {
+    // return 0;
+    // }
+  }
 
-		try {
+  private SortedSet<Revision> getRevisionsFromRepository() {
 
-			final String repository = CPAConfig.getInstance()
-					.getREPOSITORY_FOR_TEST();
-			final Set<LANGUAGE> languages = CPAConfig.getInstance()
-					.getLANGUAGE();
+    try {
 
-			final SVNURL url = SVNURL.fromFile(new File(repository));
-			FSRepositoryFactory.setup();
-			final SVNRepository svnRepository = FSRepositoryFactory.create(url);
+      final String repository = CPAConfig.getInstance()
+          .getREPOSITORY_FOR_TEST();
+      final Set<LANGUAGE> languages = CPAConfig.getInstance()
+          .getLANGUAGE();
 
-			long startRevision = CPAConfig.getInstance()
-					.getSTART_REVISION_FOR_TEST();
-			long endRevision = CPAConfig.getInstance()
-					.getEND_REVISION_FOR_TEST();
+      final SVNURL url = SVNURL.fromFile(new File(repository));
+      FSRepositoryFactory.setup();
+      final SVNRepository svnRepository = FSRepositoryFactory.create(url);
 
-			if (startRevision < 0) {
-				startRevision = 0l;
-			}
+      long startRevision = CPAConfig.getInstance()
+          .getSTART_REVISION_FOR_TEST();
+      long endRevision = CPAConfig.getInstance()
+          .getEND_REVISION_FOR_TEST();
 
-			if (endRevision < 0) {
-				endRevision = svnRepository.getLatestRevision();
-			}
+      if (startRevision < 0) {
+        startRevision = 0l;
+      }
 
-			final SortedSet<Revision> revisions = new TreeSet<Revision>();
+      if (endRevision < 0) {
+        endRevision = svnRepository.getLatestRevision();
+      }
 
-			svnRepository.log(null, startRevision, endRevision, true, true,
-					new ISVNLogEntryHandler() {
-						public void handleLogEntry(SVNLogEntry logEntry)
-								throws SVNException {
-							for (final Object key : logEntry.getChangedPaths()
-									.keySet()) {
-								final String path = (String) key;
-								final String id = Long.toString(logEntry
-										.getRevision());
-								final String date = StringUtility
-										.getDateString(logEntry.getDate());
-								final String message = logEntry.getMessage();
-								final String author = logEntry.getAuthor();
-								final Revision revision = new Revision("", id,
-										date, message, author);
-								for (final LANGUAGE language : languages) {
-									if (language.isTarget(path)) {
-										revisions.add(revision);
-										break;
-									}
-								}
-							}
-						}
-					});
+      final SortedSet<Revision> revisions = new TreeSet<Revision>();
 
-			return revisions;
+      svnRepository.log(null, startRevision, endRevision, true, true, new ISVNLogEntryHandler() {
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
+        public void handleLogEntry(SVNLogEntry logEntry) throws SVNException {
+          for (final Object key : logEntry.getChangedPaths()
+              .keySet()) {
+            final String path = (String) key;
+            final String id = Long.toString(logEntry.getRevision());
+            final String date = StringUtility.getDateString(logEntry.getDate());
+            final String message = logEntry.getMessage();
+            final String author = logEntry.getAuthor();
+            final Revision revision = new Revision("", id, date, message, author);
+            for (final LANGUAGE language : languages) {
+              if (language.isTarget(path)) {
+                revisions.add(revision);
+                break;
+              }
+            }
+          }
+        }
+      });
 
-		return new TreeSet<Revision>();
-	}
+      return revisions;
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(0);
+    }
+
+    return new TreeSet<Revision>();
+  }
 }

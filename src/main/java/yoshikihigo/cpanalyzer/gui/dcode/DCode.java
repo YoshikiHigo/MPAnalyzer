@@ -45,254 +45,248 @@ import yoshikihigo.cpanalyzer.gui.ObservedRevisions.RLABEL;
 
 public class DCode extends JTextArea implements Observer {
 
-	static public final int TAB_SIZE = 4;
+  static public final int TAB_SIZE = 4;
 
-	public final JScrollPane scrollPane;
+  public final JScrollPane scrollPane;
 
-	private Revision revision;
-	private Code codefragment;
-	private List<Statement> statements;
+  private Revision revision;
+  private Code codefragment;
+  private List<Statement> statements;
 
-	public DCode() {
+  public DCode() {
 
-		this.setTabSize(TAB_SIZE);
+    this.setTabSize(TAB_SIZE);
 
-		this.revision = null;
-		this.codefragment = null;
-		this.statements = new ArrayList<Statement>();
+    this.revision = null;
+    this.codefragment = null;
+    this.statements = new ArrayList<Statement>();
 
-		final Insets margin = new Insets(5, 50, 5, 5);
-		this.setMargin(margin);
-		this.setUI(new DCodeUI(new HashSet<Integer>(), this, margin));
-		this.setText("");
-		this.setEditable(false);
+    final Insets margin = new Insets(5, 50, 5, 5);
+    this.setMargin(margin);
+    this.setUI(new DCodeUI(new HashSet<Integer>(), this, margin));
+    this.setText("");
+    this.setEditable(false);
 
-		this.scrollPane = new JScrollPane();
-		this.scrollPane.setViewportView(this);
-		this.scrollPane
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		this.scrollPane
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+    this.scrollPane = new JScrollPane();
+    this.scrollPane.setViewportView(this);
+    this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-		this.setTitle(null);
+    this.setTitle(null);
 
-		this.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+    this.addMouseListener(new MouseAdapter() {
 
-				final int button = e.getButton();
-				final int clickCount = e.getClickCount();
+      @Override
+      public void mouseClicked(MouseEvent e) {
 
-				switch (button) {
-				case MouseEvent.BUTTON1:
-					switch (clickCount) {
-					case 1:
-						break;
-					case 2:
-						DCode.this.display();
-						break;
-					default:
-					}
-					break;
-				case MouseEvent.BUTTON2:
-					break;
-				case MouseEvent.BUTTON3:
-					break;
-				default:
-				}
-			}
-		});
-	}
+        final int button = e.getButton();
+        final int clickCount = e.getClickCount();
 
-	private void setTitle(final String path) {
-		final StringBuilder title = new StringBuilder();
-		title.append("Source Code View");
-		if (null != path) {
-			title.append(" (");
-			title.append(path);
-			title.append(")");
-		}
-		this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black),
-				title.toString()));
-	}
+        switch (button) {
+          case MouseEvent.BUTTON1:
+            switch (clickCount) {
+              case 1:
+                break;
+              case 2:
+                DCode.this.display();
+                break;
+              default:
+            }
+            break;
+          case MouseEvent.BUTTON2:
+            break;
+          case MouseEvent.BUTTON3:
+            break;
+          default:
+        }
+      }
+    });
+  }
 
-	@Override
-	public void update(final Observable o, final Object arg) {
+  private void setTitle(final String path) {
+    final StringBuilder title = new StringBuilder();
+    title.append("Source Code View");
+    if (null != path) {
+      title.append(" (");
+      title.append(path);
+      title.append(")");
+    }
+    this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black), title.toString()));
+  }
 
-		if (o instanceof ObservedFiles) {
-			final ObservedFiles observedFiles = (ObservedFiles) o;
-			if (observedFiles.label.equals(FLABEL.SELECTED)) {
+  @Override
+  public void update(final Observable o, final Object arg) {
 
-				this.setText("");
+    if (o instanceof ObservedFiles) {
+      final ObservedFiles observedFiles = (ObservedFiles) o;
+      if (observedFiles.label.equals(FLABEL.SELECTED)) {
 
-				if (observedFiles.isSet()) {
+        this.setText("");
 
-					try {
+        if (observedFiles.isSet()) {
 
-						final String path = observedFiles.get().first();
+          try {
 
-						final String repository = CPAConfig.getInstance()
-								.getREPOSITORY_FOR_TEST();
-						final SVNURL fileurl = SVNURL.fromFile(new File(
-								repository
-										+ System.getProperty("file.separator")
-										+ path));
-						final SVNWCClient wcClient = SVNClientManager
-								.newInstance().getWCClient();
+            final String path = observedFiles.get()
+                .first();
 
-						final StringBuilder text = new StringBuilder();
-						final long revNumber = Long.valueOf(this.revision.id);
-						wcClient.doGetFileContents(fileurl,
-								SVNRevision.create(revNumber),
-								SVNRevision.create(revNumber),
-								false, new OutputStream() {
-									@Override
-									public void write(int b) throws IOException {
-										text.append((char) b);
-									}
-								});
+            final String repository = CPAConfig.getInstance()
+                .getREPOSITORY_FOR_TEST();
+            final SVNURL fileurl =
+                SVNURL.fromFile(new File(repository + System.getProperty("file.separator") + path));
+            final SVNWCClient wcClient = SVNClientManager.newInstance()
+                .getWCClient();
 
-						final LANGUAGE language = FileUtility
-								.getLANGUAGE(path);
-						DCode.this.statements = StringUtility
-								.splitToStatements(text.toString(), language);
-						final SortedSet<Integer> highlightedLines = this
-								.getHighlightedLines(DCode.this.statements,
-										this.codefragment.statements);
+            final StringBuilder text = new StringBuilder();
+            final long revNumber = Long.valueOf(this.revision.id);
+            wcClient.doGetFileContents(fileurl, SVNRevision.create(revNumber),
+                SVNRevision.create(revNumber), false, new OutputStream() {
 
-						final Insets margin = new Insets(5, 50, 5, 5);
-						this.setMargin(margin);
-						this.setUI(new DCodeUI(highlightedLines, this, margin));
-						this.setText(text.toString());
-						this.setTitle(path);
+                  @Override
+                  public void write(int b) throws IOException {
+                    text.append((char) b);
+                  }
+                });
 
-					} catch (final Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
+            final LANGUAGE language = FileUtility.getLANGUAGE(path);
+            DCode.this.statements = StringUtility.splitToStatements(text.toString(), language);
+            final SortedSet<Integer> highlightedLines =
+                this.getHighlightedLines(DCode.this.statements, this.codefragment.statements);
 
-		else if (o instanceof ObservedRevisions) {
-			final ObservedRevisions observedRevisions = (ObservedRevisions) o;
-			if (observedRevisions.label.equals(RLABEL.DETECTION)) {
-				if (observedRevisions.isSet()) {
-					this.revision = observedRevisions.get().first();
-				}
-			}
-		}
+            final Insets margin = new Insets(5, 50, 5, 5);
+            this.setMargin(margin);
+            this.setUI(new DCodeUI(highlightedLines, this, margin));
+            this.setText(text.toString());
+            this.setTitle(path);
 
-		else if (o instanceof ObservedCodeFragments) {
-			final ObservedCodeFragments observedCodeFragments = (ObservedCodeFragments) o;
-			if (observedCodeFragments.label.equals(CFLABEL.DETECTION)) {
-				if (observedCodeFragments.isSet()) {
-					this.codefragment = observedCodeFragments.get().first();
-				}
-			}
-		}
-	}
+          } catch (final Exception e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
 
-	private SortedSet<Integer> getHighlightedLines(
-			final List<Statement> statements, final List<Statement> pattern) {
+    else if (o instanceof ObservedRevisions) {
+      final ObservedRevisions observedRevisions = (ObservedRevisions) o;
+      if (observedRevisions.label.equals(RLABEL.DETECTION)) {
+        if (observedRevisions.isSet()) {
+          this.revision = observedRevisions.get()
+              .first();
+        }
+      }
+    }
 
-		final SortedSet<Integer> lines = new TreeSet<Integer>();
-		final SortedSet<Integer> candidates = new TreeSet<Integer>();
+    else if (o instanceof ObservedCodeFragments) {
+      final ObservedCodeFragments observedCodeFragments = (ObservedCodeFragments) o;
+      if (observedCodeFragments.label.equals(CFLABEL.DETECTION)) {
+        if (observedCodeFragments.isSet()) {
+          this.codefragment = observedCodeFragments.get()
+              .first();
+        }
+      }
+    }
+  }
 
-		int pIndex = 0;
-		for (int index = 0; index < statements.size(); index++) {
+  private SortedSet<Integer> getHighlightedLines(final List<Statement> statements,
+      final List<Statement> pattern) {
 
-			final Statement statement = statements.get(index);
-			if (statement.hash == pattern.get(pIndex).hash) {
-				pIndex++;
-				candidates.add(statement.tokens.get(0).line - 1);
-				candidates
-						.add(statement.tokens.get(statement.tokens.size() - 1).line - 1);
-				if (pIndex == pattern.size()) {
-					pIndex = 0;
-					lines.addAll(candidates);
-					candidates.clear();
-				}
-			}
+    final SortedSet<Integer> lines = new TreeSet<Integer>();
+    final SortedSet<Integer> candidates = new TreeSet<Integer>();
 
-			else {
-				pIndex = 0;
-				candidates.clear();
-			}
-		}
+    int pIndex = 0;
+    for (int index = 0; index < statements.size(); index++) {
 
-		return lines;
-	}
+      final Statement statement = statements.get(index);
+      if (statement.hash == pattern.get(pIndex).hash) {
+        pIndex++;
+        candidates.add(statement.tokens.get(0).line - 1);
+        candidates.add(statement.tokens.get(statement.tokens.size() - 1).line - 1);
+        if (pIndex == pattern.size()) {
+          pIndex = 0;
+          lines.addAll(candidates);
+          candidates.clear();
+        }
+      }
 
-	private SortedSet<Integer> getPatternLines(
-			final List<Statement> statements, final List<Statement> pattern) {
+      else {
+        pIndex = 0;
+        candidates.clear();
+      }
+    }
 
-		final SortedSet<Integer> lines = new TreeSet<Integer>();
-		int patternLine = 0;
+    return lines;
+  }
 
-		int pIndex = 0;
-		for (int index = 0; index < statements.size(); index++) {
+  private SortedSet<Integer> getPatternLines(final List<Statement> statements,
+      final List<Statement> pattern) {
 
-			final Statement statement = statements.get(index);
-			if (statement.hash == pattern.get(pIndex).hash) {
-				if (0 == pIndex) {
-					patternLine = statement.tokens.get(0).line - 1;
-				}
-				pIndex++;
-				if (pIndex == pattern.size()) {
-					pIndex = 0;
-					lines.add(patternLine);
-					patternLine = 0;
-				}
-			}
+    final SortedSet<Integer> lines = new TreeSet<Integer>();
+    int patternLine = 0;
 
-			else {
-				pIndex = 0;
-				patternLine = 0;
-			}
-		}
+    int pIndex = 0;
+    for (int index = 0; index < statements.size(); index++) {
 
-		return lines;
-	}
+      final Statement statement = statements.get(index);
+      if (statement.hash == pattern.get(pIndex).hash) {
+        if (0 == pIndex) {
+          patternLine = statement.tokens.get(0).line - 1;
+        }
+        pIndex++;
+        if (pIndex == pattern.size()) {
+          pIndex = 0;
+          lines.add(patternLine);
+          patternLine = 0;
+        }
+      }
 
-	private void display() {
+      else {
+        pIndex = 0;
+        patternLine = 0;
+      }
+    }
 
-		final Document doc = this.getDocument();
-		final Element root = doc.getDefaultRootElement();
+    return lines;
+  }
 
-		final SortedSet<Integer> patternLines = this.getPatternLines(
-				this.statements, this.codefragment.statements);
-		if (patternLines.isEmpty()) {
-			return;
-		}
+  private void display() {
 
-		final int currentCaretPosition = this.getCaretPosition();
+    final Document doc = this.getDocument();
+    final Element root = doc.getDefaultRootElement();
 
-		try {
+    final SortedSet<Integer> patternLines =
+        this.getPatternLines(this.statements, this.codefragment.statements);
+    if (patternLines.isEmpty()) {
+      return;
+    }
 
-			int nextOffset = 0;
-			for (final Integer line : patternLines) {
-				final Element element = root.getElement(Math.max(1, line - 2));
-				if (currentCaretPosition < element.getStartOffset()) {
-					nextOffset = element.getStartOffset();
-					break;
-				}
-			}
-			if (0 == nextOffset) {
-				final Element element = root.getElement(Math.max(1,
-						patternLines.first() - 2));
-				nextOffset = element.getStartOffset();
-			}
+    final int currentCaretPosition = this.getCaretPosition();
 
-			final Rectangle rect = this.modelToView(nextOffset);
-			final Rectangle vr = this.scrollPane.getViewport().getViewRect();
+    try {
 
-			if ((null != rect) && (null != vr)) {
-				rect.setSize(10, vr.height);
-				this.scrollRectToVisible(rect);
-				this.setCaretPosition(nextOffset);
-			}
-		} catch (BadLocationException e) {
-			System.err.println(e.getMessage());
-		}
-	}
+      int nextOffset = 0;
+      for (final Integer line : patternLines) {
+        final Element element = root.getElement(Math.max(1, line - 2));
+        if (currentCaretPosition < element.getStartOffset()) {
+          nextOffset = element.getStartOffset();
+          break;
+        }
+      }
+      if (0 == nextOffset) {
+        final Element element = root.getElement(Math.max(1, patternLines.first() - 2));
+        nextOffset = element.getStartOffset();
+      }
+
+      final Rectangle rect = this.modelToView(nextOffset);
+      final Rectangle vr = this.scrollPane.getViewport()
+          .getViewRect();
+
+      if ((null != rect) && (null != vr)) {
+        rect.setSize(10, vr.height);
+        this.scrollRectToVisible(rect);
+        this.setCaretPosition(nextOffset);
+      }
+    } catch (BadLocationException e) {
+      System.err.println(e.getMessage());
+    }
+  }
 }

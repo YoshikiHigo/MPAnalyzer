@@ -2,7 +2,7 @@ package yoshikihigo.cpanalyzer.lexer.token;
 
 public class NONLOCAL extends Token {
 
-	public NONLOCAL() {
-		super("nonlocal");
-	}
+  public NONLOCAL() {
+    super("nonlocal");
+  }
 }
