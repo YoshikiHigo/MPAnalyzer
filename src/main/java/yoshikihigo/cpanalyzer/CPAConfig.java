@@ -7,13 +7,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 
 public class CPAConfig {
 
@@ -336,7 +335,7 @@ public class CPAConfig {
     }
 
     try {
-      final CommandLineParser parser = new PosixParser();
+      final CommandLineParser parser = new DefaultParser();
       final CommandLine commandLine = parser.parse(OPTIONS, args);
       SINGLETON = new CPAConfig(commandLine);
 

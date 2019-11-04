@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -27,7 +26,6 @@ import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
-
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.db.ChangeDAO;
 
@@ -36,14 +34,12 @@ public class ChangeExtractor {
   public static void main(String[] args) {
 
     CPAConfig.initialize(args);
-    final String db = CPAConfig.getInstance()
-        .getDATABASE();
+    final CPAConfig config = CPAConfig.getInstance();
+    final String db = config.getDATABASE();
     final File dbFile = new File(db);
     if (dbFile.exists()) {
-      final boolean isForce = CPAConfig.getInstance()
-          .isFORCE();
-      final boolean isInsert = CPAConfig.getInstance()
-          .isINSERT();
+      final boolean isForce = config.isFORCE();
+      final boolean isInsert = config.isINSERT();
       if (isForce && isInsert) {
         System.err.println("options \"-f\" and \"-i\" cannot be used together.");
         return;
@@ -52,14 +48,12 @@ public class ChangeExtractor {
       System.out.println(db + " already exists in your file system.");
       if (isForce) {
         if (!dbFile.delete()) {
-          if (!CPAConfig.getInstance()
-              .isQUIET()) {
+          if (!config.isQUIET()) {
             System.err.println("The file cannot be removed.");
           }
           return;
         } else {
-          if (!CPAConfig.getInstance()
-              .isQUIET()) {
+          if (!config.isQUIET()) {
             System.out.println("The db has been removed.");
           }
         }
@@ -74,34 +68,26 @@ public class ChangeExtractor {
       }
     }
 
-    final int THREADS = CPAConfig.getInstance()
-        .getTHREAD();
+    final int THREADS = config.getTHREAD();
 
     final long startTime = System.nanoTime();
 
-    if (!CPAConfig.getInstance()
-        .isQUIET()) {
+    if (!config.isQUIET()) {
       System.out.println("working on software \"" + CPAConfig.getInstance()
           .getSOFTWARE() + "\"");
       System.out.print("identifing revisions to be checked ... ");
     }
-    if (CPAConfig.getInstance()
-        .isVERBOSE()) {
+    if (config.isVERBOSE()) {
       System.out.println();
     }
     List<Revision> revisions = Collections.emptyList();
-    if (CPAConfig.getInstance()
-        .hasSVNREPO()
-        && CPAConfig.getInstance()
-            .hasGITREPO()) {
+    if (config.hasSVNREPO() && config.hasGITREPO()) {
       System.out.println("-svnrepo and -gitrepo cannot be used together.");
       System.out.println("please specify either of them.");
       System.out.println(0);
-    } else if (CPAConfig.getInstance()
-        .hasSVNREPO()) {
+    } else if (config.hasSVNREPO()) {
       revisions = getSVNRevisions();
-    } else if (CPAConfig.getInstance()
-        .hasGITREPO()) {
+    } else if (config.hasGITREPO()) {
       revisions = getGITRevisions();
     } else {
       System.out.println("either of -svnrepo or -gitrepo must be specified.");
@@ -109,33 +95,28 @@ public class ChangeExtractor {
     }
     ChangeDAO.SINGLETON.initialize();
     ChangeDAO.SINGLETON.addRevisions(revisions.toArray(new Revision[0]));
-    if (!CPAConfig.getInstance()
-        .isQUIET()) {
+    if (!config.isQUIET()) {
       System.out.println("done.");
     }
 
     if (revisions.isEmpty()) {
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.println("no revision.");
       }
       System.exit(0);
     }
 
-    if (!CPAConfig.getInstance()
-        .isQUIET()) {
+    if (!config.isQUIET()) {
       System.out.print("extracting code changes ... ");
     }
-    if (CPAConfig.getInstance()
-        .isVERBOSE()) {
+    if (config.isVERBOSE()) {
       System.out.println();
     }
 
     final ExecutorService threadPool = Executors.newFixedThreadPool(THREADS);
     final List<Future<?>> futures = new ArrayList<>();
 
-    if (CPAConfig.getInstance()
-        .hasSVNREPO()) {
+    if (config.hasSVNREPO()) {
       for (; 2 <= revisions.size(); revisions.remove(0)) {
         final Revision beforeRevision = revisions.get(0);
         final Revision afterRevision = revisions.get(1);
@@ -143,11 +124,9 @@ public class ChangeExtractor {
             threadPool.submit(new SVNChangeExtractionThread(beforeRevision, afterRevision));
         futures.add(future);
       }
-    } else if (CPAConfig.getInstance()
-        .hasGITREPO()) {
+    } else if (config.hasGITREPO()) {
 
-      final String repoPath = CPAConfig.getInstance()
-          .getGITREPOSITORY_FOR_MINING();
+      final String repoPath = config.getGITREPOSITORY_FOR_MINING();
       Repository repository = null;
       PlotWalk revWalk = null;
       try {
@@ -177,16 +156,12 @@ public class ChangeExtractor {
       threadPool.shutdown();
     }
 
-    if (!CPAConfig.getInstance()
-        .isVERBOSE()
-        && !CPAConfig.getInstance()
-            .isQUIET()) {
+    if (!config.isVERBOSE() && !config.isQUIET()) {
       System.out.println("done.");
     }
 
     final long endTime = System.nanoTime();
-    if (!CPAConfig.getInstance()
-        .isQUIET()) {
+    if (!config.isQUIET()) {
       System.out.print("execution time: ");
       System.out.println(TimingUtility.getExecutionTime(startTime, endTime));
     }
@@ -194,19 +169,14 @@ public class ChangeExtractor {
 
   private static List<Revision> getSVNRevisions() {
 
-    final String repository = CPAConfig.getInstance()
-        .getSVNREPOSITORY_FOR_MINING();
-    final Set<LANGUAGE> languages = CPAConfig.getInstance()
-        .getLANGUAGE();
-    final String software = CPAConfig.getInstance()
-        .getSOFTWARE();
-    final boolean isVerbose = CPAConfig.getInstance()
-        .isVERBOSE();
+    final CPAConfig config = CPAConfig.getInstance();
+    final String repository = config.getSVNREPOSITORY_FOR_MINING();
+    final Set<LANGUAGE> languages = config.getLANGUAGE();
+    final String software = config.getSOFTWARE();
+    final boolean isVerbose = config.isVERBOSE();
 
-    long startRevision = CPAConfig.getInstance()
-        .getSTART_REVISION_FOR_MINING();
-    long endRevision = CPAConfig.getInstance()
-        .getEND_REVISION_FOR_MINING();
+    long startRevision = config.getSTART_REVISION_FOR_MINING();
+    long endRevision = config.getEND_REVISION_FOR_MINING();
 
     if (startRevision < 0) {
       startRevision = 0l;
@@ -260,18 +230,13 @@ public class ChangeExtractor {
 
   private static List<Revision> getGITRevisions() {
 
-    final String repoPath = CPAConfig.getInstance()
-        .getGITREPOSITORY_FOR_MINING();
-    final Set<LANGUAGE> languages = CPAConfig.getInstance()
-        .getLANGUAGE();
-    final String software = CPAConfig.getInstance()
-        .getSOFTWARE();
-    final Date startDate = CPAConfig.getInstance()
-        .getSTART_DATE_FOR_MINING();
-    final Date endDate = CPAConfig.getInstance()
-        .getEND_DATE_FOR_MINING();
-    final boolean isVerbose = CPAConfig.getInstance()
-        .isVERBOSE();
+    final CPAConfig config = CPAConfig.getInstance();
+    final String repoPath = config.getGITREPOSITORY_FOR_MINING();
+    final Set<LANGUAGE> languages = config.getLANGUAGE();
+    final String software = config.getSOFTWARE();
+    final Date startDate = config.getSTART_DATE_FOR_MINING();
+    final Date endDate = config.getEND_DATE_FOR_MINING();
+    final boolean isVerbose = config.isVERBOSE();
 
     final List<Revision> revisions = new LinkedList<>();
 
