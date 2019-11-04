@@ -47,5 +47,5 @@ dependencies {
 
 application {
     // Define the main class for the application
-    mainClassName = 'cpanalyzer.App'
+    mainClassName = 'yoshikihigo.cpanalyzer.JarEntryPoint'
 }
