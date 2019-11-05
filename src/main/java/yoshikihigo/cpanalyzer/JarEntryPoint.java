@@ -18,10 +18,13 @@ public class JarEntryPoint {
     String className = null;
     switch (args[0]) {
       case "changes":
-        className = "ChangeExtractor";
+        className = "yoshikihigo.cpanalyzer.ChangeExtractor";
         break;
       case "patterns":
-        className = "ChangePatternMaker";
+        className = "yoshikihigo.cpanalyzer.ChangePatternMaker";
+        break;
+      case "bugfixes":
+        className = "yoshikihigo.cpanalyzer.BugFixAllMaker";
         break;
       default:
         System.err.println("invalid name:" + args[0]);
@@ -53,5 +56,6 @@ public class JarEntryPoint {
     System.err.println("One the following names must be specified as the first argument.");
     System.err.println(" changes: to extract changes from a repository");
     System.err.println(" patterns: to make change patterns from the extracted changes");
+    System.err.println(" bugfixs: to identify bugfix-related change patterns");    
   }
 }
