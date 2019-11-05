@@ -43,6 +43,10 @@ dependencies {
 	
 	// https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
+    
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-nop
+    //testCompile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.28'
+    compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.28'
 
 	// CommentRemover
 	implementation 'com.github.YoshikiHigo:CommentRemover:v0.1.0'

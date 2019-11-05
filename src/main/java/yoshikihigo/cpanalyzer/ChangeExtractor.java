@@ -84,7 +84,7 @@ public class ChangeExtractor {
     if (config.hasSVNREPO() && config.hasGITREPO()) {
       System.out.println("-svnrepo and -gitrepo cannot be used together.");
       System.out.println("please specify either of them.");
-      System.out.println(0);
+      System.exit(0);
     } else if (config.hasSVNREPO()) {
       revisions = getSVNRevisions();
     } else if (config.hasGITREPO()) {
@@ -237,7 +237,7 @@ public class ChangeExtractor {
     final Date startDate = config.getSTART_DATE_FOR_MINING();
     final Date endDate = config.getEND_DATE_FOR_MINING();
     final boolean isVerbose = config.isVERBOSE();
-
+    
     final List<Revision> revisions = new LinkedList<>();
 
     Repository repo = null;
@@ -247,7 +247,7 @@ public class ChangeExtractor {
       System.err.println("invalid repository path: " + repoPath);
       System.exit(0);
     }
-
+    
     try (final Git git = new Git(repo);
         final DiffFormatter formatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 
