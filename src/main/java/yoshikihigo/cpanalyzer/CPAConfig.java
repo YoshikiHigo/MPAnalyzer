@@ -322,6 +322,14 @@ public class CPAConfig {
       option.setRequired(false);
       OPTIONS.addOption(option);
     }
+
+    {
+      final Option source = new Option("bug", "bugfile", true, "a csv file include bug IDs");
+      source.setArgName("file");
+      source.setArgs(1);
+      source.setRequired(false);
+      OPTIONS.addOption(source);
+    }
   }
 
   static public Collection<Option> getOptions() {
@@ -665,5 +673,13 @@ public class CPAConfig {
     return this.commandLine.hasOption("econfidence")
         ? Float.parseFloat(this.commandLine.getOptionValue("econfidence"))
         : 0.0f;
+  }
+
+  public String getBUG() {
+    if (!this.commandLine.hasOption("bug")) {
+      System.err.println("option \"bug\" is not specified.");
+      System.exit(0);
+    }
+    return this.commandLine.getOptionValue("bug");
   }
 }
