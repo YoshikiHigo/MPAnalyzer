@@ -18,13 +18,13 @@ public class JarEntryPoint {
     String className = null;
     switch (args[0]) {
       case "changes":
-        className = "ChangeExtractor";
+        className = "yoshikihigo.cpanalyzer.ChangeExtractor";
         break;
       case "patterns":
-        className = "ChangePatternMaker";
+        className = "yoshikihigo.cpanalyzer.ChangePatternMaker";
         break;
-      case "bugfix":
-        className = "BugFixAllMaker";
+      case "bugfixes":
+        className = "yoshikihigo.cpanalyzer.BugFixAllMaker";
         break;
       default:
         System.err.println("invalid name:" + args[0]);

@@ -41,6 +41,9 @@ dependencies {
 	// https://mvnrepository.com/artifact/commons-cli/commons-cli
 	compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
 	
+	// https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
+
 	// CommentRemover
 	implementation 'com.github.YoshikiHigo:CommentRemover:v0.1.0'
 }
@@ -48,4 +51,12 @@ dependencies {
 application {
     // Define the main class for the application
     mainClassName = 'yoshikihigo.cpanalyzer.JarEntryPoint'
+}
+
+run {
+  // 「args」という引数が存在するかチェック
+  if (project.hasProperty('args')) {
+    // 存在する場合は、半角スペースでsplitして引数に設定する
+    args(project.args.split('\\s+'))
+  }
 }
