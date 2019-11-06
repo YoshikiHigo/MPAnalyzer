@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -37,7 +36,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -50,7 +48,6 @@ import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc2.SvnExport;
 import org.tmatesoft.svn.core.wc2.SvnOperationFactory;
 import org.tmatesoft.svn.core.wc2.SvnTarget;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
@@ -65,11 +62,10 @@ public class Explorer extends JFrame {
 
     CPAConfig.initialize(args);
     ReadOnlyDAO.SINGLETON.initialize();
-    final boolean verbose = CPAConfig.getInstance()
-        .isVERBOSE();
+    final CPAConfig config = CPAConfig.getInstance();
+    final boolean verbose = config.isVERBOSE();
 
-    if (CPAConfig.getInstance()
-        .getLANGUAGE()
+    if (config.getLANGUAGE()
         .isEmpty()) {
       System.out.println("\"-lang\" option is required to specify target languages");
       System.exit(0);
@@ -85,35 +81,23 @@ public class Explorer extends JFrame {
     System.out.println();
 
     final SortedMap<String, String> files = new TreeMap<>();
-    if (CPAConfig.getInstance()
-        .hasESVNREPO()
-        && CPAConfig.getInstance()
-            .hasESVNREV()) {
+    if (config.hasESVNREPO() && config.hasESVNREV()) {
 
-      final String repository = CPAConfig.getInstance()
-          .getESVNREPO();
-      final int revision = CPAConfig.getInstance()
-          .getESVNREV();
+      final String repository = config.getESVNREPO();
+      final int revision = config.getESVNREV();
       files.putAll(retrieveSVNFiles(repository, revision));
     }
 
-    else if (CPAConfig.getInstance()
-        .hasEGITREPO()
-        && CPAConfig.getInstance()
-            .hasEGITCOMMIT()) {
+    else if (config.hasEGITREPO() && config.hasEGITCOMMIT()) {
 
-      final String gitrepo = CPAConfig.getInstance()
-          .getEGITREPO();
-      final String gitcommit = CPAConfig.getInstance()
-          .getEGITCOMMIT();
+      final String gitrepo = config.getEGITREPO();
+      final String gitcommit = config.getEGITCOMMIT();
       files.putAll(retrieveGITFiles(gitrepo, gitcommit));
     }
 
-    else if (CPAConfig.getInstance()
-        .hasEDIR()) {
+    else if (config.hasEDIR()) {
 
-      final String directory = CPAConfig.getInstance()
-          .getEDIR();
+      final String directory = config.getEDIR();
       files.putAll(retrieveLocalFiles(directory));
     }
 
@@ -154,10 +138,8 @@ public class Explorer extends JFrame {
       }
     }
 
-    final int support = CPAConfig.getInstance()
-        .getESUPPORT();
-    final float confidence = CPAConfig.getInstance()
-        .getECONFIDENCE();
+    final int support = config.getESUPPORT();
+    final float confidence = config.getECONFIDENCE();
     final List<ChangePattern> patterns =
         ReadOnlyDAO.SINGLETON.getChangePatterns(support, confidence);
 
@@ -167,8 +149,7 @@ public class Explorer extends JFrame {
     System.out.print(patterns.size());
     System.out.print(" change patterns ... ");
 
-    final int threads = CPAConfig.getInstance()
-        .getTHREAD();
+    final int threads = config.getTHREAD();
 
     final ExecutorService threadPool = Executors.newFixedThreadPool(threads);
     final List<Future<?>> futures = new ArrayList<>();
@@ -318,10 +299,9 @@ public class Explorer extends JFrame {
 
     final SortedMap<String, String> fileMap = new TreeMap<>();
 
-    final String gitrepo = CPAConfig.getInstance()
-        .getEGITREPO();
-    final Set<LANGUAGE> languages = CPAConfig.getInstance()
-        .getLANGUAGE();
+    final CPAConfig config = CPAConfig.getInstance();
+    final String gitrepo = config.getEGITREPO();
+    final Set<LANGUAGE> languages = config.getLANGUAGE();
 
     try (final FileRepository repo = new FileRepository(gitrepo + "/.git");
         final ObjectReader reader = repo.newObjectReader();
