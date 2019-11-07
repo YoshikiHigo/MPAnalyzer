@@ -21,6 +21,8 @@ import yoshikihigo.cpanalyzer.data.Revision;
 
 public class ReadOnlyDAO {
 
+  static private final String GET_CODE_TEXT = "select software, id, rText, nText, start, end from codes where hash = ?";
+  
   static public final ReadOnlyDAO SINGLETON = new ReadOnlyDAO();
 
   private Connection connector;
@@ -185,10 +187,9 @@ public class ReadOnlyDAO {
   synchronized public List<Code> getCode(final byte[] hash) {
 
     final List<Code> codes = new ArrayList<>();
-    final String text = "select software, id, rText, nText, start, end from codes where hash = ?";
 
     try {
-      final PreparedStatement statement = this.connector.prepareStatement(text);
+      final PreparedStatement statement = this.connector.prepareStatement(GET_CODE_TEXT);
       statement.setBytes(1, hash);
       final ResultSet result = statement.executeQuery();
       while (result.next()) {
