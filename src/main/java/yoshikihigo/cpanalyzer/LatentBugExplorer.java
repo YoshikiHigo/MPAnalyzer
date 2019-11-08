@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,12 +39,16 @@ import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc2.SvnExport;
 import org.tmatesoft.svn.core.wc2.SvnOperationFactory;
 import org.tmatesoft.svn.core.wc2.SvnTarget;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.MD5;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 import yoshikihigo.cpanalyzer.gui2.Warning;
+import yoshikihigo.cpanalyzer.json.LatentBug;
+import yoshikihigo.cpanalyzer.json.Model;
 
 public class LatentBugExplorer extends JFrame {
 
@@ -182,8 +187,37 @@ public class LatentBugExplorer extends JFrame {
 
 
     System.out.print("done.");
-    
-    
+
+
+    final Model model = new Model();
+    for (final Entry<String, List<Warning>> entry : fWarnings.entrySet()) {
+      final String path = entry.getKey();
+      for (final Warning warning : entry.getValue()) {
+        final LatentBug latentBug = new LatentBug();
+        latentBug.file = path;
+        latentBug.fromLine = warning.fromLine;
+        latentBug.toLine = warning.toLine;
+        latentBug.patternID = warning.pattern.id;
+        model.latentBugs.add(latentBug);
+      }
+    }
+
+    final Gson gson = new GsonBuilder().setPrettyPrinting()
+        .create();
+    String json = gson.toJson(model);
+
+    if (config.hasWARN()) {
+      final String warningFile = config.getWARN();
+      try {
+        Files.writeString(Paths.get(warningFile), json, StandardCharsets.UTF_8,
+            StandardOpenOption.CREATE);
+      } catch (final IOException e) {
+        e.printStackTrace();
+        System.exit(0);
+      }
+    } else {
+      System.out.println(json);
+    }
   }
 
   static SortedMap<String, String> retrieveSVNFiles(final String repository, final int revision) {

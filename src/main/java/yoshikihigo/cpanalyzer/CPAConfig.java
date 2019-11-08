@@ -330,6 +330,15 @@ public class CPAConfig {
       source.setRequired(false);
       OPTIONS.addOption(source);
     }
+
+    {
+      final Option option =
+          new Option("warn", "warning", true, "a file to output found latent problems");
+      option.setArgName("file");
+      option.setArgs(1);
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
   }
 
   static public Collection<Option> getOptions() {
@@ -681,5 +690,17 @@ public class CPAConfig {
       System.exit(0);
     }
     return this.commandLine.getOptionValue("bug");
+  }
+
+  public boolean hasWARN() {
+    return this.commandLine.hasOption("warn");
+  }
+
+  public String getWARN() {
+    if (!this.commandLine.hasOption("warn")) {
+      System.err.println("option \"warn\" is not specified.");
+      System.exit(0);
+    }
+    return this.commandLine.getOptionValue("warn");
   }
 }
