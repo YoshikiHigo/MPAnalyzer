@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import yoshikihigo.cpanalyzer.db.ConfigurationDAO;
 
 public class BugFixRevisionExtractor {
 
@@ -21,6 +22,10 @@ public class BugFixRevisionExtractor {
     CPAConfig.initialize(args);
     final BugFixRevisionExtractor main = new BugFixRevisionExtractor();
     main.make();
+    
+    final CPAConfig config = CPAConfig.getInstance();
+    final String bugFile = config.getBUG();
+    ConfigurationDAO.SINGLETON.setBugFile(bugFile);
   }
 
   private void make() {
@@ -28,8 +33,8 @@ public class BugFixRevisionExtractor {
     final String BUGFIXREVISIONS_SCHEMA = "software string, " + "id string, " + "date string, "
         + "message string, " + "author string, " + "bugfix integer, " + "info string, "
         + "primary key(software, id)";
-    final String database = CPAConfig.getInstance()
-        .getDATABASE();
+    final CPAConfig config = CPAConfig.getInstance();
+    final String database = config.getDATABASE();
     final SortedMap<String, String> bugIDs = this.getBugIDs();
 
     try {
@@ -98,8 +103,8 @@ public class BugFixRevisionExtractor {
   }
 
   private SortedMap<String, String> getBugIDs() {
-    final String bugFile = CPAConfig.getInstance()
-        .getBUG();
+    final CPAConfig config = CPAConfig.getInstance();
+    final String bugFile = config.getBUG();
     final SortedMap<String, String> ids = new TreeMap<>();
 
     try (final BufferedReader reader =

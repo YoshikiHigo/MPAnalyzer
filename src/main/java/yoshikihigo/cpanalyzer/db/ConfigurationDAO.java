@@ -11,16 +11,17 @@ public class ConfigurationDAO {
 
   static public final ConfigurationDAO SINGLETON = new ConfigurationDAO();
 
-  static public final String CONFIGURATION_SCHEMA = "repotype string, " + //
-      "repodir string, " + //
-      "curentdir string, " + //
-      "date string, " + //
-      "user string";
+  static private final String REPO_TYPE = "repotype";
+  static private final String REPO_DIR = "repodir";
+  static private final String CURRENT_DIR = "currentdir";
+  static private final String BUG_FILE = "bugfile";
+  static private final String DATE = "date";
+  static private final String USER = "user";
+  static public final String CONFIGURATION_SCHEMA = "name string primary key, value string";
 
   private ConfigurationDAO() {}
 
-  synchronized public void set(final String repoType, final String repoDir, final String currentDir,
-      final String date, final String user) {
+  synchronized public void initialize() {
 
     try {
       final Connection connection = getConnection();
@@ -34,17 +35,58 @@ public class ConfigurationDAO {
           .append(")");
       statement.executeUpdate(createText.toString());
 
+      statement.close();
+      connection.close();
+    }
+
+    catch (final SQLException e) {
+      e.printStackTrace();
+      System.exit(0);
+    }
+  }
+
+  public void setRepoType(final String value) {
+    setItem(REPO_TYPE, value);
+  }
+
+  public void setRepoDir(final String value) {
+    setItem(REPO_DIR, value);
+  }
+
+  public void setBugFile(final String value) {
+    setItem(BUG_FILE, value);
+  }
+
+  public void setDate(final String value) {
+    setItem(DATE, value);
+  }
+
+  public void setCurrentDir(final String value) {
+    setItem(CURRENT_DIR, value);
+  }
+
+  public void setUser(final String value) {
+    setItem(USER, value);
+  }
+
+  synchronized private void setItem(final String name, final String value) {
+
+    try {
+      final Connection connection = getConnection();
+      final Statement statement = connection.createStatement();
+
+      final StringBuilder deleteText = new StringBuilder();
+      deleteText.append("delete from configuration where name = \'")
+          .append(name)
+          .append("\'");
+      System.out.println(deleteText.toString());
+      statement.executeUpdate(deleteText.toString());
+
       final StringBuilder insertText = new StringBuilder();
       insertText.append("insert into configuration values (\'")
-          .append(repoType)
+          .append(name)
           .append("\', \'")
-          .append(repoDir)
-          .append("\', \'")
-          .append(currentDir)
-          .append("\', \'")
-          .append(date)
-          .append("\', \'")
-          .append(user)
+          .append(value)
           .append("\')");
       System.out.println(insertText.toString());
       statement.executeUpdate(insertText.toString());
@@ -57,6 +99,55 @@ public class ConfigurationDAO {
       e.printStackTrace();
       System.exit(0);
     }
+  }
+
+  public String getRepoType() {
+    return getItem(REPO_TYPE);
+  }
+
+  public String getRepoDir() {
+    return getItem(REPO_DIR);
+  }
+
+  public String getBugFile() {
+    return getItem(BUG_FILE);
+  }
+
+  public String getDate() {
+    return getItem(DATE);
+  }
+
+  public String getCurrentDir() {
+    return getItem(CURRENT_DIR);
+  }
+
+  public String getUser() {
+    return getItem(USER);
+  }
+
+  synchronized private String getItem(final String item) {
+
+    String repoType = null;
+    try {
+      final Connection connection = getConnection();
+      final Statement statement = connection.createStatement();
+      final StringBuilder selectText = new StringBuilder();
+      selectText.append("select value from configuration where name =\'")
+          .append(item)
+          .append("\'");
+      final ResultSet results = statement.executeQuery(selectText.toString());
+      if (results.next()) {
+        repoType = results.getString(1);
+      }
+
+      statement.close();
+      connection.close();
+
+    } catch (final SQLException e) {
+      e.printStackTrace();
+      System.exit(0);
+    }
+    return repoType;
   }
 
   synchronized private Connection getConnection() {
@@ -74,48 +165,4 @@ public class ConfigurationDAO {
     return connection;
   }
 
-  public String getRepoType() {
-    return getItem("repotype");
-  }
-
-  public String getRepoDir() {
-    return getItem("repodir");
-  }
-
-  public String getDate() {
-    return getItem("date");
-  }
-
-  public String getCurrentDir() {
-    return getItem("currentdir");
-  }
-
-  public String getUser() {
-    return getItem("user");
-  }
-
-  synchronized private String getItem(final String item) {
-
-    String repoType = null;
-    try {
-      final Connection connection = getConnection();
-      final Statement statement = connection.createStatement();
-      final StringBuilder selectText = new StringBuilder();
-      selectText.append("select ")
-          .append(item)
-          .append(" from configuration");
-      final ResultSet results = statement.executeQuery(selectText.toString());
-      if (results.next()) {
-        repoType = results.getString(1);
-      }
-
-      statement.close();
-      connection.close();
-
-    } catch (final SQLException e) {
-      e.printStackTrace();
-      System.exit(0);
-    }
-    return repoType;
-  }
 }

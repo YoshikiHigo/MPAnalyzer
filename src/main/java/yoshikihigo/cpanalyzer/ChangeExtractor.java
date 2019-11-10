@@ -102,11 +102,16 @@ public class ChangeExtractor {
       System.exit(0);
     }
 
+    ConfigurationDAO.SINGLETON.initialize();
+    ConfigurationDAO.SINGLETON.setRepoType(repoType.toString());
+    ConfigurationDAO.SINGLETON.setRepoDir(repoDir);
     final String currentDir = System.getProperty("user.dir");
+    ConfigurationDAO.SINGLETON.setCurrentDir(currentDir);
     final Calendar calendar = Calendar.getInstance();
     final Date date = calendar.getTime();
+    ConfigurationDAO.SINGLETON.setDate(date.toString());
     final String user = System.getProperty("user.name");
-    ConfigurationDAO.SINGLETON.set(repoType.toString(), repoDir, currentDir, date.toString(), user);
+    ConfigurationDAO.SINGLETON.setUser(user);
 
     ChangeDAO.SINGLETON.initialize();
     ChangeDAO.SINGLETON.addRevisions(revisions.toArray(new Revision[0]));
