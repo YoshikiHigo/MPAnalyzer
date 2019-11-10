@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui2;
+package yoshikihigo.cpanalyzer.nh3;
 
 import java.awt.Color;
 import java.awt.Component;

@@ -31,9 +31,9 @@ import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.MD5;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
-import yoshikihigo.cpanalyzer.gui2.Warning;
 import yoshikihigo.cpanalyzer.json.LatentBug;
 import yoshikihigo.cpanalyzer.json.Model;
+import yoshikihigo.cpanalyzer.nh3.Warning;
 
 public class LatentBugExplorer extends JFrame {
 

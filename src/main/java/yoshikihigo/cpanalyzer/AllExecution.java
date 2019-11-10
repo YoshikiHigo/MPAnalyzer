@@ -12,8 +12,7 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.Option;
-
-import yoshikihigo.cpanalyzer.gui2.Explorer;
+import yoshikihigo.cpanalyzer.nh3.Ammonia;
 
 public class AllExecution {
 
@@ -33,7 +32,7 @@ public class AllExecution {
     final String[] arguments = getArguments(configs);
     ChangeExtractor.main(arguments);
     ChangePatternMaker.main(arguments);
-    Explorer.main(arguments);
+    Ammonia.main(arguments);
   }
 
   public static Map<String, String> getConfigs() {

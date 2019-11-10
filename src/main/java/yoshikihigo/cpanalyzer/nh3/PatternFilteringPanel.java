@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui2;
+package yoshikihigo.cpanalyzer.nh3;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

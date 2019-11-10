@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui2;
+package yoshikihigo.cpanalyzer.nh3;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,7 +30,7 @@ import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 import yoshikihigo.cpanalyzer.json.LatentBug;
 import yoshikihigo.cpanalyzer.json.Model;
 
-public class Explorer extends JFrame {
+public class Ammonia extends JFrame {
 
   static public void main(final String[] args) {
 
@@ -96,7 +96,7 @@ public class Explorer extends JFrame {
     SwingUtilities.invokeLater(new Runnable() {
 
       public void run() {
-        new Explorer(files, fWarnings, pWarnings);
+        new Ammonia(files, fWarnings, pWarnings);
       }
     });
   }
@@ -113,7 +113,7 @@ public class Explorer extends JFrame {
 
 
 
-  public Explorer(final Map<String, String> files, final Map<String, List<Warning>> fWarnings,
+  public Ammonia(final Map<String, String> files, final Map<String, List<Warning>> fWarnings,
       final Map<ChangePattern, List<Warning>> pWarnings) {
 
     super("Ammonia");

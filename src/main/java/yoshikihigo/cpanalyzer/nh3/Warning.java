@@ -1,4 +1,4 @@
-package yoshikihigo.cpanalyzer.gui2;
+package yoshikihigo.cpanalyzer.nh3;
 
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 
