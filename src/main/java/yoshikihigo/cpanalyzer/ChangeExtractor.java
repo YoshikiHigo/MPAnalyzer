@@ -3,6 +3,7 @@ package yoshikihigo.cpanalyzer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -28,6 +29,7 @@ import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.db.ChangeDAO;
+import yoshikihigo.cpanalyzer.db.ConfigurationDAO;
 
 public class ChangeExtractor {
 
@@ -68,7 +70,6 @@ public class ChangeExtractor {
       }
     }
 
-    final int THREADS = config.getTHREAD();
 
     final long startTime = System.nanoTime();
 
@@ -80,6 +81,9 @@ public class ChangeExtractor {
     if (config.isVERBOSE()) {
       System.out.println();
     }
+
+    RepoType repoType = null;
+    String repoDir = null;
     List<Revision> revisions = Collections.emptyList();
     if (config.hasSVNREPO() && config.hasGITREPO()) {
       System.out.println("-svnrepo and -gitrepo cannot be used together.");
@@ -87,12 +91,23 @@ public class ChangeExtractor {
       System.exit(0);
     } else if (config.hasSVNREPO()) {
       revisions = getSVNRevisions();
+      repoType = RepoType.SVNREPO;
+      repoDir = config.getSVNREPOSITORY_FOR_MINING();
     } else if (config.hasGITREPO()) {
       revisions = getGITRevisions();
+      repoType = RepoType.GITREPO;
+      repoDir = config.getGITREPOSITORY_FOR_MINING();
     } else {
       System.out.println("either of -svnrepo or -gitrepo must be specified.");
       System.exit(0);
     }
+
+    final String currentDir = System.getProperty("user.dir");
+    final Calendar calendar = Calendar.getInstance();
+    final Date date = calendar.getTime();
+    final String user = System.getProperty("user.name");
+    ConfigurationDAO.SINGLETON.set(repoType.toString(), repoDir, currentDir, date.toString(), user);
+
     ChangeDAO.SINGLETON.initialize();
     ChangeDAO.SINGLETON.addRevisions(revisions.toArray(new Revision[0]));
     if (!config.isQUIET()) {
@@ -113,6 +128,7 @@ public class ChangeExtractor {
       System.out.println();
     }
 
+    final int THREADS = config.getTHREAD();
     final ExecutorService threadPool = Executors.newFixedThreadPool(THREADS);
     final List<Future<?>> futures = new ArrayList<>();
 
@@ -237,7 +253,7 @@ public class ChangeExtractor {
     final Date startDate = config.getSTART_DATE_FOR_MINING();
     final Date endDate = config.getEND_DATE_FOR_MINING();
     final boolean isVerbose = config.isVERBOSE();
-    
+
     final List<Revision> revisions = new LinkedList<>();
 
     Repository repo = null;
@@ -247,7 +263,7 @@ public class ChangeExtractor {
       System.err.println("invalid repository path: " + repoPath);
       System.exit(0);
     }
-    
+
     try (final Git git = new Git(repo);
         final DiffFormatter formatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 

@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,7 +23,6 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
-
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -38,10 +36,9 @@ import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
-
-import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.Change;
+import yoshikihigo.cpanalyzer.db.ConfigurationDAO;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 
 public class PastChangesView extends JTabbedPane implements Observer {
@@ -158,15 +155,23 @@ class PastChange extends JPanel {
 
     String beforeText = "";
     String afterText = "";
-    if (CPAConfig.getInstance()
-        .hasSVNREPO()) {
-      beforeText =
-          this.getSVNText(this.change.filepath, Integer.parseInt(this.change.revision.id) - 1);
-      afterText = this.getSVNText(this.change.filepath, Integer.parseInt(this.change.revision.id));
-    } else if (CPAConfig.getInstance()
-        .hasGITREPO()) {
-      beforeText = this.getGITText(this.change.filepath, this.change.revision.id, false);
-      afterText = this.getGITText(this.change.filepath, this.change.revision.id, true);
+    final String repoType = ConfigurationDAO.SINGLETON.getRepoType();
+    switch (repoType) {
+      case "SVNREPO":
+        beforeText =
+            this.getSVNText(this.change.filepath, Integer.parseInt(this.change.revision.id) - 1);
+        afterText =
+            this.getSVNText(this.change.filepath, Integer.parseInt(this.change.revision.id));
+        break;
+      case "GITREPO": {
+        beforeText = this.getGITText(this.change.filepath, this.change.revision.id, false);
+        afterText = this.getGITText(this.change.filepath, this.change.revision.id, true);
+        break;
+      }
+      default: {
+        System.err.println("invalid repository type: " + repoType);
+        System.exit(0);
+      }
     }
 
     final ChangeInstanceView beforeView = new ChangeInstanceView("BEFORE TEXT", beforeText);
@@ -192,8 +197,7 @@ class PastChange extends JPanel {
 
   private String getSVNText(final String path, final int revision) {
 
-    final String repository = CPAConfig.getInstance()
-        .getSVNREPOSITORY_FOR_MINING();
+    final String repository = ConfigurationDAO.SINGLETON.getRepoDir();
     final SVNURL url = StringUtility.getSVNURL(repository, path);
     FSRepositoryFactory.setup();
     SVNWCClient wcClient = SVNClientManager.newInstance()
@@ -219,8 +223,7 @@ class PastChange extends JPanel {
 
   private String getGITText(final String path, final String revision, final boolean after) {
 
-    final String gitrepo = CPAConfig.getInstance()
-        .getGITREPOSITORY_FOR_MINING();
+    final String gitrepo = ConfigurationDAO.SINGLETON.getRepoDir();
     String text = "";
     try (final FileRepository repo = new FileRepository(new File(gitrepo + "/.git"));
         final ObjectReader reader = repo.newObjectReader();

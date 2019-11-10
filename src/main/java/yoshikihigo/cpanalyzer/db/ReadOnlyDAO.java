@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
@@ -21,8 +20,9 @@ import yoshikihigo.cpanalyzer.data.Revision;
 
 public class ReadOnlyDAO {
 
-  static private final String GET_CODE_TEXT = "select software, id, rText, nText, start, end from codes where hash = ?";
-  
+  static private final String GET_CODE_TEXT =
+      "select software, id, rText, nText, start, end from codes where hash = ?";
+
   static public final ReadOnlyDAO SINGLETON = new ReadOnlyDAO();
 
   private Connection connector;
@@ -162,6 +162,45 @@ public class ReadOnlyDAO {
     }
 
     return patterns;
+  }
+
+  synchronized public ChangePattern getChangePattern(final int patternID) {
+
+    ChangePattern changePattern = null;
+    try {
+      final StringBuilder text = new StringBuilder();
+      text.append(
+          "select id, beforeHash, afterHash, changetype, difftype, support, confidence, authors, files, nos");
+      text.append(" from patterns where ? = id");
+      final PreparedStatement statement = this.connector.prepareStatement(text.toString());
+
+      statement.setInt(1, patternID);
+      final ResultSet result = statement.executeQuery();
+
+      if (result.next()) {
+        final int id = result.getInt(1);
+        final byte[] beforeHash = result.getBytes(2);
+        final byte[] afterHash = result.getBytes(3);
+        final ChangeType changeType = ChangeType.getType(result.getInt(4));
+        final DiffType diffType = DiffType.getType(result.getInt(5));
+        final int support = result.getInt(6);
+        final float confidence = result.getFloat(7);
+        final int authors = result.getInt(8);
+        final int files = result.getInt(9);
+        final int nos = result.getInt(10);
+        changePattern = new ChangePattern(id, support, confidence, authors, files, nos, beforeHash,
+            afterHash, changeType, diffType);
+      }
+
+      statement.close();
+    }
+
+    catch (final SQLException e) {
+      e.printStackTrace();
+      System.exit(0);
+    }
+
+    return changePattern;
   }
 
   synchronized public SortedSet<Revision> getRevisions() throws Exception {
