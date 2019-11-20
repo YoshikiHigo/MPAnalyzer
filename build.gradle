@@ -32,6 +32,9 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     
+    // https://mvnrepository.com/artifact/org.assertj/assertj-core
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
+
     // https://mvnrepository.com/artifact/org.tmatesoft.svnkit/svnkit
 	compile group: 'org.tmatesoft.svnkit', name: 'svnkit', version: '1.10.1' 
 	
