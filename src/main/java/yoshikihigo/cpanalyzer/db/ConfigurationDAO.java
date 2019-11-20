@@ -79,7 +79,6 @@ public class ConfigurationDAO {
       deleteText.append("delete from configuration where name = \'")
           .append(name)
           .append("\'");
-      System.out.println(deleteText.toString());
       statement.executeUpdate(deleteText.toString());
 
       final StringBuilder insertText = new StringBuilder();
@@ -88,7 +87,6 @@ public class ConfigurationDAO {
           .append("\', \'")
           .append(value)
           .append("\')");
-      System.out.println(insertText.toString());
       statement.executeUpdate(insertText.toString());
 
       statement.close();
