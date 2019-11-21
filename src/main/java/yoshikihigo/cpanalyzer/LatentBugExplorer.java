@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.swing.JFrame;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
@@ -215,7 +216,8 @@ public class LatentBugExplorer extends JFrame {
     if (config.hasWARN()) {
       final String warningFile = config.getWARN();
       try {
-        Files.writeString(Paths.get(warningFile), json, StandardCharsets.UTF_8);
+        Files.write(Paths.get(warningFile), Lists.newArrayList(json), StandardCharsets.UTF_8);
+        // Files.writeString(Paths.get(warningFile), json, StandardCharsets.UTF_8);//
       } catch (final IOException e) {
         e.printStackTrace();
         System.exit(0);
