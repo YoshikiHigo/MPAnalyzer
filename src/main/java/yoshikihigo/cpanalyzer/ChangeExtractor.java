@@ -51,12 +51,12 @@ public class ChangeExtractor {
       if (isForce) {
         if (!dbFile.delete()) {
           if (!config.isQUIET()) {
-            System.err.println("The file cannot be removed.");
+            System.err.println("the file cannot be removed.");
           }
           return;
         } else {
           if (!config.isQUIET()) {
-            System.out.println("The db has been removed.");
+            System.out.println("the db has been removed.");
           }
         }
       }
@@ -74,8 +74,7 @@ public class ChangeExtractor {
     final long startTime = System.nanoTime();
 
     if (!config.isQUIET()) {
-      System.out.println("working on software \"" + CPAConfig.getInstance()
-          .getSOFTWARE() + "\"");
+      System.out.println("working on software \"" + config.getSOFTWARE() + "\"");
       System.out.print("identifing revisions to be checked ... ");
     }
     if (config.isVERBOSE()) {
