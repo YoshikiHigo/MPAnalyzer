@@ -16,10 +16,10 @@ public class BugFixChangeMaker {
   }
 
   private void make() {
-    final String BUGFIXCHANGES_SCHEMA = "software string, " + "id integer, " + "filepath string, "
+    final String BUGFIXCHANGES_SCHEMA = "repo string, " + "id integer, " + "filepath string, "
         + "beforeID integer, " + "beforeHash blob, " + "afterID integer, " + "afterHash blob, "
         + "revision string, " + "date string, " + "changetype integer, " + "difftype integer, "
-        + "bugfix integer, " + "warningfix integer, " + "primary key(software, id)";
+        + "bugfix integer, " + "warningfix integer, " + "primary key(repo, id)";
     final String database = CPAConfig.getInstance()
         .getDATABASE();
 
@@ -50,14 +50,14 @@ public class BugFixChangeMaker {
       statement1.close();
 
       final Statement statement2 = connector.createStatement();
-      final ResultSet results2 = statement2.executeQuery("select C.software, " + "C.id, "
+      final ResultSet results2 = statement2.executeQuery("select C.repo, " + "C.id, "
           + "C.filepath, " + "C.beforeID, " + "C.beforeHash, " + "C.afterID, " + "C.afterHash, "
           + "C.revision, " + "C.date, " + "C.changetype, " + "C.difftype, "
           + "(select R.bugfix from bugfixrevisions R where R.id = C.revision) " + "from changes C");
       final PreparedStatement statement3 = connector.prepareStatement(
           "insert into bugfixchanges values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
       while (results2.next()) {
-        final String software = results2.getString(1);
+        final String repo = results2.getString(1);
         final int id = results2.getInt(2);
         final String filepath = results2.getString(3);
         final int beforeID = results2.getInt(4);
@@ -70,7 +70,7 @@ public class BugFixChangeMaker {
         final int difftype = results2.getInt(11);
         final int bugfix = results2.getInt(12);
         final int warningfix = 0;
-        statement3.setString(1, software);
+        statement3.setString(1, repo);
         statement3.setInt(2, id);
         statement3.setString(3, filepath);
         statement3.setInt(4, beforeID);

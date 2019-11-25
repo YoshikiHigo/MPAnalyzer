@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.Utility;
 import yoshikihigo.cpanalyzer.lexer.token.Token;
@@ -18,15 +17,15 @@ public class Code implements Comparable<Code> {
   private final static AtomicInteger ID_GENERATOR = new AtomicInteger();
 
   public final List<Statement> statements;
-  public final String software;
+  public final String repo;
   public final int id;
   public final String rText;
   public final String nText;
   public final String position;
   public final byte[] hash;
 
-  public Code(final String software, final List<Statement> statements) {
-    this.software = software;
+  public Code(final String repo, final List<Statement> statements) {
+    this.repo = repo;
     this.id = ID_GENERATOR.getAndIncrement();
     this.statements = statements;
     this.rText = String.join(System.lineSeparator(), statements.stream()
@@ -41,9 +40,9 @@ public class Code implements Comparable<Code> {
     this.hash = this.getMD5(this.nText);
   }
 
-  public Code(final String software, final int id, final String rText, final String nText,
+  public Code(final String repo, final int id, final String rText, final String nText,
       final int startLine, final int endLine) {
-    this.software = software;
+    this.repo = repo;
     this.id = id;
     this.statements = StringUtility.splitToStatements(nText, startLine, endLine);
     this.rText = rText;

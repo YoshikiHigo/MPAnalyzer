@@ -1,6 +1,9 @@
 package yoshikihigo.cpanalyzer;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -684,12 +687,17 @@ public class CPAConfig {
         : 0.0f;
   }
 
-  public String getBUG() {
+  public Path getBUG() {
     if (!this.commandLine.hasOption("bug")) {
       System.err.println("option \"bug\" is not specified.");
       System.exit(0);
     }
-    return this.commandLine.getOptionValue("bug");
+    final Path bugFilePath = Paths.get(this.commandLine.getOptionValue("bug"));
+    if (!Files.isReadable(bugFilePath)) {
+      System.err.println("\'" + bugFilePath.toString() + "\' is not readable.");
+      System.exit(0);
+    }
+    return bugFilePath;
   }
 
   public boolean hasWARN() {

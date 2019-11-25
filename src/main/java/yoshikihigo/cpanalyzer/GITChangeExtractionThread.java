@@ -3,7 +3,6 @@ package yoshikihigo.cpanalyzer;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
@@ -17,7 +16,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
@@ -43,18 +41,14 @@ public class GITChangeExtractionThread extends Thread {
   @Override
   public void run() {
 
+    final CPAConfig config = CPAConfig.getInstance();
     final long id = Thread.currentThread()
         .getId();
-    final Set<LANGUAGE> languages = CPAConfig.getInstance()
-        .getLANGUAGE();
-    final String software = CPAConfig.getInstance()
-        .getSOFTWARE();
-    final boolean ONLY_CONDITION = CPAConfig.getInstance()
-        .isONLY_CONDITION();
-    final boolean IGNORE_IMPORT = CPAConfig.getInstance()
-        .isIGNORE_IMPORT();
-    final boolean IS_VERBOSE = CPAConfig.getInstance()
-        .isVERBOSE();
+    final String repoPath = config.getGITREPOSITORY_FOR_MINING();
+    final Set<LANGUAGE> languages = config.getLANGUAGE();
+    final boolean ONLY_CONDITION = config.isONLY_CONDITION();
+    final boolean IGNORE_IMPORT = config.isIGNORE_IMPORT();
+    final boolean IS_VERBOSE = config.isVERBOSE();
 
     RevCommit commit = null;
     synchronized (LOCK) {
@@ -94,7 +88,7 @@ public class GITChangeExtractionThread extends Thread {
         formatter.close();
       }
 
-      final LCS lcs = new LCS(software, this.revision);
+      final LCS lcs = new LCS(repoPath, this.revision);
 
       for (final DiffEntry entry : diffEntries) {
         final String oldPath = entry.getOldPath();

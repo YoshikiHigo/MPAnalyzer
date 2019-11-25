@@ -210,7 +210,7 @@ public class ChangePatternDAO {
         final String text = "update patterns "
             + "set authors = (select count(distinct author) from changes C1 where C1.beforeHash = ? and C1.afterHash = ?), "
             + "files = (select count(distinct filepath) from changes C2 where C2.beforeHash = ? and C2.afterHash = ?), "
-            + "nos = (select count(distinct software) from changes C3 where C3.beforeHash = ? and C3.afterHash = ?), "
+            + "nos = (select count(distinct repo) from changes C3 where C3.beforeHash = ? and C3.afterHash = ?), "
             + "firstdate = (select date from changes C4 where C4.beforeHash = ? and C4.afterHash = ? order by date asc limit 1), "
             + "lastdate = (select date from changes C5 where C5.beforeHash = ? and C5.afterHash = ? order by date desc limit 1) "
             + "where beforeHash = ? and afterHash = ?";

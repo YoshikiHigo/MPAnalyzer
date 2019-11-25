@@ -190,9 +190,8 @@ public class ChangeExtractor {
   private static List<Revision> getSVNRevisions() {
 
     final CPAConfig config = CPAConfig.getInstance();
-    final String repository = config.getSVNREPOSITORY_FOR_MINING();
+    final String repoPath = config.getSVNREPOSITORY_FOR_MINING();
     final Set<LANGUAGE> languages = config.getLANGUAGE();
-    final String software = config.getSOFTWARE();
     final boolean isVerbose = config.isVERBOSE();
 
     long startRevision = config.getSTART_REVISION_FOR_MINING();
@@ -208,7 +207,7 @@ public class ChangeExtractor {
     SVNRepository svnRepository;
     try {
       FSRepositoryFactory.setup();
-      url = SVNURL.fromFile(new File(repository));
+      url = SVNURL.fromFile(new File(repoPath));
       svnRepository = FSRepositoryFactory.create(url);
     } catch (final SVNException | NullPointerException e) {
       e.printStackTrace();
@@ -226,7 +225,7 @@ public class ChangeExtractor {
         final String date = StringUtility.getDateString(entry.getDate());
         final String message = entry.getMessage();
         final String author = entry.getAuthor();
-        final Revision revision = new Revision(software, id, date, message, author);
+        final Revision revision = new Revision(repoPath, id, date, message, author);
         for (final String path : entry.getChangedPaths()
             .keySet()) {
           for (final LANGUAGE language : languages) {
@@ -253,7 +252,6 @@ public class ChangeExtractor {
     final CPAConfig config = CPAConfig.getInstance();
     final String repoPath = config.getGITREPOSITORY_FOR_MINING();
     final Set<LANGUAGE> languages = config.getLANGUAGE();
-    final String software = config.getSOFTWARE();
     final Date startDate = config.getSTART_DATE_FOR_MINING();
     final Date endDate = config.getEND_DATE_FOR_MINING();
     final boolean isVerbose = config.isVERBOSE();
@@ -310,7 +308,7 @@ public class ChangeExtractor {
               final String author = commit.getAuthorIdent()
                   .getName();
               final Revision revision =
-                  new Revision(software, id, StringUtility.getDateString(date), message, author);
+                  new Revision(repoPath, id, StringUtility.getDateString(date), message, author);
               revisions.add(revision);
               if (isVerbose) {
                 System.out.println(id + " (" + date + ") has been identified.");

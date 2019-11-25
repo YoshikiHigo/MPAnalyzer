@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
@@ -19,7 +18,6 @@ import org.tmatesoft.svn.core.wc.SVNDiffStatus;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNStatusType;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
-
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
@@ -41,20 +39,15 @@ public class SVNChangeExtractionThread extends Thread {
   @Override
   public void run() {
 
+    final CPAConfig config = CPAConfig.getInstance();
     final long id = Thread.currentThread()
         .getId();
-    final String repository = CPAConfig.getInstance()
-        .getSVNREPOSITORY_FOR_MINING();
-    final Set<LANGUAGE> languages = CPAConfig.getInstance()
-        .getLANGUAGE();
-    final String software = CPAConfig.getInstance()
-        .getSOFTWARE();
-    final boolean onlyCondition = CPAConfig.getInstance()
-        .isONLY_CONDITION();
-    final boolean ignoreImport = CPAConfig.getInstance()
-        .isIGNORE_IMPORT();
-    final boolean isVerbose = CPAConfig.getInstance()
-        .isVERBOSE();
+    final String repository = config.getSVNREPOSITORY_FOR_MINING();
+    final Set<LANGUAGE> languages = config.getLANGUAGE();
+    final String repoPath = config.getSOFTWARE();
+    final boolean onlyCondition = config.isONLY_CONDITION();
+    final boolean ignoreImport = config.isIGNORE_IMPORT();
+    final boolean isVerbose = config.isVERBOSE();
 
     SVNURL url;
     SVNDiffClient diffClient;
@@ -116,7 +109,7 @@ public class SVNChangeExtractionThread extends Thread {
       return;
     }
 
-    final LCS lcs = new LCS(software, this.afterRevision);
+    final LCS lcs = new LCS(repoPath, this.afterRevision);
 
     FILE: for (final String path : changedPaths) {
 

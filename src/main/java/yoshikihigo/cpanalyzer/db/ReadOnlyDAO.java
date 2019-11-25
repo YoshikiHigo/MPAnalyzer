@@ -21,7 +21,7 @@ import yoshikihigo.cpanalyzer.data.Revision;
 public class ReadOnlyDAO {
 
   static private final String GET_CODE_TEXT =
-      "select software, id, rText, nText, start, end from codes where hash = ?";
+      "select repo, id, rText, nText, start, end from codes where hash = ?";
 
   static public final ReadOnlyDAO SINGLETON = new ReadOnlyDAO();
 
@@ -48,13 +48,13 @@ public class ReadOnlyDAO {
 
     try {
       final StringBuilder text = new StringBuilder();
-      text.append("select T.software, T.id, T.filepath, T.author, T.beforeHash, T.beforeRText, ");
+      text.append("select T.repo, T.id, T.filepath, T.author, T.beforeHash, T.beforeRText, ");
       text.append(
           "T.beforeNText, T.beforeStart, T.beforeEnd, T.afterHash, T.afterRText, T.afterNText, ");
       text.append(
           "T.afterStart, T.afterEnd, T.revision, T.changetype, T.difftype, T.date, T.message from ");
       text.append(
-          "(select M.software software, M.id id, M.filepath filepath, M.author author, M.beforeHash beforeHash, ");
+          "(select M.repo repo, M.id id, M.filepath filepath, M.author author, M.beforeHash beforeHash, ");
       text.append("(select C2.rtext from codes C2 where C2.id = M.beforeID) beforeRText, ");
       text.append("(select C3.ntext from codes C3 where C3.id = M.beforeID) beforeNText, ");
       text.append("(select C4.start from codes C4 where C4.id = M.beforeID) beforeStart, ");
@@ -77,7 +77,7 @@ public class ReadOnlyDAO {
       final ResultSet result = statement.executeQuery();
 
       while (result.next()) {
-        final String software = result.getString(1);
+        final String repo = result.getString(1);
         final int changeID = result.getInt(2);
         final String filepath = result.getString(3);
         final String author = result.getString(4);
@@ -98,12 +98,12 @@ public class ReadOnlyDAO {
         final String message = result.getString(19);
 
         final Code beforeCode =
-            new Code(software, beforeID, beforeRText, beforeNText, beforeStart, beforeEnd);
+            new Code(repo, beforeID, beforeRText, beforeNText, beforeStart, beforeEnd);
         final Code afterCode =
-            new Code(software, afterID, afterRText, afterNText, afterStart, afterEnd);
-        final Revision revision = new Revision(software, revisionID, date, message, author);
-        final Change change = new Change(software, changeID, filepath, beforeCode, afterCode,
-            revision, changeType, diffType);
+            new Code(repo, afterID, afterRText, afterNText, afterStart, afterEnd);
+        final Revision revision = new Revision(repo, revisionID, date, message, author);
+        final Change change = new Change(repo, changeID, filepath, beforeCode, afterCode, revision,
+            changeType, diffType);
         changes.add(change);
       }
       statement.close();
@@ -207,16 +207,16 @@ public class ReadOnlyDAO {
 
     final Statement revisionStatement = this.connector.createStatement();
     final ResultSet result =
-        revisionStatement.executeQuery("select software, id, date, message, author from revision");
+        revisionStatement.executeQuery("select repo, id, date, message, author from revision");
 
     final SortedSet<Revision> revisions = new TreeSet<Revision>();
     while (result.next()) {
-      final String software = result.getString(1);
+      final String repo = result.getString(1);
       final String id = result.getString(2);
       final String date = result.getString(3);
       final String message = result.getString(4);
       final String author = result.getString(5);
-      final Revision revision = new Revision(software, id, date, message, author);
+      final Revision revision = new Revision(repo, id, date, message, author);
       revisions.add(revision);
     }
 
@@ -232,13 +232,13 @@ public class ReadOnlyDAO {
       statement.setBytes(1, hash);
       final ResultSet result = statement.executeQuery();
       while (result.next()) {
-        final String software = result.getString(1);
+        final String repo = result.getString(1);
         final int id = result.getInt(2);
         final String rText = result.getString(3);
         final String nText = result.getString(4);
         final int start = result.getInt(5);
         final int end = result.getInt(6);
-        final Code code = new Code(software, id, rText, nText, start, end);
+        final Code code = new Code(repo, id, rText, nText, start, end);
         codes.add(code);
       }
 

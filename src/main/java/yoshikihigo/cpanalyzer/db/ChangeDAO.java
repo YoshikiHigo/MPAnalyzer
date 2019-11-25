@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Revision;
@@ -15,15 +14,33 @@ public class ChangeDAO {
 
   static public final ChangeDAO SINGLETON = new ChangeDAO();
 
-  static public final String REVISIONS_SCHEMA = "software string, " + "id string, "
-      + "date string, " + "message string, " + "author string, " + "primary key(software, id)";
-  static public final String CODES_SCHEMA =
-      "software string, " + "id integer, " + "rText string, " + "nText string, " + "hash blob, "
-          + "start int, " + "end int, " + "primary key(software, id)";
-  static public final String CHANGES_SCHEMA = "software string, " + "id integer, "
-      + "filepath string, " + "author string, " + "beforeID integer, " + "beforeHash blob, "
-      + "afterID integer, " + "afterHash blob, " + "revision string, " + "date string, "
-      + "changetype integer, " + "difftype integer, " + "primary key(software, id)";
+  static public final String REVISIONS_SCHEMA = "repo string, " + //
+      "id string, " + //
+      "date string, " + //
+      "message string, " + //
+      "author string, " + //
+      "primary key(repo, id)";
+  static public final String CODES_SCHEMA = "repo string, " + //
+      "id integer, " + //
+      "rText string, " + //
+      "nText string, " + //
+      "hash blob, " + //
+      "start int, " + //
+      "end int, " + //
+      "primary key(repo, id)";
+  static public final String CHANGES_SCHEMA = "repo string, " //
+      + "id integer, " + //
+      "filepath string, " + //
+      "author string, " + //
+      "beforeID integer, " + //
+      "beforeHash blob, " + //
+      "afterID integer, " + //
+      "afterHash blob, " + //
+      "revision string, " + //
+      "date string, " + //
+      "changetype integer, " + //
+      "difftype integer, " + //
+      "primary key(repo, id)";
 
   private Connection connector;
   private PreparedStatement codePS;
@@ -69,7 +86,7 @@ public class ChangeDAO {
       final PreparedStatement statement =
           this.connector.prepareStatement("insert into revisions values (?, ?, ?, ?, ?)");
       for (final Revision revision : revisions) {
-        statement.setString(1, revision.software);
+        statement.setString(1, revision.repo);
         statement.setString(2, revision.id);
         statement.setString(3, revision.date);
         statement.setString(4, revision.message);
@@ -90,7 +107,7 @@ public class ChangeDAO {
   synchronized public void addChange(final Change change) {
 
     try {
-      this.codePS.setString(1, change.before.software);
+      this.codePS.setString(1, change.before.repo);
       this.codePS.setInt(2, change.before.id);
       this.codePS.setString(3, change.before.rText);
       this.codePS.setString(4, change.before.nText);
@@ -104,7 +121,7 @@ public class ChangeDAO {
       this.codePS.addBatch();
       this.numberOfCodePS++;
 
-      this.codePS.setString(1, change.after.software);
+      this.codePS.setString(1, change.after.repo);
       this.codePS.setInt(2, change.after.id);
       this.codePS.setString(3, change.after.rText);
       this.codePS.setString(4, change.after.nText);
@@ -118,7 +135,7 @@ public class ChangeDAO {
       this.codePS.addBatch();
       this.numberOfCodePS++;
 
-      this.changePS.setString(1, change.software);
+      this.changePS.setString(1, change.repo);
       this.changePS.setInt(2, change.id);
       this.changePS.setString(3, change.filepath);
       this.changePS.setString(4, change.revision.author);

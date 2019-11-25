@@ -17,11 +17,11 @@ import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class LCS {
 
-  final public String software;
+  final public String repo;
   final public Revision revision;
 
-  public LCS(final String software, final Revision revision) {
-    this.software = software;
+  public LCS(final String repo, final Revision revision) {
+    this.repo = repo;
     this.revision = revision;
   }
 
@@ -95,11 +95,11 @@ public class LCS {
             final List<Token> yTokens = getTokens(yStatements);
             final DiffType diffType = getType(xTokens, yTokens);
 
-            final Code beforeCodeFragment = new Code(software, xStatements);
-            final Code afterCodeFragment = new Code(software, yStatements);
+            final Code beforeCodeFragment = new Code(repo, xStatements);
+            final Code afterCodeFragment = new Code(repo, yStatements);
             final ChangeType changeType = beforeCodeFragment.nText.isEmpty() ? ChangeType.ADD
                 : afterCodeFragment.nText.isEmpty() ? ChangeType.DELETE : ChangeType.REPLACE;
-            final Change change = new Change(software, filepath, beforeCodeFragment,
+            final Change change = new Change(repo, filepath, beforeCodeFragment,
                 afterCodeFragment, revision, changeType, diffType);
             changes.add(change);
           }

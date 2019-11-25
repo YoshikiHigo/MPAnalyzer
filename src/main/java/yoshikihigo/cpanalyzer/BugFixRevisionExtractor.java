@@ -1,19 +1,19 @@
 package yoshikihigo.cpanalyzer;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
+import com.google.common.base.Splitter;
 import yoshikihigo.cpanalyzer.db.ConfigurationDAO;
 
 public class BugFixRevisionExtractor {
@@ -22,20 +22,20 @@ public class BugFixRevisionExtractor {
     CPAConfig.initialize(args);
     final BugFixRevisionExtractor main = new BugFixRevisionExtractor();
     main.make();
-    
+
     final CPAConfig config = CPAConfig.getInstance();
-    final String bugFile = config.getBUG();
-    ConfigurationDAO.SINGLETON.setBugFile(bugFile);
+    final Path bugFilePath = config.getBUG();
+    ConfigurationDAO.SINGLETON.setBugFile(bugFilePath.toString());
   }
 
   private void make() {
 
-    final String BUGFIXREVISIONS_SCHEMA = "software string, " + "id string, " + "date string, "
-        + "message string, " + "author string, " + "bugfix integer, " + "info string, "
-        + "primary key(software, id)";
+    final String BUGFIXREVISIONS_SCHEMA =
+        "repo string, " + "id string, " + "date string, " + "message string, " + "author string, "
+            + "bugfix integer, " + "info string, " + "primary key(repo, id)";
     final CPAConfig config = CPAConfig.getInstance();
     final String database = config.getDATABASE();
-    final SortedMap<String, String> bugIDs = this.getBugIDs();
+    final Map<String, String> bugIDs = this.getBugIDs();
 
     try {
       Class.forName("org.sqlite.JDBC");
@@ -53,11 +53,11 @@ public class BugFixRevisionExtractor {
 
       final Statement statement2 = connector.createStatement();
       final ResultSet results2 =
-          statement2.executeQuery("select software, id, date, message, author from revisions");
+          statement2.executeQuery("select repo, id, date, message, author from revisions");
       final PreparedStatement statement3 =
           connector.prepareStatement("insert into bugfixrevisions values (?, ?, ?, ?, ?, ?, ?)");
       while (results2.next()) {
-        final String software = results2.getString(1);
+        final String repo = results2.getString(1);
         final String id = results2.getString(2);
         final String date = results2.getString(3);
         String message = results2.getString(4);
@@ -85,7 +85,7 @@ public class BugFixRevisionExtractor {
           }
         }
 
-        statement3.setString(1, software);
+        statement3.setString(1, repo);
         statement3.setString(2, id);
         statement3.setString(3, date);
         statement3.setString(4, message);
@@ -102,31 +102,37 @@ public class BugFixRevisionExtractor {
     }
   }
 
-  private SortedMap<String, String> getBugIDs() {
+  private Map<String, String> getBugIDs() {
     final CPAConfig config = CPAConfig.getInstance();
-    final String bugFile = config.getBUG();
-    final SortedMap<String, String> ids = new TreeMap<>();
+    final Path bugFilePath = config.getBUG();
+    Map<String, String> map = Collections.emptyMap();
 
-    try (final BufferedReader reader =
-        new BufferedReader(new InputStreamReader(new FileInputStream(bugFile), "JISAutoDetect"))) {
-      reader.readLine();
-      while (true) {
-        final String lineText = reader.readLine();
-        if (null == lineText) {
-          break;
-        }
-
-        final StringTokenizer tokenizer = new StringTokenizer(lineText, " ,");
-        final String id = tokenizer.nextToken();
-        final String url = tokenizer.nextToken();
-        ids.put(id, url);
-      }
-    }
-
-    catch (final IOException e) {
+    try {
+      map = Files.readAllLines(bugFilePath)
+          .stream()
+          .collect(
+              Collectors.toMap(BugFixRevisionExtractor::getID, BugFixRevisionExtractor::getURL));
+    } catch (final IOException e) {
       e.printStackTrace();
+      System.exit(0);
     }
 
-    return ids;
+    return map;
+  }
+
+  static private String getID(final String line) {
+    return Splitter.on(',')
+        .omitEmptyStrings()
+        .trimResults()
+        .splitToList(line)
+        .get(0);
+  }
+
+  static private String getURL(final String line) {
+    return Splitter.on(',')
+        .omitEmptyStrings()
+        .trimResults()
+        .splitToList(line)
+        .get(1);
   }
 }
