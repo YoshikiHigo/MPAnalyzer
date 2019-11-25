@@ -3,7 +3,6 @@ package yoshikihigo.cpanalyzer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -29,7 +28,6 @@ import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.db.ChangeDAO;
-import yoshikihigo.cpanalyzer.db.ConfigurationDAO;
 
 public class ChangeExtractor {
 
@@ -100,17 +98,6 @@ public class ChangeExtractor {
       System.out.println("either of -svnrepo or -gitrepo must be specified.");
       System.exit(0);
     }
-
-    ConfigurationDAO.SINGLETON.initialize();
-    ConfigurationDAO.SINGLETON.setRepoType(repoType.toString());
-    ConfigurationDAO.SINGLETON.setRepoDir(repoDir);
-    final String currentDir = System.getProperty("user.dir");
-    ConfigurationDAO.SINGLETON.setCurrentDir(currentDir);
-    final Calendar calendar = Calendar.getInstance();
-    final Date date = calendar.getTime();
-    ConfigurationDAO.SINGLETON.setDate(date.toString());
-    final String user = System.getProperty("user.name");
-    ConfigurationDAO.SINGLETON.setUser(user);
 
     ChangeDAO.SINGLETON.initialize();
     ChangeDAO.SINGLETON.addRevisions(revisions.toArray(new Revision[0]));

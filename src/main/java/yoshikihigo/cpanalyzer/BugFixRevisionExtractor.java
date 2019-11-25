@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import com.google.common.base.Splitter;
-import yoshikihigo.cpanalyzer.db.ConfigurationDAO;
 
 public class BugFixRevisionExtractor {
 
@@ -22,10 +21,6 @@ public class BugFixRevisionExtractor {
     CPAConfig.initialize(args);
     final BugFixRevisionExtractor main = new BugFixRevisionExtractor();
     main.make();
-
-    final CPAConfig config = CPAConfig.getInstance();
-    final Path bugFilePath = config.getBUG();
-    ConfigurationDAO.SINGLETON.setBugFile(bugFilePath.toString());
   }
 
   private void make() {
