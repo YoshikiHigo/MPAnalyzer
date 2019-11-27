@@ -39,8 +39,9 @@ public class ChangeDAO {
       "afterHash blob, " + //
       "revision string, " + //
       "date string, " + //
-      "changetype integer, " + //
-      "difftype integer, " + //
+      "changetype int, " + //
+      "difftype int, " + //
+      "bugfix int, " + //
       "primary key(repo, id)";
 
   private Connection connector;
@@ -68,7 +69,7 @@ public class ChangeDAO {
       this.codePS =
           this.connector.prepareStatement("insert into codes values (?, ?, ?, ?, ?, ?, ?)");
       this.changePS = this.connector
-          .prepareStatement("insert into changes values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+          .prepareStatement("insert into changes values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
       this.numberOfCodePS = 0;
       this.numberOfChangePS = 0;
@@ -149,6 +150,7 @@ public class ChangeDAO {
       this.changePS.setString(10, change.revision.date);
       this.changePS.setInt(11, change.changeType.getValue());
       this.changePS.setInt(12, change.diffType.getValue());
+      this.changePS.setInt(13, change.revision.bugfix ? 1 : 0);
       this.changePS.addBatch();
       this.numberOfChangePS++;
 
