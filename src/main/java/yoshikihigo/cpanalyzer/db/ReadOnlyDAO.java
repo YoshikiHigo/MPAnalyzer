@@ -68,7 +68,8 @@ public class ReadOnlyDAO {
       text.append("M.changetype changetype, ");
       text.append("M.difftype difftype, ");
       text.append("(select R1.date from revisions R1 where R1.id = M.revision) date, ");
-      text.append("(select R2.message from revisions R2 where R2.id = M.revision) message ");
+      text.append("(select R2.message from revisions R2 where R2.id = M.revision) message, ");
+      text.append("(select R3.bugfix from revisions R3 where R3.id = M.revision) bugfix ");
       text.append("from changes M) T where T.beforeHash=? and T.afterHash=?");
       final PreparedStatement statement = this.connector.prepareStatement(text.toString());
 
@@ -96,12 +97,13 @@ public class ReadOnlyDAO {
         final DiffType diffType = DiffType.getType(result.getInt(17));
         final String date = result.getString(18);
         final String message = result.getString(19);
+        final int bugfix = result.getInt(20);
 
         final Code beforeCode =
             new Code(repo, beforeID, beforeRText, beforeNText, beforeStart, beforeEnd);
         final Code afterCode =
             new Code(repo, afterID, afterRText, afterNText, afterStart, afterEnd);
-        final Revision revision = new Revision(repo, revisionID, date, message, author);
+        final Revision revision = new Revision(repo, revisionID, date, message, author, bugfix > 0);
         final Change change = new Change(repo, changeID, filepath, beforeCode, afterCode, revision,
             changeType, diffType);
         changes.add(change);
@@ -206,8 +208,8 @@ public class ReadOnlyDAO {
   synchronized public SortedSet<Revision> getRevisions() throws Exception {
 
     final Statement revisionStatement = this.connector.createStatement();
-    final ResultSet result =
-        revisionStatement.executeQuery("select repo, id, date, message, author from revision");
+    final ResultSet result = revisionStatement
+        .executeQuery("select repo, id, date, message, author, bugfix from revision");
 
     final SortedSet<Revision> revisions = new TreeSet<Revision>();
     while (result.next()) {
@@ -216,7 +218,8 @@ public class ReadOnlyDAO {
       final String date = result.getString(3);
       final String message = result.getString(4);
       final String author = result.getString(5);
-      final Revision revision = new Revision(repo, id, date, message, author);
+      final int bugfix = result.getInt(6);
+      final Revision revision = new Revision(repo, id, date, message, author, bugfix > 0);
       revisions.add(revision);
     }
 

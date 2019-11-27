@@ -19,6 +19,7 @@ public class ChangeDAO {
       "date string, " + //
       "message string, " + //
       "author string, " + //
+      "bugfix int, " + //
       "primary key(repo, id)";
   static public final String CODES_SCHEMA = "repo string, " + //
       "id integer, " + //
@@ -84,13 +85,14 @@ public class ChangeDAO {
 
     try {
       final PreparedStatement statement =
-          this.connector.prepareStatement("insert into revisions values (?, ?, ?, ?, ?)");
+          this.connector.prepareStatement("insert into revisions values (?, ?, ?, ?, ?, ?)");
       for (final Revision revision : revisions) {
         statement.setString(1, revision.repo);
         statement.setString(2, revision.id);
         statement.setString(3, revision.date);
         statement.setString(4, revision.message);
         statement.setString(5, revision.author);
+        statement.setInt(6, revision.bugfix ? 1 : 0);
         statement.addBatch();
       }
       statement.executeBatch();

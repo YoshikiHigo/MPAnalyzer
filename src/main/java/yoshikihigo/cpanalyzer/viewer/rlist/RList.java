@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,14 +17,12 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-
 import org.tmatesoft.svn.core.ISVNLogEntryHandler;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
@@ -142,7 +139,7 @@ public class RList extends JPanel {
             final String date = StringUtility.getDateString(logEntry.getDate());
             final String message = logEntry.getMessage();
             final String author = logEntry.getAuthor();
-            final Revision revision = new Revision("", id, date, message, author);
+            final Revision revision = new Revision("", id, date, message, author, false);
             for (final LANGUAGE language : languages) {
               if (language.isTarget(path)) {
                 revisions.add(revision);

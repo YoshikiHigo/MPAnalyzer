@@ -212,7 +212,7 @@ public class ChangeExtractor {
         final String date = StringUtility.getDateString(entry.getDate());
         final String message = entry.getMessage();
         final String author = entry.getAuthor();
-        final Revision revision = new Revision(repoPath, id, date, message, author);
+        final Revision revision = new Revision(repoPath, id, date, message, author, false);
         for (final String path : entry.getChangedPaths()
             .keySet()) {
           for (final LANGUAGE language : languages) {
@@ -294,8 +294,8 @@ public class ChangeExtractor {
                   .getName();
               final String author = commit.getAuthorIdent()
                   .getName();
-              final Revision revision =
-                  new Revision(repoPath, id, StringUtility.getDateString(date), message, author);
+              final Revision revision = new Revision(repoPath, id,
+                  StringUtility.getDateString(date), message, author, false);
               revisions.add(revision);
               if (isVerbose) {
                 System.out.println(id + " (" + date + ") has been identified.");

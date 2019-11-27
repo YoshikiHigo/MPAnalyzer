@@ -7,14 +7,16 @@ public class Revision implements Comparable<Revision> {
   public final String date;
   public final String message;
   public final String author;
+  public final boolean bugfix;
 
   public Revision(final String repo, final String id, final String date, final String message,
-      final String author) {
+      final String author, final boolean bugfix) {
     this.repo = repo;
     this.id = id;
     this.date = date;
     this.message = message;
     this.author = author;
+    this.bugfix = false;
   }
 
   @Override
