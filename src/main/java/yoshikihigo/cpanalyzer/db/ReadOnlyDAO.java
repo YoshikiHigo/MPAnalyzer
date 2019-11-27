@@ -52,7 +52,7 @@ public class ReadOnlyDAO {
       text.append(
           "T.beforeNText, T.beforeStart, T.beforeEnd, T.afterHash, T.afterRText, T.afterNText, ");
       text.append(
-          "T.afterStart, T.afterEnd, T.revision, T.changetype, T.difftype, T.date, T.message from ");
+          "T.afterStart, T.afterEnd, T.revision, T.changetype, T.difftype, T.date, T.message, T.bugfix from ");
       text.append(
           "(select M.repo repo, M.id id, M.filepath filepath, M.author author, M.beforeHash beforeHash, ");
       text.append("(select C2.rtext from codes C2 where C2.id = M.beforeID) beforeRText, ");
