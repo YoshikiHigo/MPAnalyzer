@@ -120,11 +120,11 @@ public class ReadOnlyDAO {
   }
 
   synchronized public List<ChangePattern> getChangePatterns() {
-    return this.getChangePatterns(1, 0.0f);
+    return this.getChangePatterns(1, 0.0f, false);
   }
 
   synchronized public List<ChangePattern> getChangePatterns(final int supportThreshold,
-      final float confidenceThreshold) {
+      final float confidenceThreshold, final boolean onlyBugfix) {
 
     final List<ChangePattern> patterns = new ArrayList<>();
 
@@ -132,11 +132,12 @@ public class ReadOnlyDAO {
       final StringBuilder text = new StringBuilder();
       text.append(
           "select id, beforeHash, afterHash, changetype, difftype, support, confidence, authors, files, nos");
-      text.append(" from patterns where ? <= support and ? <= confidence");
+      text.append(" from patterns where ? <= support and ? <= confidence and ? <= bugfix");
       final PreparedStatement statement = this.connector.prepareStatement(text.toString());
 
       statement.setInt(1, supportThreshold);
       statement.setFloat(2, confidenceThreshold);
+      statement.setInt(3, onlyBugfix ? 1 : 0);
       final ResultSet result = statement.executeQuery();
 
       while (result.next()) {

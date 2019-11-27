@@ -342,6 +342,13 @@ public class CPAConfig {
       option.setRequired(false);
       OPTIONS.addOption(option);
     }
+
+    {
+      final Option option = new Option("onlybugfix", "onlybugfix", false,
+          "use only bugfix change patterns to detect latent buggy code");
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
   }
 
   static public Collection<Option> getOptions() {
@@ -710,5 +717,9 @@ public class CPAConfig {
       System.exit(0);
     }
     return this.commandLine.getOptionValue("warn");
+  }
+
+  public boolean isONLYBUGFIX() {
+    return this.commandLine.hasOption("onlybugfix");
   }
 }

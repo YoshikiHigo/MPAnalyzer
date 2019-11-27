@@ -110,8 +110,9 @@ public class LatentBugExplorer {
 
     final int support = config.getESUPPORT();
     final float confidence = config.getECONFIDENCE();
+    final boolean onlyBugfix = config.isONLYBUGFIX();
     final List<ChangePattern> patterns =
-        ReadOnlyDAO.SINGLETON.getChangePatterns(support, confidence);
+        ReadOnlyDAO.SINGLETON.getChangePatterns(support, confidence, onlyBugfix);
 
     System.out.print("finding latent buggy code from ");
     System.out.print(pathToStatements.size());

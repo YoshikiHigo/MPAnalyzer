@@ -3,7 +3,6 @@ package yoshikihigo.cpanalyzer;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.List;
-
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Revision;
@@ -29,7 +28,7 @@ public class CPCSVPrinter {
           .write("ID, SUPPORT, CONFIDENCE, EREVISION, SREVISION, EDATE, SDATE, NOD, NOF, LBM, LAM");
       writer.newLine();
 
-      final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON.getChangePatterns(0, 0);
+      final List<ChangePattern> patterns = ReadOnlyDAO.SINGLETON.getChangePatterns(0, 0, false);
       for (final ChangePattern pattern : patterns) {
 
         writer.write(Integer.toString(pattern.id));
