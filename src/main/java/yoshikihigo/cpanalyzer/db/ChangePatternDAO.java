@@ -8,17 +8,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 
 public class ChangePatternDAO {
 
   static public final ChangePatternDAO SINGLETON = new ChangePatternDAO();
 
-  static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, "
-      + "beforeHash blob, " + "afterHash blob, " + "changetype integer, " + "difftype integer, "
-      + "support integer, " + "confidence real, " + "authors integer, " + "files integer, "
-      + "nos integer, " + "firstdate string, " + "lastdate string";
+  static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, " + //
+      "beforeHash blob, " + //
+      "afterHash blob, " + //
+      "changetype integer, " + //
+      "difftype integer, " + //
+      "support integer, " + //
+      "confidence real, " + //
+      "authors integer, " + //
+      "files integer, " + //
+      "nos integer, " + //
+      "firstdate string, " + //
+      "lastdate string, " + //
+      "bugfix int";
 
   private Connection connector;
 
@@ -212,7 +220,8 @@ public class ChangePatternDAO {
             + "files = (select count(distinct filepath) from changes C2 where C2.beforeHash = ? and C2.afterHash = ?), "
             + "nos = (select count(distinct repo) from changes C3 where C3.beforeHash = ? and C3.afterHash = ?), "
             + "firstdate = (select date from changes C4 where C4.beforeHash = ? and C4.afterHash = ? order by date asc limit 1), "
-            + "lastdate = (select date from changes C5 where C5.beforeHash = ? and C5.afterHash = ? order by date desc limit 1) "
+            + "lastdate = (select date from changes C5 where C5.beforeHash = ? and C5.afterHash = ? order by date desc limit 1), "
+            + "bugfix = (select sum(C6.bugfix) from changes C6 where C6.beforeHash = ? and C6.afterHash = ?) "
             + "where beforeHash = ? and afterHash = ?";
         final PreparedStatement statement = this.connector.prepareStatement(text);
 
@@ -241,6 +250,8 @@ public class ChangePatternDAO {
           statement.setBytes(10, hashpair[1]);
           statement.setBytes(11, hashpair[0]);
           statement.setBytes(12, hashpair[1]);
+          statement.setBytes(13, hashpair[0]);
+          statement.setBytes(14, hashpair[1]);
           statement.executeUpdate();
           number++;
         }
