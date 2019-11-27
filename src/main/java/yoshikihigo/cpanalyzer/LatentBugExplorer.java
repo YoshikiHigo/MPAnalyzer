@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import javax.swing.JFrame;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,7 +35,7 @@ import yoshikihigo.cpanalyzer.json.LatentBug;
 import yoshikihigo.cpanalyzer.json.Model;
 import yoshikihigo.cpanalyzer.nh3.Warning;
 
-public class LatentBugExplorer extends JFrame {
+public class LatentBugExplorer {
 
   static public void main(final String[] args) {
 
