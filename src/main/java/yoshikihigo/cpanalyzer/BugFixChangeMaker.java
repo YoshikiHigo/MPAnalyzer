@@ -27,6 +27,12 @@ public class BugFixChangeMaker {
       Class.forName("org.sqlite.JDBC");
       final Connection connector = DriverManager.getConnection("jdbc:sqlite:" + database);
 
+      final Statement statementA = connector.createStatement();
+      statementA.executeUpdate(
+          "update changes set bugfix = (select R.bugfix from revisions R where id = revision and R.repo = repo)");
+      statementA.close();
+
+
       final Statement statement1 = connector.createStatement();
       statement1.executeUpdate("drop index if exists index_revision_bugfixchanges");
       statement1.executeUpdate("drop index if exists index_beforeHash_bugfixchanges");
