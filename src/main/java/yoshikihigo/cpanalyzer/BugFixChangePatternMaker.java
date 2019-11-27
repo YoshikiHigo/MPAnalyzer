@@ -27,6 +27,11 @@ public class BugFixChangePatternMaker {
       Class.forName("org.sqlite.JDBC");
       final Connection connector = DriverManager.getConnection("jdbc:sqlite:" + database);
 
+      final Statement statementA = connector.createStatement();
+      statementA.executeUpdate(
+          "update patterns set bugfix = (select sum(C.bugfix) from changes C where C.beforeHash = patterns.beforeHash and C.afterHash = patterns.afterHash)");
+      statementA.close();
+
       final Statement statement1 = connector.createStatement();
       statement1.executeUpdate("drop index if exists index_beforeHash_bugfixpatterns");
       statement1.executeUpdate("drop index if exists index_afterHash_bugfixpatterns");
