@@ -36,6 +36,56 @@ public class BugFixRevisionExtractor {
       Class.forName("org.sqlite.JDBC");
       final Connection connector = DriverManager.getConnection("jdbc:sqlite:" + database);
 
+      final Statement statementA = connector.createStatement();
+      statementA.executeUpdate("update revisions set bugfix = 0");
+      statementA.close();
+
+      final Statement statementB = connector.createStatement();
+      final ResultSet resultB = statementB.executeQuery("select repo, id, message from revisions");
+      while (resultB.next()) {
+        final String repo = resultB.getString(1);
+        final String id = resultB.getString(2);
+        String message = resultB.getString(3);
+        if (message.contains("git-svn-id")) {
+          message = message.substring(0, message.indexOf("git-svn-id"));
+        }
+
+        int bugfix = 0;
+        final StringBuilder urls = new StringBuilder();
+        for (final Entry<String, String> entry : bugIDs.entrySet()) {
+          if (message.contains("Merged revisions")) {
+            continue;
+          }
+          final String bugId = entry.getKey();
+          if (/* message.contains("CAMEL-")&&!(message.contains("/branches/")) */message
+              .endsWith(bugId) || message.contains(bugId + " ") || message.contains(bugId + "\t")
+              || message.contains(bugId + '\r') || message.contains(bugId + '\n')
+              || message.contains(bugId + ":") || message.contains(bugId + ";")
+              || message.contains(bugId + ".")) {
+            bugfix++;
+            final String url = entry.getValue();
+            urls.append(url);
+            urls.append(System.lineSeparator());
+          }
+        }
+
+        if (0 < bugfix) {
+          final StringBuilder updateText = new StringBuilder();
+          updateText.append("update revisions set bugfix = ")
+              .append(bugfix)
+              .append(" where repo = \'")
+              .append(repo)
+              .append("\' and id = \'")
+              .append(id)
+              .append("\'");
+          final Statement statementC = connector.createStatement();
+          statementC.executeUpdate(updateText.toString());
+          statementC.close();
+        }
+      }
+      statementB.close();
+
+
       final Statement statement1 = connector.createStatement();
       statement1.executeUpdate("drop index if exists index_id_bugfixrevisions");
       statement1.executeUpdate("drop index if exists index_bugfix_bugfixrevisions");
