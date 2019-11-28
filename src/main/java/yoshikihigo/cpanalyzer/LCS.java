@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.Change.DiffType;
@@ -17,10 +16,12 @@ import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class LCS {
 
+  final public CPAConfig config;
   final public String repo;
   final public Revision revision;
 
-  public LCS(final String repo, final Revision revision) {
+  public LCS(final CPAConfig config, final String repo, final Revision revision) {
+    this.config = config;
     this.repo = repo;
     this.revision = revision;
   }
@@ -32,15 +33,13 @@ public class LCS {
       return Collections.emptyList();
     }
 
-    final int large = CPAConfig.getInstance()
-        .getLARGE();
+    final int large = config.getLARGE();
     if (large < array1.size() || large < array2.size()) {
       System.out.println("large file. (" + array1.size() + " x " + array2.size() + ")");
       return Collections.emptyList();
     }
 
-    final int CHANGE_SIZE = CPAConfig.getInstance()
-        .getCHANGESIZE();
+    final int CHANGE_SIZE = config.getCHANGESIZE();
 
     final Cell[][] table = new Cell[array1.size()][array2.size()];
     if (Arrays.equals(array1.get(0).hash, array2.get(0).hash)) {
@@ -99,8 +98,8 @@ public class LCS {
             final Code afterCodeFragment = new Code(repo, yStatements);
             final ChangeType changeType = beforeCodeFragment.nText.isEmpty() ? ChangeType.ADD
                 : afterCodeFragment.nText.isEmpty() ? ChangeType.DELETE : ChangeType.REPLACE;
-            final Change change = new Change(repo, filepath, beforeCodeFragment,
-                afterCodeFragment, revision, changeType, diffType);
+            final Change change = new Change(repo, filepath, beforeCodeFragment, afterCodeFragment,
+                revision, changeType, diffType);
             changes.add(change);
           }
           xdiff.clear();

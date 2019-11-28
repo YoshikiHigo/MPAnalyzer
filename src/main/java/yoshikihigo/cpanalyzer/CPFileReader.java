@@ -27,8 +27,13 @@ import org.tmatesoft.svn.core.wc2.SvnTarget;
 
 public class CPFileReader {
 
-  static public SortedMap<String, String> retrieveSVNFiles(final String repository,
-      final int revision) {
+  private final CPAConfig config;
+
+  public CPFileReader(final CPAConfig config) {
+    this.config = config;
+  }
+
+  public SortedMap<String, String> retrieveSVNFiles(final String repository, final int revision) {
 
     Path tmpDir = null;
     try {
@@ -62,10 +67,9 @@ public class CPFileReader {
         .getAbsolutePath());
   }
 
-  static public SortedMap<String, String> retrieveLocalFiles(final String directory) {
+  public SortedMap<String, String> retrieveLocalFiles(final String directory) {
 
-    final Set<LANGUAGE> languages = CPAConfig.getInstance()
-        .getLANGUAGE();
+    final Set<LANGUAGE> languages = config.getLANGUAGE();
     final List<String> paths = retrievePaths(new File(directory), languages);
     final SortedMap<String, String> files = new TreeMap<>();
 
@@ -107,14 +111,12 @@ public class CPFileReader {
     return paths;
   }
 
-  static public SortedMap<String, String> retrieveGITFiles(final String repository,
+  public SortedMap<String, String> retrieveGITFiles(final String repository,
       final String revision) {
 
     final SortedMap<String, String> fileMap = new TreeMap<>();
 
-    final CPAConfig config = CPAConfig.getInstance();
     final Set<LANGUAGE> languages = config.getLANGUAGE();
-
     try (final FileRepository repo = new FileRepository(repository);
         final ObjectReader reader = repo.newObjectReader();
         final TreeWalk treeWalk = new TreeWalk(reader);

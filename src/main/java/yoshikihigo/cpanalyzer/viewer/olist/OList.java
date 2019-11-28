@@ -14,7 +14,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -27,16 +26,16 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
-
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.viewer.ObservedChangePatterns;
-import yoshikihigo.cpanalyzer.viewer.ObservedCodeFragments;
-import yoshikihigo.cpanalyzer.viewer.ObservedFiles;
-import yoshikihigo.cpanalyzer.viewer.PatternWindow;
 import yoshikihigo.cpanalyzer.viewer.ObservedChangePatterns.CPLABEL;
+import yoshikihigo.cpanalyzer.viewer.ObservedCodeFragments;
 import yoshikihigo.cpanalyzer.viewer.ObservedCodeFragments.CFLABEL;
+import yoshikihigo.cpanalyzer.viewer.ObservedFiles;
 import yoshikihigo.cpanalyzer.viewer.ObservedFiles.FLABEL;
+import yoshikihigo.cpanalyzer.viewer.PatternWindow;
 
 public class OList extends JTable implements Observer {
 
@@ -46,6 +45,7 @@ public class OList extends JTable implements Observer {
 
   final public JScrollPane scrollPane;
   final private OSelectionHandler selectionHandler;
+  private final CPAConfig config;
 
   class OSelectionHandler implements ListSelectionListener {
 
@@ -134,7 +134,7 @@ public class OList extends JTable implements Observer {
 
             @Override
             public void run() {
-              new PatternWindow();
+              new PatternWindow(config);
             }
           });
         }
@@ -142,7 +142,7 @@ public class OList extends JTable implements Observer {
     }
   }
 
-  public OList() {
+  public OList(final CPAConfig config) {
 
     super();
 
@@ -155,6 +155,8 @@ public class OList extends JTable implements Observer {
     this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     this.scrollPane
         .setBorder(new TitledBorder(new LineBorder(Color.black), "Overlooked code fragments"));
+
+    this.config = config;
 
     this.selectionHandler = new OSelectionHandler();
     this.getSelectionModel()

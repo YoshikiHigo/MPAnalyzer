@@ -12,7 +12,7 @@ import yoshikihigo.cpanalyzer.data.Revision;
 
 public class ChangeDAO {
 
-  static public final ChangeDAO SINGLETON = new ChangeDAO();
+  static public ChangeDAO SINGLETON = new ChangeDAO();
 
   static public final String REVISIONS_SCHEMA = "repo string, " + //
       "id string, " + //
@@ -49,15 +49,17 @@ public class ChangeDAO {
   private PreparedStatement changePS;
   private int numberOfCodePS;
   private int numberOfChangePS;
+  private CPAConfig config;
 
   private ChangeDAO() {}
 
-  synchronized public void initialize() {
+  synchronized public void initialize(final CPAConfig config) {
+
+    this.config = config;
 
     try {
       Class.forName("org.sqlite.JDBC");
-      final String database = CPAConfig.getInstance()
-          .getDATABASE();
+      final String database = config.getDATABASE();
       this.connector = DriverManager.getConnection("jdbc:sqlite:" + database);
 
       final Statement statement = this.connector.createStatement();
@@ -102,8 +104,8 @@ public class ChangeDAO {
     }
 
     catch (final SQLException e) {
-      e.printStackTrace();
-      System.exit(0);
+      System.err.print(e.getMessage());
+      // System.exit(0);
     }
   }
 
@@ -155,8 +157,7 @@ public class ChangeDAO {
       this.numberOfChangePS++;
 
       if (10000 < this.numberOfCodePS) {
-        if (CPAConfig.getInstance()
-            .isVERBOSE()) {
+        if (config.isVERBOSE()) {
           System.out.println("writing \'codes\' table ...");
         }
         this.codePS.executeBatch();
@@ -165,8 +166,7 @@ public class ChangeDAO {
       }
 
       if (10000 < this.numberOfChangePS) {
-        if (CPAConfig.getInstance()
-            .isVERBOSE()) {
+        if (config.isVERBOSE()) {
           System.out.println("writing \'changes\' table ...");
         }
         this.changePS.executeBatch();
@@ -189,8 +189,7 @@ public class ChangeDAO {
   synchronized public void flush() {
     try {
       if (0 < this.numberOfCodePS) {
-        if (CPAConfig.getInstance()
-            .isVERBOSE()) {
+        if (config.isVERBOSE()) {
           System.out.println("writing \'codes\' table ...");
         }
         this.codePS.executeBatch();
@@ -198,8 +197,7 @@ public class ChangeDAO {
         this.numberOfCodePS = 0;
       }
       if (0 < this.numberOfChangePS) {
-        if (CPAConfig.getInstance()
-            .isVERBOSE()) {
+        if (config.isVERBOSE()) {
           System.out.println("writing \'changes\' table ...");
         }
         this.changePS.executeBatch();

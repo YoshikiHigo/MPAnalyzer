@@ -5,13 +5,11 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 import yoshikihigo.cpanalyzer.viewer.ObservedChangePatterns.CPLABEL;
@@ -22,6 +20,7 @@ import yoshikihigo.cpanalyzer.viewer.graph.PCGraph;
 
 public class MainWindow extends JFrame {
 
+
   public static void main(String[] args) {
 
     try {
@@ -29,19 +28,22 @@ public class MainWindow extends JFrame {
     } catch (final Exception e) {
     }
 
-    CPAConfig.initialize(args);
+    final CPAConfig config = CPAConfig.initialize(args);
     SwingUtilities.invokeLater(new Runnable() {
 
       public void run() {
-        new MainWindow();
+        new MainWindow(config);
       }
     });
   }
 
-  public MainWindow() {
+  private final CPAConfig config;
+
+  public MainWindow(final CPAConfig config) {
     super("");
 
-    ReadOnlyDAO.SINGLETON.initialize();
+    this.config = config;
+    ReadOnlyDAO.SINGLETON.initialize(config);
 
     final Dimension d = Toolkit.getDefaultToolkit()
         .getScreenSize();
@@ -69,7 +71,7 @@ public class MainWindow extends JFrame {
     topPane.add(graph, JSplitPane.LEFT);
 
     final JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-    final CPList list = new CPList();
+    final CPList list = new CPList(config);
     ObservedChangePatterns.getInstance(CPLABEL.ALL)
         .addObserver(list);
     ObservedChangePatterns.getInstance(CPLABEL.FILTERED)

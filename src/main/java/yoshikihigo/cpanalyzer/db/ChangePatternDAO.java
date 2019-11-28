@@ -12,7 +12,7 @@ import yoshikihigo.cpanalyzer.CPAConfig;
 
 public class ChangePatternDAO {
 
-  static public final ChangePatternDAO SINGLETON = new ChangePatternDAO();
+  static public ChangePatternDAO SINGLETON = new ChangePatternDAO();
 
   static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, " + //
       "beforeHash blob, " + //
@@ -29,22 +29,23 @@ public class ChangePatternDAO {
       "bugfix int";
 
   private Connection connector;
+  private CPAConfig config;
 
   private ChangePatternDAO() {}
 
-  synchronized public boolean initialize() {
+  synchronized public boolean initialize(final CPAConfig config) {
+
+    this.config = config;
 
     try {
 
       Class.forName("org.sqlite.JDBC");
-      final String database = CPAConfig.getInstance()
-          .getDATABASE();
+      final String database = config.getDATABASE();
       this.connector = DriverManager.getConnection("jdbc:sqlite:" + database);
       final Statement statement = this.connector.createStatement();
 
       {
-        final boolean force = CPAConfig.getInstance()
-            .isFORCE();
+        final boolean force = config.isFORCE();
         final ResultSet result = statement.executeQuery(
             "select count(*) from sqlite_master where type='table' and name='patterns'");
         if (result.next()) {
@@ -127,14 +128,12 @@ public class ChangePatternDAO {
 
     try {
 
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.print("making change patterns ...");
       }
       final List<byte[]> hashs = new ArrayList<>();
       {
-        final boolean isAll = CPAConfig.getInstance()
-            .isALL();
+        final boolean isAll = config.isALL();
         final Statement statement = this.connector.createStatement();
         final StringBuilder text = new StringBuilder();
         if (isAll) {
@@ -162,8 +161,7 @@ public class ChangePatternDAO {
 
         int number = 1;
         for (final byte[] beforeHash : hashs) {
-          if (!CPAConfig.getInstance()
-              .isQUIET()) {
+          if (!config.isQUIET()) {
             if (0 == number % 500) {
               System.out.print(number);
             } else if (0 == number % 100) {
@@ -191,13 +189,11 @@ public class ChangePatternDAO {
         statement.executeUpdate("create index index_difftype_patterns on patterns(difftype)");
         statement.close();
       }
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.println(" done.");
       }
 
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.print("calculating metrics ...");
       }
       final List<byte[][]> hashpairs = new ArrayList<>();
@@ -227,8 +223,7 @@ public class ChangePatternDAO {
 
         int number = 1;
         for (final byte[][] hashpair : hashpairs) {
-          if (!CPAConfig.getInstance()
-              .isQUIET()) {
+          if (!config.isQUIET()) {
             if (0 == number % 1000) {
               System.out.print(number);
             } else if (0 == number % 100) {
@@ -267,8 +262,7 @@ public class ChangePatternDAO {
         statement.executeUpdate("create index index_nos_patterns on patterns(nos)");
         statement.close();
       }
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.println(" done.");
       }
     }

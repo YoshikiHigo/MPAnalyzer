@@ -7,14 +7,19 @@ import java.sql.Statement;
 
 public class BugFixChangeMaker {
 
-  public static void main(final String[] args) {
-    CPAConfig.initialize(args);
-    BugFixChangeMaker main = new BugFixChangeMaker();
-    main.make();
+  private final CPAConfig config;
+
+  public BugFixChangeMaker(final CPAConfig config) {
+    this.config = config;
   }
 
-  private void make() {
-    final CPAConfig config = CPAConfig.getInstance();
+  public static void main(final String[] args) {
+    final CPAConfig config = CPAConfig.initialize(args);
+    final BugFixChangeMaker maker = new BugFixChangeMaker(config);
+    maker.perform();
+  }
+
+  private void perform() {
     final String database = config.getDATABASE();
 
     try {

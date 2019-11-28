@@ -27,11 +27,13 @@ public class SVNChangeExtractionThread extends Thread {
 
   final private static Object LOCK = new Object();
 
+  final CPAConfig config;
   final public Revision beforeRevision;
   final public Revision afterRevision;
 
-  public SVNChangeExtractionThread(final Revision beforeRevision, final Revision afterRevision) {
-
+  public SVNChangeExtractionThread(final CPAConfig config, final Revision beforeRevision,
+      final Revision afterRevision) {
+    this.config = config;
     this.beforeRevision = beforeRevision;
     this.afterRevision = afterRevision;
   }
@@ -39,7 +41,6 @@ public class SVNChangeExtractionThread extends Thread {
   @Override
   public void run() {
 
-    final CPAConfig config = CPAConfig.getInstance();
     final long id = Thread.currentThread()
         .getId();
     final String repository = config.getSVNREPOSITORY_FOR_MINING();
@@ -109,7 +110,7 @@ public class SVNChangeExtractionThread extends Thread {
       return;
     }
 
-    final LCS lcs = new LCS(repoPath, this.afterRevision);
+    final LCS lcs = new LCS(config, repoPath, this.afterRevision);
 
     FILE: for (final String path : changedPaths) {
 
@@ -170,10 +171,11 @@ public class SVNChangeExtractionThread extends Thread {
       }
 
       final LANGUAGE language = FileUtility.getLANGUAGE(path);
+      final StringUtility stringUtil = new StringUtility(config);
       final List<Statement> beforeStatements =
-          StringUtility.splitToStatements(beforeText.toString(), language);
+          stringUtil.splitToStatements(beforeText.toString(), language);
       final List<Statement> afterStatements =
-          StringUtility.splitToStatements(afterText.toString(), language);
+          stringUtil.splitToStatements(afterText.toString(), language);
 
       final List<Change> changes = lcs.getChanges(beforeStatements, afterStatements, path);
 

@@ -17,14 +17,19 @@ import com.google.common.base.Splitter;
 
 public class BugFixRevisionExtractor {
 
-  public static void main(final String[] args) {
-    CPAConfig.initialize(args);
-    final BugFixRevisionExtractor main = new BugFixRevisionExtractor();
-    main.make();
+  private final CPAConfig config;
+
+  public BugFixRevisionExtractor(final CPAConfig config) {
+    this.config = config;
   }
 
-  private void make() {
-    final CPAConfig config = CPAConfig.getInstance();
+  public static void main(final String[] args) {
+    final CPAConfig config = CPAConfig.initialize(args);
+    final BugFixRevisionExtractor extractor = new BugFixRevisionExtractor(config);
+    extractor.perform();
+  }
+
+  private void perform() {
     final String database = config.getDATABASE();
     final Map<String, String> bugIDs = this.getBugIDs();
 
@@ -79,7 +84,6 @@ public class BugFixRevisionExtractor {
   }
 
   private Map<String, String> getBugIDs() {
-    final CPAConfig config = CPAConfig.getInstance();
     final Path bugFilePath = config.getBUG();
     Map<String, String> map = Collections.emptyMap();
 

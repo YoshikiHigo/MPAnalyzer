@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.StringUtility;
 
@@ -15,29 +14,29 @@ public class SourceFile implements Comparable<SourceFile> {
   final public boolean IGNORE_INDENT;
   final public boolean IGNORE_WHITESPACE;
 
+  private CPAConfig config;
   public final String filepath;
   private final List<String> originalLines;
   private final StringBuilder normalizedSequence;
   private final List<Integer> positionMapper;
 
-  public SourceFile(final String filepath) throws IOException {
+  public SourceFile(final CPAConfig config, final String filepath) throws IOException {
+    this.config = config;
     this.filepath = filepath;
     this.originalLines = new ArrayList<>();
     this.originalLines.add("");
     this.normalizedSequence = new StringBuilder();
     this.positionMapper = new ArrayList<>();
 
-    this.IGNORE_INDENT = CPAConfig.getInstance()
-        .isIGNORE_INDENT();
-    this.IGNORE_WHITESPACE = CPAConfig.getInstance()
-        .isIGNORE_WHITESPACE();
+    this.IGNORE_INDENT = config.isIGNORE_INDENT();
+    this.IGNORE_WHITESPACE = config.isIGNORE_WHITESPACE();
   }
 
   public void addLine(final String line) {
 
-    final String noindent = this.IGNORE_INDENT ? StringUtility.removeIndent(line) : line;
-    final String nospace =
-        this.IGNORE_WHITESPACE ? StringUtility.removeSpaceTab(noindent) : noindent;
+    final StringUtility stringUtil = new StringUtility(config);
+    final String noindent = this.IGNORE_INDENT ? stringUtil.removeIndent(line) : line;
+    final String nospace = this.IGNORE_WHITESPACE ? stringUtil.removeSpaceTab(noindent) : noindent;
     final String trim = nospace.trim();
     this.normalizedSequence.append(trim);
 

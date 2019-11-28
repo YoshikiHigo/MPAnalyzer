@@ -225,7 +225,7 @@ class PastChange extends JPanel {
       final boolean after) {
 
     String text = "";
-    try (final FileRepository repo = new FileRepository(new File(gitrepo + "/.git"));
+    try (final FileRepository repo = new FileRepository(new File(gitrepo));
         final ObjectReader reader = repo.newObjectReader();
         final RevWalk revWalk = new RevWalk(reader)) {
 

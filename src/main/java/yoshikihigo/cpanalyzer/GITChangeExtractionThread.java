@@ -25,13 +25,15 @@ public class GITChangeExtractionThread extends Thread {
 
   final private static Object LOCK = new Object();
 
+  final private CPAConfig config;
   final public Revision revision;
   private Repository repository;
   private PlotWalk revWalk;
   private ObjectReader reader;
 
-  public GITChangeExtractionThread(final Revision revision, final Repository repository,
-      final PlotWalk revWalk, final ObjectReader reader) {
+  public GITChangeExtractionThread(final CPAConfig config, final Revision revision,
+      final Repository repository, final PlotWalk revWalk, final ObjectReader reader) {
+    this.config = config;
     this.revision = revision;
     this.repository = repository;
     this.revWalk = revWalk;
@@ -41,7 +43,6 @@ public class GITChangeExtractionThread extends Thread {
   @Override
   public void run() {
 
-    final CPAConfig config = CPAConfig.getInstance();
     final long id = Thread.currentThread()
         .getId();
     final String repoPath = config.getGITREPOSITORY_FOR_MINING();
@@ -88,7 +89,7 @@ public class GITChangeExtractionThread extends Thread {
         formatter.close();
       }
 
-      final LCS lcs = new LCS(repoPath, this.revision);
+      final LCS lcs = new LCS(config, repoPath, this.revision);
 
       for (final DiffEntry entry : diffEntries) {
         final String oldPath = entry.getOldPath();
@@ -118,10 +119,11 @@ public class GITChangeExtractionThread extends Thread {
         }
 
         final LANGUAGE language = FileUtility.getLANGUAGE(oldPath);
+        final StringUtility stringUtil = new StringUtility(config);
         final List<Statement> beforeStatements =
-            StringUtility.splitToStatements(beforeText.toString(), language);
+            stringUtil.splitToStatements(beforeText.toString(), language);
         final List<Statement> afterStatements =
-            StringUtility.splitToStatements(afterText.toString(), language);
+            stringUtil.splitToStatements(afterText.toString(), language);
 
         final List<Change> changes = lcs.getChanges(beforeStatements, afterStatements, oldPath);
 

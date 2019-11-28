@@ -14,7 +14,6 @@ import java.util.Observer;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
@@ -22,13 +21,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
-
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Revision;
@@ -40,12 +37,13 @@ public class CCode extends JTextArea implements Observer {
 
   static public final int TAB_SIZE = 4;
 
+  public final CPAConfig config;
   public final JScrollPane scrollPane;
   public final CODE code;
 
   private Change change;
 
-  public CCode(final CODE code) {
+  public CCode(final CPAConfig config, final CODE code) {
 
     this.setTabSize(TAB_SIZE);
 
@@ -74,6 +72,7 @@ public class CCode extends JTextArea implements Observer {
         System.exit(0);
     }
 
+    this.config = config;
     this.code = code;
     this.change = null;
 
@@ -123,8 +122,7 @@ public class CCode extends JTextArea implements Observer {
                 .first();
             final Revision revision = this.change.revision;
             final String filepath = this.change.filepath;
-            final String REPOSITORY_FOR_MINING = CPAConfig.getInstance()
-                .getSVNREPOSITORY_FOR_MINING();
+            final String REPOSITORY_FOR_MINING = config.getSVNREPOSITORY_FOR_MINING();
             final SVNURL url = SVNURL.fromFile(new File(REPOSITORY_FOR_MINING + "/" + filepath));
             FSRepositoryFactory.setup();
             final SVNWCClient wcClient = SVNClientManager.newInstance()

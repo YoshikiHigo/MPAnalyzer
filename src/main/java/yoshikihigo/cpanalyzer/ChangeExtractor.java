@@ -34,10 +34,20 @@ import yoshikihigo.cpanalyzer.db.ChangeDAO;
 
 public class ChangeExtractor {
 
-  public static void main(String[] args) {
+  private final CPAConfig config;
 
-    CPAConfig.initialize(args);
-    final CPAConfig config = CPAConfig.getInstance();
+  public static void main(String[] args) {
+    final CPAConfig config = CPAConfig.initialize(args);
+    final ChangeExtractor extractor = new ChangeExtractor(config);
+    extractor.perform();
+  }
+
+  public ChangeExtractor(final CPAConfig config) {
+    this.config = config;
+  }
+
+  public void perform() {
+
     final String db = config.getDATABASE();
     final File dbFile = new File(db);
     if (dbFile.exists()) {
@@ -75,8 +85,8 @@ public class ChangeExtractor {
     final long startTime = System.nanoTime();
 
     if (!config.isQUIET()) {
-      System.out.println("working on software \"" + config.getSOFTWARE() + "\"");
-      System.out.print("identifing revisions to be checked ... ");
+      // System.out.println("working on software \"" + config.getSOFTWARE() + "\"");
+      System.out.print("identifying revisions to be checked ... ");
     }
     if (config.isVERBOSE()) {
       System.out.println();
@@ -96,7 +106,8 @@ public class ChangeExtractor {
       System.exit(0);
     }
 
-    ChangeDAO.SINGLETON.initialize();
+
+    ChangeDAO.SINGLETON.initialize(config);
     ChangeDAO.SINGLETON.addRevisions(revisions.toArray(new Revision[0]));
     if (!config.isQUIET()) {
       System.out.println("done.");
@@ -106,7 +117,8 @@ public class ChangeExtractor {
       if (!config.isQUIET()) {
         System.out.println("no revision.");
       }
-      System.exit(0);
+      ChangeDAO.SINGLETON.close();
+      return;
     }
 
     if (!config.isQUIET()) {
@@ -125,7 +137,7 @@ public class ChangeExtractor {
         final Revision beforeRevision = revisions.get(0);
         final Revision afterRevision = revisions.get(1);
         final Future<?> future =
-            threadPool.submit(new SVNChangeExtractionThread(beforeRevision, afterRevision));
+            threadPool.submit(new SVNChangeExtractionThread(config, beforeRevision, afterRevision));
         futures.add(future);
       }
     } else if (config.hasGITREPO()) {
@@ -141,8 +153,8 @@ public class ChangeExtractor {
       }
       final ObjectReader reader = repository.newObjectReader();
       for (; !revisions.isEmpty(); revisions.remove(0)) {
-        final Future<?> future = threadPool
-            .submit(new GITChangeExtractionThread(revisions.get(0), repository, revWalk, reader));
+        final Future<?> future = threadPool.submit(
+            new GITChangeExtractionThread(config, revisions.get(0), repository, revWalk, reader));
         futures.add(future);
       }
     }
@@ -169,11 +181,12 @@ public class ChangeExtractor {
       System.out.print("execution time: ");
       System.out.println(TimingUtility.getExecutionTime(startTime, endTime));
     }
+
+    ChangeDAO.SINGLETON.close();
   }
 
-  private static List<Revision> getSVNRevisions() {
+  private List<Revision> getSVNRevisions() {
 
-    final CPAConfig config = CPAConfig.getInstance();
     final String repoPath = config.getSVNREPOSITORY_FOR_MINING();
     final Set<LANGUAGE> languages = config.getLANGUAGE();
     final boolean isVerbose = config.isVERBOSE();
@@ -204,9 +217,10 @@ public class ChangeExtractor {
         endRevision = svnRepository.getLatestRevision();
       }
 
+      final StringUtility stringUtil = new StringUtility(config);
       svnRepository.log(null, startRevision, endRevision, true, true, entry -> {
         final String id = Long.toString(entry.getRevision());
-        final String date = StringUtility.getDateString(entry.getDate());
+        final String date = stringUtil.getDateString(entry.getDate());
         final String message = entry.getMessage();
         final String author = entry.getAuthor();
         final Revision revision = new Revision(repoPath, id, date, message, author, false);
@@ -231,10 +245,7 @@ public class ChangeExtractor {
     return revisions;
   }
 
-  private static List<Revision> getGITCommits() {
-
-
-    final CPAConfig config = CPAConfig.getInstance();
+  private List<Revision> getGITCommits() {
     final String repoPath = config.getGITREPOSITORY_FOR_MINING();
     final Set<LANGUAGE> languages = config.getLANGUAGE();
     final Date startDate = config.getSTART_DATE_FOR_MINING();
@@ -264,7 +275,9 @@ public class ChangeExtractor {
       revWalk.markStart(endCommit);
     } catch (final IOException e) {
       System.err.println("invalid commit hash: " + endCommitHash);
-      System.exit(0);
+      revWalk.close();
+      repo.close();
+      return Collections.emptyList();
     }
 
     // コミットをたどる際の最終位置となるコミットを指定する．
@@ -278,7 +291,9 @@ public class ChangeExtractor {
         }
       } catch (final IOException e) {
         System.err.println("invalid commit hash: " + startCommitHash);
-        System.exit(0);
+        revWalk.close();
+        repo.close();
+        return Collections.emptyList();
       }
     }
 
@@ -323,6 +338,7 @@ public class ChangeExtractor {
         return;
       }
 
+      final StringUtility stringUtil = new StringUtility(config);
       for (final DiffEntry entry : diffEntries) {
         final String oldPath = entry.getOldPath();
         final String newPath = entry.getNewPath();
@@ -334,8 +350,8 @@ public class ChangeExtractor {
                 .getName();
             final String author = currentCommit.getAuthorIdent()
                 .getName();
-            final Revision revision = new Revision(repoPath, id, StringUtility.getDateString(date),
-                message, author, false);
+            final Revision revision =
+                new Revision(repoPath, id, stringUtil.getDateString(date), message, author, false);
             revisions.add(revision);
             if (isVerbose) {
               System.out.println(id + " (" + date + ") has been identified.");
@@ -353,9 +369,7 @@ public class ChangeExtractor {
   }
 
   @Deprecated
-  private static List<Revision> getGITRevisions() {
-
-    final CPAConfig config = CPAConfig.getInstance();
+  private List<Revision> getGITRevisions() {
     final String repoPath = config.getGITREPOSITORY_FOR_MINING();
     final Set<LANGUAGE> languages = config.getLANGUAGE();
     final Date startDate = config.getSTART_DATE_FOR_MINING();
@@ -402,6 +416,7 @@ public class ChangeExtractor {
           System.exit(0);
         }
 
+        final StringUtility stringUtil = new StringUtility(config);
         for (final DiffEntry entry : diffEntries) {
           final String oldPath = entry.getOldPath();
           final String newPath = entry.getNewPath();
@@ -413,8 +428,8 @@ public class ChangeExtractor {
                   .getName();
               final String author = commit.getAuthorIdent()
                   .getName();
-              final Revision revision = new Revision(repoPath, id,
-                  StringUtility.getDateString(date), message, author, false);
+              final Revision revision = new Revision(repoPath, id, stringUtil.getDateString(date),
+                  message, author, false);
               revisions.add(revision);
               if (isVerbose) {
                 System.out.println(id + " (" + date + ") has been identified.");

@@ -31,11 +31,12 @@ import yoshikihigo.cpanalyzer.data.Revision;
 public class RList extends JPanel {
 
   final public JScrollPane scrollPane;
+  private final CPAConfig config;
 
   final ButtonGroup group;
   final Map<JRadioButton, Revision> buttonRevisionMap;
 
-  public RList() {
+  public RList(final CPAConfig config) {
     super();
     this.group = new ButtonGroup();
     this.buttonRevisionMap = new HashMap<JRadioButton, Revision>();
@@ -80,6 +81,8 @@ public class RList extends JPanel {
     this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
     this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black), "Revisions"));
+
+    this.config = config;
   }
 
   public final Revision getSelectedRevision() {
@@ -105,19 +108,15 @@ public class RList extends JPanel {
 
     try {
 
-      final String repository = CPAConfig.getInstance()
-          .getREPOSITORY_FOR_TEST();
-      final Set<LANGUAGE> languages = CPAConfig.getInstance()
-          .getLANGUAGE();
+      final String repository = config.getREPOSITORY_FOR_TEST();
+      final Set<LANGUAGE> languages = config.getLANGUAGE();
 
       final SVNURL url = SVNURL.fromFile(new File(repository));
       FSRepositoryFactory.setup();
       final SVNRepository svnRepository = FSRepositoryFactory.create(url);
 
-      long startRevision = CPAConfig.getInstance()
-          .getSTART_REVISION_FOR_TEST();
-      long endRevision = CPAConfig.getInstance()
-          .getEND_REVISION_FOR_TEST();
+      long startRevision = config.getSTART_REVISION_FOR_TEST();
+      long endRevision = config.getEND_REVISION_FOR_TEST();
 
       if (startRevision < 0) {
         startRevision = 0l;

@@ -19,7 +19,6 @@ import org.apache.commons.cli.ParseException;
 
 public class CPAConfig {
 
-  static private CPAConfig SINGLETON = null;
   static final public Options OPTIONS = new Options();
   static {
     {
@@ -52,6 +51,15 @@ public class CPAConfig {
       final Option option =
           new Option("gitrepo", "gitrepository", true, "git repository for mining");
       option.setArgName("gitrepository");
+      option.setArgs(1);
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
+
+    {
+      final Option option = new Option("gitrepos", "gitrepositories", true,
+          "a file including a list of git repositories for mining");
+      option.setArgName("file");
       option.setArgs(1);
       option.setRequired(false);
       OPTIONS.addOption(option);
@@ -373,18 +381,15 @@ public class CPAConfig {
     return OPTIONS.getOptions();
   }
 
-  static public boolean initialize(final String[] args) {
+  static public CPAConfig initialize(final String[] args) {
 
-    if (null != SINGLETON) {
-      return false;
-    }
-
+    CPAConfig config = null;
     try {
       final CommandLineParser parser = new DefaultParser();
       final CommandLine commandLine = parser.parse(OPTIONS, args);
-      SINGLETON = new CPAConfig(commandLine);
+      config = new CPAConfig(commandLine);
 
-      if (SINGLETON.isVERBOSE() && SINGLETON.isQUIET()) {
+      if (config.isVERBOSE() && config.isQUIET()) {
         System.err
             .println("\"-v\" (\"--verbose\") and \"-q\" (\"--quiet\") can not be used together.");
         System.exit(0);
@@ -395,17 +400,7 @@ public class CPAConfig {
       System.exit(0);
     }
 
-    return true;
-  }
-
-  static public CPAConfig getInstance() {
-
-    if (null == SINGLETON) {
-      System.err.println("Config is not initialized.");
-      System.exit(0);
-    }
-
-    return SINGLETON;
+    return config;
   }
 
   private final CommandLine commandLine;
@@ -464,6 +459,14 @@ public class CPAConfig {
       System.exit(0);
     }
     return this.commandLine.getOptionValue("gitrepo");
+  }
+
+  public String getGITREPOSITIES_FOR_MINING() {
+    if (!this.commandLine.hasOption("gitrepos")) {
+      System.err.println("option \"gitrepos\" is not specified.");
+      System.exit(0);
+    }
+    return this.commandLine.getOptionValue("gitrepos");
   }
 
   public long getSTART_REVISION_FOR_MINING() {

@@ -20,21 +20,20 @@ import yoshikihigo.cpanalyzer.data.Revision;
 
 public class ReadOnlyDAO {
 
+  static public ReadOnlyDAO SINGLETON = new ReadOnlyDAO();
+
   static private final String GET_CODE_TEXT =
       "select repo, id, rText, nText, start, end from codes where hash = ?";
-
-  static public final ReadOnlyDAO SINGLETON = new ReadOnlyDAO();
 
   private Connection connector;
 
   private ReadOnlyDAO() {}
 
-  synchronized public void initialize() {
+  synchronized public void initialize(final CPAConfig config) {
 
     try {
       Class.forName("org.sqlite.JDBC");
-      final String database = CPAConfig.getInstance()
-          .getDATABASE();
+      final String database = config.getDATABASE();
       this.connector = DriverManager.getConnection("jdbc:sqlite:" + database);
     } catch (ClassNotFoundException | SQLException e) {
       e.printStackTrace();

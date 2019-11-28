@@ -34,9 +34,8 @@ public class Ammonia extends JFrame {
 
   static public void main(final String[] args) {
 
-    CPAConfig.initialize(args);
-    ReadOnlyDAO.SINGLETON.initialize();
-    final CPAConfig config = CPAConfig.getInstance();
+    final CPAConfig config = CPAConfig.initialize(args);
+    ReadOnlyDAO.SINGLETON.initialize(config);
     final boolean verbose = config.isVERBOSE();
 
     final String warningFilePath = config.getWARN();
@@ -44,23 +43,24 @@ public class Ammonia extends JFrame {
     final Gson gson = new Gson();
     final Model model = gson.fromJson(warningFileContent, Model.class);
 
+    final CPFileReader reader = new CPFileReader(config);
     final Map<String, String> files = new HashMap<>();
     switch (model.targetType) {
       case "GITREPO": {
         final String repo = model.gitRepo;
         final String commit = model.gitCommit;
-        files.putAll(CPFileReader.retrieveGITFiles(repo, commit));
+        files.putAll(reader.retrieveGITFiles(repo, commit));
         break;
       }
       case "SVNREPO": {
         final String repo = model.svnRepo;
         final int rev = model.svnRevision;
-        files.putAll(CPFileReader.retrieveSVNFiles(repo, rev));
+        files.putAll(reader.retrieveSVNFiles(repo, rev));
         break;
       }
       case "LOCALDIR": {
         final String dir = model.localDir;
-        files.putAll(CPFileReader.retrieveLocalFiles(dir));
+        files.putAll(reader.retrieveLocalFiles(dir));
         break;
       }
     }

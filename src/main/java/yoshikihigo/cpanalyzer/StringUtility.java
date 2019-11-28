@@ -11,10 +11,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
-
 import yoshikihigo.commentremover.CRConfig;
 import yoshikihigo.commentremover.CommentRemover;
 import yoshikihigo.commentremover.CommentRemoverJC;
@@ -29,14 +27,20 @@ import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class StringUtility {
 
-  public static List<String> removeLineHeader(final List<String> beforeText) throws IOException {
+  private final CPAConfig config;
+
+  public StringUtility(final CPAConfig config) {
+    this.config = config;
+  }
+
+  public List<String> removeLineHeader(final List<String> beforeText) throws IOException {
     final List<String> afterText = new ArrayList<>();
     beforeText.stream()
         .forEach(line -> afterText.add(removeLineHeader(line)));
     return afterText;
   }
 
-  public static String removeLineHeader(final String line) {
+  public String removeLineHeader(final String line) {
     if (line.startsWith("+") || line.startsWith("-")) {
       return line.substring(1);
     } else {
@@ -44,7 +48,7 @@ public class StringUtility {
     }
   }
 
-  public static List<String> addLineHeader(final List<String> beforeText, final String prefix)
+  public List<String> addLineHeader(final List<String> beforeText, final String prefix)
       throws IOException {
     final List<String> afterText = new ArrayList<>();
     beforeText.stream()
@@ -52,21 +56,21 @@ public class StringUtility {
     return afterText;
   }
 
-  public static String addLineHeader(final String line, final String prefix) {
+  public String addLineHeader(final String line, final String prefix) {
     final StringBuilder builder = new StringBuilder();
     builder.append(prefix);
     builder.append(line);
     return builder.toString();
   }
 
-  public static List<String> removeIndent(final List<String> beforeText) throws IOException {
+  public List<String> removeIndent(final List<String> beforeText) throws IOException {
     final List<String> afterText = new ArrayList<>();
     beforeText.stream()
         .forEach(line -> afterText.add(removeIndent(line)));
     return afterText;
   }
 
-  public static String removeIndent(final String line) {
+  public String removeIndent(final String line) {
     int startIndex = 0;
     for (int index = 0; index < line.length(); index++) {
       if ((' ' != line.charAt(index)) && ('\t' != line.charAt(index))) {
@@ -77,14 +81,14 @@ public class StringUtility {
     return line.substring(startIndex);
   }
 
-  public static List<String> removeSpaceTab(final List<String> beforeText) throws IOException {
+  public List<String> removeSpaceTab(final List<String> beforeText) throws IOException {
     final List<String> afterText = new ArrayList<>();
     beforeText.stream()
         .forEach(line -> afterText.add(removeSpaceTab(line)));
     return afterText;
   }
 
-  public static String removeSpaceTab(final String line) {
+  public String removeSpaceTab(final String line) {
     final StringBuilder newLine = new StringBuilder();
     for (int index = 0; index < line.length(); index++) {
       final char c = line.charAt(index);
@@ -95,11 +99,11 @@ public class StringUtility {
     return newLine.toString();
   }
 
-  public static String removeNewLine(final List<String> beforeText) throws IOException {
+  public String removeNewLine(final List<String> beforeText) throws IOException {
     return String.join(" ", beforeText);
   }
 
-  public static List<String> trim(final List<String> beforeText) throws IOException {
+  public List<String> trim(final List<String> beforeText) throws IOException {
     final List<String> afterText = new ArrayList<>();
     for (final String line : beforeText) {
       boolean blankLine = true;
@@ -117,7 +121,7 @@ public class StringUtility {
     return afterText;
   }
 
-  public static List<Statement> splitToStatements(final String text, final int startLine,
+  static public List<Statement> splitToStatements(final String text, final int startLine,
       final int endLine) {
 
     if (text.isEmpty()) {
@@ -142,14 +146,14 @@ public class StringUtility {
     return statements;
   }
 
-  public static String[] splitToLines(final String text) {
+  public String[] splitToLines(final String text) {
     if (null == text) {
       return new String[0];
     }
     return text.split(System.lineSeparator());
   }
 
-  public static List<Statement> splitToStatements(final String text, final LANGUAGE language) {
+  public List<Statement> splitToStatements(final String text, final LANGUAGE language) {
 
     if (text.isEmpty()) {
       return new ArrayList<Statement>();
@@ -170,7 +174,7 @@ public class StringUtility {
         final String normalizedText = remover.perform(text);
         final LineLexer lexer = new JavaLineLexer();
         final List<Token> tokens = lexer.lexFile(normalizedText);
-        final List<Statement> statements = Statement.getJCStatements(tokens);
+        final List<Statement> statements = Statement.getJCStatements(this.config, tokens);
         return statements;
       }
       case C:
@@ -188,7 +192,7 @@ public class StringUtility {
         final String normalizedText = remover.perform(text);
         final LineLexer lexer = new CLineLexer();
         final List<Token> tokens = lexer.lexFile(normalizedText);
-        final List<Statement> statements = Statement.getJCStatements(tokens);
+        final List<Statement> statements = Statement.getJCStatements(this.config, tokens);
         return statements;
       }
       case PYTHON: {
@@ -201,7 +205,7 @@ public class StringUtility {
         final String normalizedText = remover.perform(text);
         final LineLexer lexer = new PythonLineLexer();
         final List<Token> tokens = lexer.lexFile(normalizedText);
-        final List<Statement> statements = Statement.getPYStatements(tokens);
+        final List<Statement> statements = Statement.getPYStatements(this.config, tokens);
         return statements;
       }
       default: {
@@ -213,40 +217,40 @@ public class StringUtility {
     return new ArrayList<Statement>();
   }
 
-  public static int getLOC(final String text) {
+  public int getLOC(final String text) {
     return splitToLines(text).length;
   }
 
-  public static boolean isImport(final List<String> text) {
+  public boolean isImport(final List<String> text) {
     return text.stream()
         .anyMatch(line -> line.startsWith("import ") || line.startsWith("package "));
   }
 
-  public static boolean isInclude(final List<String> text) {
+  public boolean isInclude(final List<String> text) {
     return text.stream()
         .anyMatch(line -> line.startsWith("#include"));
   }
 
-  public static boolean isJavaFile(final String path) {
+  public boolean isJavaFile(final String path) {
     return path.endsWith(".java");
   }
 
-  public static boolean isCFile(final String path) {
+  public boolean isCFile(final String path) {
     return path.endsWith(".c") || path.endsWith(".cc") || path.endsWith(".cpp")
         || path.endsWith(".cxx");
   }
 
-  public static String convertListToString(final List<String> list) {
+  public String convertListToString(final List<String> list) {
     return String.join(System.lineSeparator(), list);
   }
 
-  public static List<String> convertStringToList(final String text) {
+  public List<String> convertStringToList(final String text) {
     final BufferedReader reader = new BufferedReader(new StringReader(text));
     return reader.lines()
         .collect(Collectors.toList());
   }
 
-  public static String getSQLITELiteral(final String text) {
+  public String getSQLITELiteral(final String text) {
     final StringBuilder builder = new StringBuilder();
     builder.append("\'");
     for (int index = 0; index < text.length(); index++) {
@@ -261,7 +265,7 @@ public class StringUtility {
     return builder.toString();
   }
 
-  public static String getFilePath(final String diffHeaderLine) {
+  public String getFilePath(final String diffHeaderLine) {
     if (diffHeaderLine.startsWith("Index: ")) {
       return diffHeaderLine.substring("Index: ".length());
     } else {
@@ -284,11 +288,11 @@ public class StringUtility {
     }
   }
 
-  public static String removeTime(final String date) {
+  public String removeTime(final String date) {
     return date.indexOf(' ') > 0 ? date.substring(0, date.indexOf(' ')) : date;
   }
 
-  static public SVNURL getSVNURL(final String repository, final String path) {
+  public static SVNURL getSVNURL(final String repository, final String path) {
     SVNURL fileurl = null;
     try {
       if (repository.startsWith("http://")) {

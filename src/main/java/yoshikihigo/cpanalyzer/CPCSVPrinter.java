@@ -16,9 +16,8 @@ public class CPCSVPrinter {
 
       final long startTime = System.nanoTime();
 
-      CPAConfig.initialize(args);
-      final String CVSFILE = CPAConfig.getInstance()
-          .getCSV_FILE();
+      final CPAConfig config = CPAConfig.initialize(args);
+      final String CVSFILE = config.getCSV_FILE();
 
       System.out.println("outputing to " + CVSFILE + " ... ");
 
