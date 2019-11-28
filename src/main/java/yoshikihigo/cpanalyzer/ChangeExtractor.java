@@ -82,8 +82,6 @@ public class ChangeExtractor {
       System.out.println();
     }
 
-    //RepoType repoType = null;
-    //String repoDir = null;
     List<Revision> revisions = Collections.emptyList();
     if (config.hasSVNREPO() && config.hasGITREPO()) {
       System.out.println("-svnrepo and -gitrepo cannot be used together.");
@@ -91,12 +89,8 @@ public class ChangeExtractor {
       System.exit(0);
     } else if (config.hasSVNREPO()) {
       revisions = getSVNRevisions();
-      //repoType = RepoType.SVNREPO;
-      //repoDir = config.getSVNREPOSITORY_FOR_MINING();
     } else if (config.hasGITREPO()) {
       revisions = getGITCommits();
-      //repoType = RepoType.GITREPO;
-      //repoDir = config.getGITREPOSITORY_FOR_MINING();
     } else {
       System.out.println("either of -svnrepo or -gitrepo must be specified.");
       System.exit(0);
