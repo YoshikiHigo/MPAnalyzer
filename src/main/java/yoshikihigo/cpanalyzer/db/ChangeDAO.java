@@ -104,8 +104,7 @@ public class ChangeDAO {
     }
 
     catch (final SQLException e) {
-      System.err.print(e.getMessage());
-      // System.exit(0);
+      System.err.println(e.getMessage());
     }
   }
 

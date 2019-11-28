@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.StringTokenizer;
-import yoshikihigo.cpanalyzer.db.ChangeDAO;
 
 public class ManyRepoExecutor {
 
@@ -26,15 +25,25 @@ public class ManyRepoExecutor {
     }
 
     // 各行に対してChangeExtractorを実行
-    for (final String line : lines) {
+    for (int index = 0; index < lines.size(); index++) {
+      final String line = lines.get(index);
       final StringTokenizer tokenizer = new StringTokenizer(line, " ,");
       final String localRepoDir = tokenizer.nextToken();
       final String cve = tokenizer.nextToken();
       final String commitHash = tokenizer.nextToken();
 
-      System.err.println(line);
+      final StringBuilder builder = new StringBuilder();
+      builder.append("[")
+          .append(index + 1)
+          .append("/")
+          .append(lines.size())
+          .append("] extracting changes from ")
+          .append(line)
+          .append(" ...");
+      System.out.println(builder.toString());
+
       final String[] newArgs = {"-db", db, "-i", "-gitrepo", localRepoDir, "-startcommit",
-          commitHash, "-endcommit", commitHash};
+          commitHash, "-endcommit", commitHash, "-q"};
       ChangeExtractor.main(newArgs);
     }
 

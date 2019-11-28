@@ -58,7 +58,9 @@ public class ChangeExtractor {
         return;
       }
 
-      System.out.println(db + " already exists in your file system.");
+      if (!config.isQUIET()) {
+        System.out.println(db + " already exists in your file system.");
+      }
       if (isForce) {
         if (!dbFile.delete()) {
           if (!config.isQUIET()) {
@@ -73,7 +75,9 @@ public class ChangeExtractor {
       }
 
       else if (isInsert) {
-        System.out.println("analysis results will be inserted to the existing db.");
+        if (!config.isQUIET()) {
+          System.out.println("analysis results will be inserted to the existing db.");
+        }
       }
 
       else {
