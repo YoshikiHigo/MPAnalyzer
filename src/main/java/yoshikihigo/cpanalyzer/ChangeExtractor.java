@@ -17,10 +17,13 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
@@ -79,8 +82,8 @@ public class ChangeExtractor {
       System.out.println();
     }
 
-    RepoType repoType = null;
-    String repoDir = null;
+    //RepoType repoType = null;
+    //String repoDir = null;
     List<Revision> revisions = Collections.emptyList();
     if (config.hasSVNREPO() && config.hasGITREPO()) {
       System.out.println("-svnrepo and -gitrepo cannot be used together.");
@@ -88,12 +91,12 @@ public class ChangeExtractor {
       System.exit(0);
     } else if (config.hasSVNREPO()) {
       revisions = getSVNRevisions();
-      repoType = RepoType.SVNREPO;
-      repoDir = config.getSVNREPOSITORY_FOR_MINING();
+      //repoType = RepoType.SVNREPO;
+      //repoDir = config.getSVNREPOSITORY_FOR_MINING();
     } else if (config.hasGITREPO()) {
-      revisions = getGITRevisions();
-      repoType = RepoType.GITREPO;
-      repoDir = config.getGITREPOSITORY_FOR_MINING();
+      revisions = getGITCommits();
+      //repoType = RepoType.GITREPO;
+      //repoDir = config.getGITREPOSITORY_FOR_MINING();
     } else {
       System.out.println("either of -svnrepo or -gitrepo must be specified.");
       System.exit(0);
@@ -137,7 +140,7 @@ public class ChangeExtractor {
       Repository repository = null;
       PlotWalk revWalk = null;
       try {
-        repository = new FileRepository(new File(repoPath + File.separator + ".git"));
+        repository = new FileRepository(new File(repoPath));
         revWalk = new PlotWalk(repository);
       } catch (final IOException e) {
         e.printStackTrace();
@@ -234,6 +237,128 @@ public class ChangeExtractor {
     return revisions;
   }
 
+  private static List<Revision> getGITCommits() {
+
+
+    final CPAConfig config = CPAConfig.getInstance();
+    final String repoPath = config.getGITREPOSITORY_FOR_MINING();
+    final Set<LANGUAGE> languages = config.getLANGUAGE();
+    final Date startDate = config.getSTART_DATE_FOR_MINING();
+    final Date endDate = config.getEND_DATE_FOR_MINING();
+    final boolean isVerbose = config.isVERBOSE();
+
+    Repository repo = null;
+    try {
+      final FileRepositoryBuilder repoBuilder = new FileRepositoryBuilder();
+      repo = repoBuilder.setGitDir(new File(repoPath))
+          .readEnvironment()
+          .findGitDir()
+          .build();
+    } catch (final IOException e) {
+      System.err.println("invalid repository path: " + repoPath);
+      System.exit(0);
+    }
+
+    final RevWalk revWalk = new RevWalk(repo);
+
+    // コミットをたどる際の初期位置となるコミットを指定する．
+    // -startcommitで指定されていない場合にはHEADからたどる．
+    final String endCommitHash =
+        config.hasEND_COMMIT_FOR_MINING() ? config.getEND_COMMIT_FOR_MINING() : Constants.HEAD;
+    try {
+      final RevCommit endCommit = revWalk.parseCommit(repo.resolve(endCommitHash));
+      revWalk.markStart(endCommit);
+    } catch (final IOException e) {
+      System.err.println("invalid commit hash: " + endCommitHash);
+      System.exit(0);
+    }
+
+    // コミットをたどる際の最終位置となるコミットを指定する．
+    // -endcommitが指定されていない場合はリポジトリの先頭までたどるので何もする必要が無い．
+    if (config.hasSTART_COMMIT_FOR_MINING()) {
+      final String startCommitHash = config.getSTART_COMMIT_FOR_MINING();
+      try {
+        final RevCommit startCommit = revWalk.parseCommit(repo.resolve(startCommitHash));
+        for (final RevCommit parent : startCommit.getParents()) {
+          revWalk.markUninteresting(parent);
+        }
+      } catch (final IOException e) {
+        System.err.println("invalid commit hash: " + startCommitHash);
+        System.exit(0);
+      }
+    }
+
+    final DiffFormatter formatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+    formatter.setRepository(repo);
+    formatter.setDiffComparator(RawTextComparator.DEFAULT);
+    formatter.setDetectRenames(true);
+
+    final List<Revision> revisions = new LinkedList<>();
+    revWalk.forEach(currentCommit -> {
+
+      // 指定された日付の範囲外のコミットは対象外
+      final Date date = new Date(currentCommit.getCommitTime() * 1000L);
+      if (date.before(startDate) || date.after(endDate)) {
+        return;
+      }
+
+      // マージコミットは対象外
+      if (1 != currentCommit.getParentCount()) {
+        return;
+      }
+
+      final RevCommit parent = currentCommit.getParent(0);
+
+      // 変更の集合を取得
+      List<DiffEntry> diffEntries = null;
+      try {
+        diffEntries = formatter.scan(parent.getId(), currentCommit.getId());
+      } catch (final IOException e) {
+        final String parentHash = parent.getId()
+            .getName()
+            .substring(0, 7);
+        final String currentHash = currentCommit.getId()
+            .getName()
+            .substring(0, 7);
+        final StringBuilder errorText = new StringBuilder();
+        errorText.append("cannot extract differences between ")
+            .append(parentHash)
+            .append(" and ")
+            .append(currentHash);
+        System.err.println(errorText.toString());
+        return;
+      }
+
+      for (final DiffEntry entry : diffEntries) {
+        final String oldPath = entry.getOldPath();
+        final String newPath = entry.getNewPath();
+
+        for (final LANGUAGE language : languages) {
+          if (language.isTarget(oldPath) && language.isTarget(newPath)) {
+            final String message = currentCommit.getFullMessage();
+            final String id = currentCommit.getId()
+                .getName();
+            final String author = currentCommit.getAuthorIdent()
+                .getName();
+            final Revision revision = new Revision(repoPath, id, StringUtility.getDateString(date),
+                message, author, false);
+            revisions.add(revision);
+            if (isVerbose) {
+              System.out.println(id + " (" + date + ") has been identified.");
+            }
+            return;
+          }
+        }
+      }
+    });
+
+    formatter.close();
+    revWalk.close();
+
+    return revisions;
+  }
+
+  @Deprecated
   private static List<Revision> getGITRevisions() {
 
     final CPAConfig config = CPAConfig.getInstance();

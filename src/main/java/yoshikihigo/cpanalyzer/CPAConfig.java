@@ -95,6 +95,24 @@ public class CPAConfig {
 
     {
       final Option option =
+          new Option("startcommit", "startcommit", true, "start commit of repository for mining");
+      option.setArgName("commit");
+      option.setArgs(1);
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
+
+    {
+      final Option option =
+          new Option("endcommit", "endcommit", true, "end commit of repository for mining");
+      option.setArgName("commit");
+      option.setArgs(1);
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
+
+    {
+      final Option option =
           new Option("db", "database", true, "database for storing modification patterns");
       option.setArgName("revision");
       option.setArgs(1);
@@ -460,6 +478,30 @@ public class CPAConfig {
       return Long.parseLong(this.commandLine.getOptionValue("endrev"));
     }
     return -1;
+  }
+
+  public boolean hasSTART_COMMIT_FOR_MINING() {
+    return this.commandLine.hasOption("startcommit");
+  }
+
+  public String getSTART_COMMIT_FOR_MINING() {
+    if (!this.hasSTART_COMMIT_FOR_MINING()) {
+      System.err.println("option \"startcommit\" is not specified.");
+      System.exit(0);
+    }
+    return this.commandLine.getOptionValue("startcommit");
+  }
+
+  public boolean hasEND_COMMIT_FOR_MINING() {
+    return this.commandLine.hasOption("endcommit");
+  }
+
+  public String getEND_COMMIT_FOR_MINING() {
+    if (!this.hasEND_COMMIT_FOR_MINING()) {
+      System.err.println("option \"endcommit\" is not specified.");
+      System.exit(0);
+    }
+    return this.commandLine.getOptionValue("endcommit");
   }
 
   public Date getSTART_DATE_FOR_MINING() {

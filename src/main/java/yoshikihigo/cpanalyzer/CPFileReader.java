@@ -115,7 +115,7 @@ public class CPFileReader {
     final CPAConfig config = CPAConfig.getInstance();
     final Set<LANGUAGE> languages = config.getLANGUAGE();
 
-    try (final FileRepository repo = new FileRepository(repository + "/.git");
+    try (final FileRepository repo = new FileRepository(repository);
         final ObjectReader reader = repo.newObjectReader();
         final TreeWalk treeWalk = new TreeWalk(reader);
         final RevWalk revWalk = new RevWalk(reader)) {
