@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -27,7 +26,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 
 public class WarningListView extends JTable implements Observer {
@@ -331,10 +329,6 @@ public class WarningListView extends JTable implements Observer {
 
   public class WRenderer extends DefaultTableCellRenderer {
 
-    WRenderer() {
-      super();
-    }
-
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
         boolean hasFocus, int row, int column) {
@@ -343,6 +337,11 @@ public class WarningListView extends JTable implements Observer {
 
       final int modelIndex = WarningListView.this.convertRowIndexToModel(row);
       final WarningListViewModel model = (WarningListViewModel) WarningListView.this.getModel();
+
+      if (model.warnings.size() <= 3) {
+        return this;
+      }
+
       final Warning warning = model.warnings.get(modelIndex);
       final int id = warning.pattern.id;
 
