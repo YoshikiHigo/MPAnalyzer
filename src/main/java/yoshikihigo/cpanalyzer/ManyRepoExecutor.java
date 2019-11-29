@@ -43,12 +43,12 @@ public class ManyRepoExecutor {
       System.out.println(builder.toString());
 
       final String[] newArgs = {"-db", db, "-i", "-gitrepo", localRepoDir, "-startcommit",
-          commitHash, "-endcommit", commitHash, "-q"};
+          commitHash, "-endcommit", commitHash, "-q", "-thd", "2"};
       ChangeExtractor.main(newArgs);
     }
 
     // patternの生成
-    final String[] newArgs = {"-db", db};
+    final String[] newArgs = {"-db", db, "-q"};
     ChangePatternMaker.main(newArgs);
   }
 }
