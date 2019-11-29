@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.Change.DiffType;
@@ -129,10 +130,9 @@ public class LCS {
   }
 
   private List<Token> getTokens(final List<Statement> statements) {
-    final List<Token> tokens = new ArrayList<>();
-    statements.stream()
-        .forEach(statement -> tokens.addAll(statement.tokens));
-    return tokens;
+    return statements.stream()
+        .flatMap(s -> s.tokens.stream())
+        .collect(Collectors.toList());
   }
 
   private DiffType getType(final List<Token> tokens1, final List<Token> tokens2) {
