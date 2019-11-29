@@ -31,14 +31,6 @@ public class CPAConfig {
     }
 
     {
-      final Option option = new Option("soft", "software", true, "software name");
-      option.setArgName("software");
-      option.setArgs(1);
-      option.setRequired(false);
-      OPTIONS.addOption(option);
-    }
-
-    {
       final Option option =
           new Option("svnrepo", "svnrepository", true, "svn repository for mining");
       option.setArgName("svnrepository");
@@ -435,14 +427,6 @@ public class CPAConfig {
     }
 
     return languages;
-  }
-
-  public String getSOFTWARE() {
-    if (!this.commandLine.hasOption("soft")) {
-      System.err.println("option \"soft\" is not specified.");
-      System.exit(0);
-    }
-    return this.commandLine.getOptionValue("soft");
   }
 
   public String getSVNREPOSITORY_FOR_MINING() {

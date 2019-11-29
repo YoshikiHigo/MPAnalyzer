@@ -45,7 +45,7 @@ public class SVNChangeExtractionThread extends Thread {
         .getId();
     final String repository = config.getSVNREPOSITORY_FOR_MINING();
     final Set<LANGUAGE> languages = config.getLANGUAGE();
-    final String repoPath = config.getSOFTWARE();
+    final String repoPath = repository;
     final boolean onlyCondition = config.isONLY_CONDITION();
     final boolean ignoreImport = config.isIGNORE_IMPORT();
     final boolean isVerbose = config.isVERBOSE();

@@ -89,7 +89,6 @@ public class ChangeExtractor {
     final long startTime = System.nanoTime();
 
     if (!config.isQUIET()) {
-      // System.out.println("working on software \"" + config.getSOFTWARE() + "\"");
       System.out.print("identifying revisions to be checked ... ");
     }
     if (config.isVERBOSE()) {
