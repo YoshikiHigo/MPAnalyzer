@@ -63,6 +63,18 @@ application {
     mainClassName = 'yoshikihigo.cpanalyzer.JarEntryPoint'
 }
 
+jar {
+    manifest {
+        attributes "Main-Class": "yoshikihigo.cpanalyzer.JarEntryPoint"
+    }
+    from { 
+        (configurations.runtime).collect { 
+            it.isDirectory() ? it : zipTree(it) 
+        } 
+    } {
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    }
+}
 run {
   // 「args」という引数が存在するかチェック
   if (project.hasProperty('args')) {
