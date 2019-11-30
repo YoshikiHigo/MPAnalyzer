@@ -23,6 +23,9 @@ public class JarEntryPoint {
       case "patterns":
         className = "yoshikihigo.cpanalyzer.ChangePatternMaker";
         break;
+      case "multirepos":
+        className = "yoshikihigo.cpanalyzer.ManyRepoExecutor";
+        break;
       case "bugfixes":
         className = "yoshikihigo.cpanalyzer.BugFixAllMaker";
         break;
@@ -51,6 +54,8 @@ public class JarEntryPoint {
       System.exit(1);
     } catch (final InvocationTargetException e) {
       System.err.println("An exception was thrown by invoked main method");
+      //final Throwable causeException = e.getCause();
+      //causeException.printStackTrace();
       System.exit(1);
     } catch (final IllegalAccessException e) {
       System.err.println("failed to access main method");
@@ -62,6 +67,10 @@ public class JarEntryPoint {
     System.err.println("One the following names must be specified as the first argument.");
     System.err.println(" changes: to extract changes from a repository");
     System.err.println(" patterns: to make change patterns from the extracted changes");
+    System.err
+        .println(" multirepos: to execute \'changes\' and \'patterns\' on multiple repositories");
     System.err.println(" bugfixes: to identify bugfix-related change patterns");
+    System.err.println(" latentbugs: to identify latent bugs by using identified change patterns");
+    System.err.println(" ammonia: to analyze found latent bugs by using GUI");
   }
 }
