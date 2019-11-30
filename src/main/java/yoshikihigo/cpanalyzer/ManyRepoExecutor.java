@@ -11,7 +11,6 @@ public class ManyRepoExecutor {
 
   public static void main(final String[] args) {
 
-
     final CPAConfig config = CPAConfig.initialize(args);
     final String db = config.getDATABASE();
     final Path reposFilePath = Paths.get(config.getGITREPOSITIES_FOR_MINING());
