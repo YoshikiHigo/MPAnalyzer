@@ -38,7 +38,6 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 import yoshikihigo.cpanalyzer.StringUtility;
 import yoshikihigo.cpanalyzer.data.Change;
-import yoshikihigo.cpanalyzer.db.ConfigurationDAO;
 import yoshikihigo.cpanalyzer.db.ReadOnlyDAO;
 
 public class PastChangesView extends JTabbedPane implements Observer {
@@ -155,17 +154,19 @@ class PastChange extends JPanel {
 
     String beforeText = "";
     String afterText = "";
-    final String repoType = ConfigurationDAO.SINGLETON.getRepoType();
+    final String repoType = "GITREPO"; // TODO for SVNREPO
     switch (repoType) {
       case "SVNREPO":
-        beforeText =
-            this.getSVNText(this.change.filepath, Integer.parseInt(this.change.revision.id) - 1);
-        afterText =
-            this.getSVNText(this.change.filepath, Integer.parseInt(this.change.revision.id));
+        beforeText = this.getSVNText(this.change.filepath, this.change.repo,
+            Integer.parseInt(this.change.revision.id) - 1);
+        afterText = this.getSVNText(this.change.filepath, this.change.repo,
+            Integer.parseInt(this.change.revision.id));
         break;
       case "GITREPO": {
-        beforeText = this.getGITText(this.change.filepath, this.change.revision.id, false);
-        afterText = this.getGITText(this.change.filepath, this.change.revision.id, true);
+        beforeText =
+            this.getGITText(this.change.filepath, this.change.repo, this.change.revision.id, false);
+        afterText =
+            this.getGITText(this.change.filepath, this.change.repo, this.change.revision.id, true);
         break;
       }
       default: {
@@ -195,10 +196,9 @@ class PastChange extends JPanel {
     afterView.displayAt((0 < afterChangeEndLine) ? afterChangeEndLine : beforeChangeEndLine);
   }
 
-  private String getSVNText(final String path, final int revision) {
+  private String getSVNText(final String path, final String svnrepo, final int revision) {
 
-    final String repository = ConfigurationDAO.SINGLETON.getRepoDir();
-    final SVNURL url = StringUtility.getSVNURL(repository, path);
+    final SVNURL url = StringUtility.getSVNURL(svnrepo, path);
     FSRepositoryFactory.setup();
     SVNWCClient wcClient = SVNClientManager.newInstance()
         .getWCClient();
@@ -221,11 +221,11 @@ class PastChange extends JPanel {
     return text.toString();
   }
 
-  private String getGITText(final String path, final String revision, final boolean after) {
+  private String getGITText(final String path, final String gitrepo, final String revision,
+      final boolean after) {
 
-    final String gitrepo = ConfigurationDAO.SINGLETON.getRepoDir();
     String text = "";
-    try (final FileRepository repo = new FileRepository(new File(gitrepo + "/.git"));
+    try (final FileRepository repo = new FileRepository(new File(gitrepo));
         final ObjectReader reader = repo.newObjectReader();
         final RevWalk revWalk = new RevWalk(reader)) {
 

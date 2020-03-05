@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
+import java.util.stream.Collectors;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.Change.DiffType;
@@ -17,11 +17,13 @@ import yoshikihigo.cpanalyzer.lexer.token.Token;
 
 public class LCS {
 
-  final public String software;
+  final public CPAConfig config;
+  final public String repo;
   final public Revision revision;
 
-  public LCS(final String software, final Revision revision) {
-    this.software = software;
+  public LCS(final CPAConfig config, final String repo, final Revision revision) {
+    this.config = config;
+    this.repo = repo;
     this.revision = revision;
   }
 
@@ -32,15 +34,13 @@ public class LCS {
       return Collections.emptyList();
     }
 
-    final int large = CPAConfig.getInstance()
-        .getLARGE();
+    final int large = config.getLARGE();
     if (large < array1.size() || large < array2.size()) {
       System.out.println("large file. (" + array1.size() + " x " + array2.size() + ")");
       return Collections.emptyList();
     }
 
-    final int CHANGE_SIZE = CPAConfig.getInstance()
-        .getCHANGESIZE();
+    final int CHANGE_SIZE = config.getCHANGESIZE();
 
     final Cell[][] table = new Cell[array1.size()][array2.size()];
     if (Arrays.equals(array1.get(0).hash, array2.get(0).hash)) {
@@ -95,12 +95,12 @@ public class LCS {
             final List<Token> yTokens = getTokens(yStatements);
             final DiffType diffType = getType(xTokens, yTokens);
 
-            final Code beforeCodeFragment = new Code(software, xStatements);
-            final Code afterCodeFragment = new Code(software, yStatements);
+            final Code beforeCodeFragment = new Code(repo, xStatements);
+            final Code afterCodeFragment = new Code(repo, yStatements);
             final ChangeType changeType = beforeCodeFragment.nText.isEmpty() ? ChangeType.ADD
                 : afterCodeFragment.nText.isEmpty() ? ChangeType.DELETE : ChangeType.REPLACE;
-            final Change change = new Change(software, filepath, beforeCodeFragment,
-                afterCodeFragment, revision, changeType, diffType);
+            final Change change = new Change(repo, filepath, beforeCodeFragment, afterCodeFragment,
+                revision, changeType, diffType);
             changes.add(change);
           }
           xdiff.clear();
@@ -130,10 +130,9 @@ public class LCS {
   }
 
   private List<Token> getTokens(final List<Statement> statements) {
-    final List<Token> tokens = new ArrayList<>();
-    statements.stream()
-        .forEach(statement -> tokens.addAll(statement.tokens));
-    return tokens;
+    return statements.stream()
+        .flatMap(s -> s.tokens.stream())
+        .collect(Collectors.toList());
   }
 
   private DiffType getType(final List<Token> tokens1, final List<Token> tokens2) {

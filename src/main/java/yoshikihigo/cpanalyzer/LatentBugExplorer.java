@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import javax.swing.JFrame;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,13 +35,24 @@ import yoshikihigo.cpanalyzer.json.LatentBug;
 import yoshikihigo.cpanalyzer.json.Model;
 import yoshikihigo.cpanalyzer.nh3.Warning;
 
-public class LatentBugExplorer extends JFrame {
+public class LatentBugExplorer {
+
+  private final CPAConfig config;
 
   static public void main(final String[] args) {
+    final CPAConfig config = CPAConfig.initialize(args);
+    final LatentBugExplorer explorer = new LatentBugExplorer(config);
+    explorer.perform();
+  }
 
-    CPAConfig.initialize(args);
-    ReadOnlyDAO.SINGLETON.initialize();
-    final CPAConfig config = CPAConfig.getInstance();
+  public LatentBugExplorer(final CPAConfig config) {
+    this.config = config;
+  }
+
+
+  public void perform() {
+
+    ReadOnlyDAO.SINGLETON.initialize(config);
     final boolean verbose = config.isVERBOSE();
 
     if (config.getLANGUAGE()
@@ -51,38 +61,40 @@ public class LatentBugExplorer extends JFrame {
       System.exit(0);
     }
 
+    final CPFileReader reader = new CPFileReader(config);
     final SortedMap<String, String> files = new TreeMap<>();
     RepoType targetType = null;
     if (config.hasESVNREPO() && config.hasESVNREV()) {
       final String repository = config.getESVNREPO();
       final int revision = config.getESVNREV();
-      files.putAll(CPFileReader.retrieveSVNFiles(repository, revision));
+      files.putAll(reader.retrieveSVNFiles(repository, revision));
       targetType = RepoType.SVNREPO;
     }
 
     else if (config.hasEGITREPO() && config.hasEGITCOMMIT()) {
       final String gitrepo = config.getEGITREPO();
       final String gitcommit = config.getEGITCOMMIT();
-      files.putAll(CPFileReader.retrieveGITFiles(gitrepo, gitcommit));
+      files.putAll(reader.retrieveGITFiles(gitrepo, gitcommit));
       targetType = RepoType.GITREPO;
     }
 
     else if (config.hasEDIR()) {
       final String directory = config.getEDIR();
-      files.putAll(CPFileReader.retrieveLocalFiles(directory));
+      files.putAll(reader.retrieveLocalFiles(directory));
       targetType = RepoType.LOCALDIR;
     }
 
     else {
       System.out.println("settings for exploring latent buggy code is not specified correctly.");
       System.out.println(
-          " if you want to use a GIT repository, specify \"egitrepo\" and \"egitcommit\".");
+          " if you want to use a GIT repository, specify \'-egitrepo\' and \'-egitcommit\'.");
       System.out
           .println(" if you want to use a SVN repository, specify \"esvnrepo\" and \"esvnrev\".");
       System.out.println(" if you want to use a usual directory, specify \"edir\".");
       System.exit(0);
     }
 
+    final StringUtility stringUtil = new StringUtility(config);
     final Set<LANGUAGE> languages = config.getLANGUAGE();
     final SortedMap<String, List<Statement>> pathToStatements = new TreeMap<>();
     final Map<MD5, SortedSet<String>> hashToPaths = new HashMap<>();
@@ -91,7 +103,7 @@ public class LatentBugExplorer extends JFrame {
       final String contents = entry.getValue();
       for (final LANGUAGE lang : languages) {
         if (lang.isTarget(path)) {
-          final List<Statement> statements = StringUtility.splitToStatements(contents, lang);
+          final List<Statement> statements = stringUtil.splitToStatements(contents, lang);
           pathToStatements.put(path, statements);
 
           for (final Statement statement : statements) {
@@ -111,8 +123,9 @@ public class LatentBugExplorer extends JFrame {
 
     final int support = config.getESUPPORT();
     final float confidence = config.getECONFIDENCE();
+    final boolean onlyBugfix = config.isONLYBUGFIX();
     final List<ChangePattern> patterns =
-        ReadOnlyDAO.SINGLETON.getChangePatterns(support, confidence);
+        ReadOnlyDAO.SINGLETON.getChangePatterns(support, confidence, onlyBugfix);
 
     System.out.print("finding latent buggy code from ");
     System.out.print(pathToStatements.size());
@@ -136,7 +149,7 @@ public class LatentBugExplorer extends JFrame {
 
       final String patternText = ReadOnlyDAO.SINGLETON.getCode(pattern.beforeHash)
           .get(0).rText;
-      final List<byte[]> patternHashs = Arrays.asList(StringUtility.splitToLines(patternText))
+      final List<byte[]> patternHashs = Arrays.asList(stringUtil.splitToLines(patternText))
           .stream()
           .map(line -> Statement.getMD5(line))
           .collect(Collectors.toList());
@@ -160,8 +173,8 @@ public class LatentBugExplorer extends JFrame {
       }
 
       final ExecutorService threadPool = Executors.newFixedThreadPool(threads);
-      final Future<?> future = threadPool.submit(
-          new MatchingThread(paths, pathToStatements, pattern, fWarnings, pWarnings, verbose));
+      final Future<?> future = threadPool.submit(new MatchingThread(config, paths, pathToStatements,
+          pattern, fWarnings, pWarnings, verbose));
       futures.add(future);
       try {
         for (final Future<?> f : futures) {
@@ -227,14 +240,16 @@ public class LatentBugExplorer extends JFrame {
     }
   }
 
-  public LatentBugExplorer(final Map<String, String> files,
-      final Map<String, List<Warning>> fWarnings,
-      final Map<ChangePattern, List<Warning>> pWarnings) {}
+  /*
+   * public LatentBugExplorer(final Map<String, String> files, final Map<String, List<Warning>>
+   * fWarnings, final Map<ChangePattern, List<Warning>> pWarnings) { }
+   */
 }
 
 
 class MatchingThread extends Thread {
 
+  final CPAConfig config;
   final SortedSet<String> paths;
   final SortedMap<String, List<Statement>> pathToStatements;
   final ChangePattern pattern;
@@ -242,11 +257,12 @@ class MatchingThread extends Thread {
   final ConcurrentMap<ChangePattern, List<Warning>> pWarnings;
   final boolean verbose;
 
-  MatchingThread(final SortedSet<String> paths,
+  MatchingThread(final CPAConfig config, final SortedSet<String> paths,
       final SortedMap<String, List<Statement>> pathToStatements, final ChangePattern pattern,
       final ConcurrentMap<String, List<Warning>> fWarnings,
       final ConcurrentMap<ChangePattern, List<Warning>> pWarnings, final boolean verbose) {
 
+    this.config = config;
     this.paths = paths;
     this.pathToStatements = pathToStatements;
     this.pattern = pattern;
@@ -299,7 +315,8 @@ class MatchingThread extends Thread {
 
     final String patternText = ReadOnlyDAO.SINGLETON.getCode(pattern.beforeHash)
         .get(0).rText;
-    final List<byte[]> patternHashs = Arrays.asList(StringUtility.splitToLines(patternText))
+    final StringUtility stringUtil = new StringUtility(config);
+    final List<byte[]> patternHashs = Arrays.asList(stringUtil.splitToLines(patternText))
         .stream()
         .map(line -> Statement.getMD5(line))
         .collect(Collectors.toList());

@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,14 +17,12 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-
 import org.tmatesoft.svn.core.ISVNLogEntryHandler;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.LANGUAGE;
 import yoshikihigo.cpanalyzer.StringUtility;
@@ -34,11 +31,12 @@ import yoshikihigo.cpanalyzer.data.Revision;
 public class RList extends JPanel {
 
   final public JScrollPane scrollPane;
+  private final CPAConfig config;
 
   final ButtonGroup group;
   final Map<JRadioButton, Revision> buttonRevisionMap;
 
-  public RList() {
+  public RList(final CPAConfig config) {
     super();
     this.group = new ButtonGroup();
     this.buttonRevisionMap = new HashMap<JRadioButton, Revision>();
@@ -83,6 +81,8 @@ public class RList extends JPanel {
     this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
     this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     this.scrollPane.setBorder(new TitledBorder(new LineBorder(Color.black), "Revisions"));
+
+    this.config = config;
   }
 
   public final Revision getSelectedRevision() {
@@ -108,19 +108,15 @@ public class RList extends JPanel {
 
     try {
 
-      final String repository = CPAConfig.getInstance()
-          .getREPOSITORY_FOR_TEST();
-      final Set<LANGUAGE> languages = CPAConfig.getInstance()
-          .getLANGUAGE();
+      final String repository = config.getREPOSITORY_FOR_TEST();
+      final Set<LANGUAGE> languages = config.getLANGUAGE();
 
       final SVNURL url = SVNURL.fromFile(new File(repository));
       FSRepositoryFactory.setup();
       final SVNRepository svnRepository = FSRepositoryFactory.create(url);
 
-      long startRevision = CPAConfig.getInstance()
-          .getSTART_REVISION_FOR_TEST();
-      long endRevision = CPAConfig.getInstance()
-          .getEND_REVISION_FOR_TEST();
+      long startRevision = config.getSTART_REVISION_FOR_TEST();
+      long endRevision = config.getEND_REVISION_FOR_TEST();
 
       if (startRevision < 0) {
         startRevision = 0l;
@@ -142,7 +138,7 @@ public class RList extends JPanel {
             final String date = StringUtility.getDateString(logEntry.getDate());
             final String message = logEntry.getMessage();
             final String author = logEntry.getAuthor();
-            final Revision revision = new Revision("", id, date, message, author);
+            final Revision revision = new Revision("", id, date, message, author, false);
             for (final LANGUAGE language : languages) {
               if (language.isTarget(path)) {
                 revisions.add(revision);

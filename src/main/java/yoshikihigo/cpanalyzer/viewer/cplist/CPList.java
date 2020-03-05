@@ -13,7 +13,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -29,13 +28,13 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
-
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.viewer.DetectionWindow;
 import yoshikihigo.cpanalyzer.viewer.ObservedChangePatterns;
+import yoshikihigo.cpanalyzer.viewer.ObservedChangePatterns.CPLABEL;
 import yoshikihigo.cpanalyzer.viewer.OverlookedWindow;
 import yoshikihigo.cpanalyzer.viewer.PatternWindow;
-import yoshikihigo.cpanalyzer.viewer.ObservedChangePatterns.CPLABEL;
 
 public class CPList extends JTable implements Observer {
 
@@ -162,7 +161,7 @@ public class CPList extends JTable implements Observer {
 
             @Override
             public void run() {
-              new PatternWindow();
+              new PatternWindow(config);
             }
           });
         }
@@ -176,7 +175,7 @@ public class CPList extends JTable implements Observer {
 
             @Override
             public void run() {
-              new OverlookedWindow();
+              new OverlookedWindow(config);
             }
           });
         }
@@ -190,7 +189,7 @@ public class CPList extends JTable implements Observer {
 
             @Override
             public void run() {
-              new DetectionWindow();
+              new DetectionWindow(config);
             }
           });
         }
@@ -205,15 +204,18 @@ public class CPList extends JTable implements Observer {
   static final int COLUMN_LENGTH_CATEGORY = 170;
 
   final public JScrollPane scrollPane;
+  final private CPAConfig config;
   final private MPSelectionHandler selectionHandler;
 
-  public CPList() {
+  public CPList(final CPAConfig config) {
 
     super();
 
     this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     this.setModel();
+
+    this.config = config;
 
     this.scrollPane = new JScrollPane();
     this.scrollPane.setViewportView(this);

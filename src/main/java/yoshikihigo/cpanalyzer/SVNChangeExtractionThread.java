@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
@@ -19,7 +18,6 @@ import org.tmatesoft.svn.core.wc.SVNDiffStatus;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNStatusType;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
-
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
@@ -29,11 +27,13 @@ public class SVNChangeExtractionThread extends Thread {
 
   final private static Object LOCK = new Object();
 
+  final CPAConfig config;
   final public Revision beforeRevision;
   final public Revision afterRevision;
 
-  public SVNChangeExtractionThread(final Revision beforeRevision, final Revision afterRevision) {
-
+  public SVNChangeExtractionThread(final CPAConfig config, final Revision beforeRevision,
+      final Revision afterRevision) {
+    this.config = config;
     this.beforeRevision = beforeRevision;
     this.afterRevision = afterRevision;
   }
@@ -43,18 +43,12 @@ public class SVNChangeExtractionThread extends Thread {
 
     final long id = Thread.currentThread()
         .getId();
-    final String repository = CPAConfig.getInstance()
-        .getSVNREPOSITORY_FOR_MINING();
-    final Set<LANGUAGE> languages = CPAConfig.getInstance()
-        .getLANGUAGE();
-    final String software = CPAConfig.getInstance()
-        .getSOFTWARE();
-    final boolean onlyCondition = CPAConfig.getInstance()
-        .isONLY_CONDITION();
-    final boolean ignoreImport = CPAConfig.getInstance()
-        .isIGNORE_IMPORT();
-    final boolean isVerbose = CPAConfig.getInstance()
-        .isVERBOSE();
+    final String repository = config.getSVNREPOSITORY_FOR_MINING();
+    final Set<LANGUAGE> languages = config.getLANGUAGE();
+    final String repoPath = repository;
+    final boolean onlyCondition = config.isONLY_CONDITION();
+    final boolean ignoreImport = config.isIGNORE_IMPORT();
+    final boolean isVerbose = config.isVERBOSE();
 
     SVNURL url;
     SVNDiffClient diffClient;
@@ -116,7 +110,7 @@ public class SVNChangeExtractionThread extends Thread {
       return;
     }
 
-    final LCS lcs = new LCS(software, this.afterRevision);
+    final LCS lcs = new LCS(config, repoPath, this.afterRevision);
 
     FILE: for (final String path : changedPaths) {
 
@@ -177,10 +171,11 @@ public class SVNChangeExtractionThread extends Thread {
       }
 
       final LANGUAGE language = FileUtility.getLANGUAGE(path);
+      final StringUtility stringUtil = new StringUtility(config);
       final List<Statement> beforeStatements =
-          StringUtility.splitToStatements(beforeText.toString(), language);
+          stringUtil.splitToStatements(beforeText.toString(), language);
       final List<Statement> afterStatements =
-          StringUtility.splitToStatements(afterText.toString(), language);
+          stringUtil.splitToStatements(afterText.toString(), language);
 
       final List<Change> changes = lcs.getChanges(beforeStatements, afterStatements, path);
 

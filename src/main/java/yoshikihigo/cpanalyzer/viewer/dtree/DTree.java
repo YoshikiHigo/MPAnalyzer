@@ -11,7 +11,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.LineBorder;
@@ -21,7 +20,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 import org.tmatesoft.svn.core.ISVNDirEntryHandler;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNDirEntry;
@@ -33,7 +31,6 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.FileUtility;
 import yoshikihigo.cpanalyzer.LANGUAGE;
@@ -89,9 +86,11 @@ public class DTree extends JTree implements Observer {
 
   private final DTreeSelectionEventHandler directoryTreeSelectionEventHandler;
 
+  private final CPAConfig config;
+
   private ProgressDialog progressDialog;
 
-  public DTree() {
+  public DTree(final CPAConfig config) {
 
     super();
 
@@ -104,6 +103,8 @@ public class DTree extends JTree implements Observer {
     this.scrollPane.setViewportView(this);
     this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
     this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+    this.config = config;
 
     this.setRootVisible(false);
 
@@ -187,8 +188,7 @@ public class DTree extends JTree implements Observer {
     final List<FileData> data = new ArrayList<FileData>();
 
     try {
-      final String repository = CPAConfig.getInstance()
-          .getREPOSITORY_FOR_TEST();
+      final String repository = config.getREPOSITORY_FOR_TEST();
       final SVNURL url = SVNURL.fromFile(new File(repository));
       FSRepositoryFactory.setup();
       final SVNLogClient logClient = SVNClientManager.newInstance()
@@ -257,8 +257,8 @@ public class DTree extends JTree implements Observer {
             });
 
         final LANGUAGE language = FileUtility.getLANGUAGE(path);
-        final List<Statement> statements =
-            StringUtility.splitToStatements(text.toString(), language);
+        final StringUtility stringUtil = new StringUtility(config);
+        final List<Statement> statements = stringUtil.splitToStatements(text.toString(), language);
         final int count = this.getCount(statements, codeFragment.statements);
 
         final String[] separatedPath = path.split("/");

@@ -8,35 +8,44 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 
 public class ChangePatternDAO {
 
-  static public final ChangePatternDAO SINGLETON = new ChangePatternDAO();
+  static public ChangePatternDAO SINGLETON = new ChangePatternDAO();
 
-  static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, "
-      + "beforeHash blob, " + "afterHash blob, " + "changetype integer, " + "difftype integer, "
-      + "support integer, " + "confidence real, " + "authors integer, " + "files integer, "
-      + "nos integer, " + "firstdate string, " + "lastdate string";
+  static public final String PATTERNS_SCHEMA = "id integer primary key autoincrement, " + //
+      "beforeHash blob, " + //
+      "afterHash blob, " + //
+      "changetype integer, " + //
+      "difftype integer, " + //
+      "support integer, " + //
+      "confidence real, " + //
+      "authors integer, " + //
+      "files integer, " + //
+      "nos integer, " + //
+      "firstdate string, " + //
+      "lastdate string, " + //
+      "bugfix int";
 
   private Connection connector;
+  private CPAConfig config;
 
   private ChangePatternDAO() {}
 
-  synchronized public boolean initialize() {
+  synchronized public boolean initialize(final CPAConfig config) {
+
+    this.config = config;
 
     try {
 
       Class.forName("org.sqlite.JDBC");
-      final String database = CPAConfig.getInstance()
-          .getDATABASE();
+      final String database = config.getDATABASE();
       this.connector = DriverManager.getConnection("jdbc:sqlite:" + database);
       final Statement statement = this.connector.createStatement();
 
       {
-        final boolean force = CPAConfig.getInstance()
-            .isFORCE();
+        final boolean force = config.isFORCE();
         final ResultSet result = statement.executeQuery(
             "select count(*) from sqlite_master where type='table' and name='patterns'");
         if (result.next()) {
@@ -119,14 +128,12 @@ public class ChangePatternDAO {
 
     try {
 
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.print("making change patterns ...");
       }
       final List<byte[]> hashs = new ArrayList<>();
       {
-        final boolean isAll = CPAConfig.getInstance()
-            .isALL();
+        final boolean isAll = config.isALL();
         final Statement statement = this.connector.createStatement();
         final StringBuilder text = new StringBuilder();
         if (isAll) {
@@ -154,8 +161,7 @@ public class ChangePatternDAO {
 
         int number = 1;
         for (final byte[] beforeHash : hashs) {
-          if (!CPAConfig.getInstance()
-              .isQUIET()) {
+          if (!config.isQUIET()) {
             if (0 == number % 500) {
               System.out.print(number);
             } else if (0 == number % 100) {
@@ -183,13 +189,11 @@ public class ChangePatternDAO {
         statement.executeUpdate("create index index_difftype_patterns on patterns(difftype)");
         statement.close();
       }
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.println(" done.");
       }
 
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.print("calculating metrics ...");
       }
       final List<byte[][]> hashpairs = new ArrayList<>();
@@ -210,16 +214,16 @@ public class ChangePatternDAO {
         final String text = "update patterns "
             + "set authors = (select count(distinct author) from changes C1 where C1.beforeHash = ? and C1.afterHash = ?), "
             + "files = (select count(distinct filepath) from changes C2 where C2.beforeHash = ? and C2.afterHash = ?), "
-            + "nos = (select count(distinct software) from changes C3 where C3.beforeHash = ? and C3.afterHash = ?), "
+            + "nos = (select count(distinct repo) from changes C3 where C3.beforeHash = ? and C3.afterHash = ?), "
             + "firstdate = (select date from changes C4 where C4.beforeHash = ? and C4.afterHash = ? order by date asc limit 1), "
-            + "lastdate = (select date from changes C5 where C5.beforeHash = ? and C5.afterHash = ? order by date desc limit 1) "
+            + "lastdate = (select date from changes C5 where C5.beforeHash = ? and C5.afterHash = ? order by date desc limit 1), "
+            + "bugfix = (select sum(C6.bugfix) from changes C6 where C6.beforeHash = ? and C6.afterHash = ?) "
             + "where beforeHash = ? and afterHash = ?";
         final PreparedStatement statement = this.connector.prepareStatement(text);
 
         int number = 1;
         for (final byte[][] hashpair : hashpairs) {
-          if (!CPAConfig.getInstance()
-              .isQUIET()) {
+          if (!config.isQUIET()) {
             if (0 == number % 1000) {
               System.out.print(number);
             } else if (0 == number % 100) {
@@ -241,6 +245,8 @@ public class ChangePatternDAO {
           statement.setBytes(10, hashpair[1]);
           statement.setBytes(11, hashpair[0]);
           statement.setBytes(12, hashpair[1]);
+          statement.setBytes(13, hashpair[0]);
+          statement.setBytes(14, hashpair[1]);
           statement.executeUpdate();
           number++;
         }
@@ -256,8 +262,7 @@ public class ChangePatternDAO {
         statement.executeUpdate("create index index_nos_patterns on patterns(nos)");
         statement.close();
       }
-      if (!CPAConfig.getInstance()
-          .isQUIET()) {
+      if (!config.isQUIET()) {
         System.out.println(" done.");
       }
     }

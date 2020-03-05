@@ -12,7 +12,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -37,6 +36,10 @@ public class FileListView extends JTable implements Observer {
         return;
       }
 
+      // FileListの選択状態が変更された時にはWarningListの選択状態は解除する
+      SelectedEntities.<Warning>getInstance(SelectedEntities.SELECTED_WARNING)
+          .clear(FileListView.this);
+
       final int firstIndex = e.getFirstIndex();
       final int lastIndex = e.getLastIndex();
       for (int i = firstIndex; i <= lastIndex; i++) {
@@ -47,13 +50,9 @@ public class FileListView extends JTable implements Observer {
             .isSelectedIndex(i)) {
           SelectedEntities.<String>getInstance(SelectedEntities.SELECTED_PATH)
               .add(path, FileListView.this);
-          SelectedEntities.<Warning>getInstance(SelectedEntities.SELECTED_WARNING)
-              .clear(FileListView.this);
         } else {
           SelectedEntities.<String>getInstance(SelectedEntities.SELECTED_PATH)
               .remove(path, FileListView.this);
-          SelectedEntities.<Warning>getInstance(SelectedEntities.SELECTED_WARNING)
-              .clear(FileListView.this);
         }
       }
     }

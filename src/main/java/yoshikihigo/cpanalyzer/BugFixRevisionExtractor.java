@@ -1,70 +1,54 @@
 package yoshikihigo.cpanalyzer;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import yoshikihigo.cpanalyzer.db.ConfigurationDAO;
+import java.util.stream.Collectors;
+import com.google.common.base.Splitter;
 
 public class BugFixRevisionExtractor {
 
-  public static void main(final String[] args) {
-    CPAConfig.initialize(args);
-    final BugFixRevisionExtractor main = new BugFixRevisionExtractor();
-    main.make();
-    
-    final CPAConfig config = CPAConfig.getInstance();
-    final String bugFile = config.getBUG();
-    ConfigurationDAO.SINGLETON.setBugFile(bugFile);
+  private final CPAConfig config;
+
+  public BugFixRevisionExtractor(final CPAConfig config) {
+    this.config = config;
   }
 
-  private void make() {
+  public static void main(final String[] args) {
+    final CPAConfig config = CPAConfig.initialize(args);
+    final BugFixRevisionExtractor extractor = new BugFixRevisionExtractor(config);
+    extractor.perform();
+  }
 
-    final String BUGFIXREVISIONS_SCHEMA = "software string, " + "id string, " + "date string, "
-        + "message string, " + "author string, " + "bugfix integer, " + "info string, "
-        + "primary key(software, id)";
-    final CPAConfig config = CPAConfig.getInstance();
+  private void perform() {
     final String database = config.getDATABASE();
-    final SortedMap<String, String> bugIDs = this.getBugIDs();
+    final Map<String, String> bugIDs = this.getBugIDs();
 
     try {
       Class.forName("org.sqlite.JDBC");
       final Connection connector = DriverManager.getConnection("jdbc:sqlite:" + database);
 
-      final Statement statement1 = connector.createStatement();
-      statement1.executeUpdate("drop index if exists index_id_bugfixrevisions");
-      statement1.executeUpdate("drop index if exists index_bugfix_bugfixrevisions");
-      statement1.executeUpdate("drop table if exists bugfixrevisions");
-      statement1.executeUpdate("create table bugfixrevisions (" + BUGFIXREVISIONS_SCHEMA + ")");
-      statement1.executeUpdate("create index index_id_bugfixrevisions on bugfixrevisions(id)");
-      statement1
-          .executeUpdate("create index index_bugfix_bugfixrevisions on bugfixrevisions(bugfix)");
-      statement1.close();
-
-      final Statement statement2 = connector.createStatement();
-      final ResultSet results2 =
-          statement2.executeQuery("select software, id, date, message, author from revisions");
-      final PreparedStatement statement3 =
-          connector.prepareStatement("insert into bugfixrevisions values (?, ?, ?, ?, ?, ?, ?)");
-      while (results2.next()) {
-        final String software = results2.getString(1);
-        final String id = results2.getString(2);
-        final String date = results2.getString(3);
-        String message = results2.getString(4);
+      final Statement selectStmt = connector.createStatement();
+      final ResultSet selectResults =
+          selectStmt.executeQuery("select repo, id, message from revisions");
+      final PreparedStatement updateStmt =
+          connector.prepareStatement("update revisions set bugfix = ? where repo = ? and id = ?");
+      while (selectResults.next()) {
+        final String repo = selectResults.getString(1);
+        final String id = selectResults.getString(2);
+        String message = selectResults.getString(3);
         if (message.contains("git-svn-id")) {
           message = message.substring(0, message.indexOf("git-svn-id"));
         }
-        final String author = results2.getString(5);
 
         int bugfix = 0;
         final StringBuilder urls = new StringBuilder();
@@ -85,48 +69,50 @@ public class BugFixRevisionExtractor {
           }
         }
 
-        statement3.setString(1, software);
-        statement3.setString(2, id);
-        statement3.setString(3, date);
-        statement3.setString(4, message);
-        statement3.setString(5, author);
-        statement3.setInt(6, bugfix);
-        statement3.setString(7, urls.toString());
-        statement3.executeUpdate();
+        updateStmt.setInt(1, bugfix);
+        updateStmt.setString(2, repo);
+        updateStmt.setString(3, id);
+        updateStmt.addBatch();
       }
-      statement2.close();
-      statement3.close();
+      selectStmt.close();
+      updateStmt.executeBatch();
+      updateStmt.close();
 
     } catch (SQLException | ClassNotFoundException e) {
       e.printStackTrace();
     }
   }
 
-  private SortedMap<String, String> getBugIDs() {
-    final CPAConfig config = CPAConfig.getInstance();
-    final String bugFile = config.getBUG();
-    final SortedMap<String, String> ids = new TreeMap<>();
+  private Map<String, String> getBugIDs() {
+    final Path bugFilePath = config.getBUG();
+    Map<String, String> map = Collections.emptyMap();
 
-    try (final BufferedReader reader =
-        new BufferedReader(new InputStreamReader(new FileInputStream(bugFile), "JISAutoDetect"))) {
-      reader.readLine();
-      while (true) {
-        final String lineText = reader.readLine();
-        if (null == lineText) {
-          break;
-        }
-
-        final StringTokenizer tokenizer = new StringTokenizer(lineText, " ,");
-        final String id = tokenizer.nextToken();
-        final String url = tokenizer.nextToken();
-        ids.put(id, url);
-      }
-    }
-
-    catch (final IOException e) {
+    try {
+      map = Files.readAllLines(bugFilePath)
+          .stream()
+          .collect(
+              Collectors.toMap(BugFixRevisionExtractor::getID, BugFixRevisionExtractor::getURL));
+    } catch (final IOException e) {
       e.printStackTrace();
+      System.exit(0);
     }
 
-    return ids;
+    return map;
+  }
+
+  static private String getID(final String line) {
+    return Splitter.on(',')
+        .omitEmptyStrings()
+        .trimResults()
+        .splitToList(line)
+        .get(0);
+  }
+
+  static private String getURL(final String line) {
+    return Splitter.on(',')
+        .omitEmptyStrings()
+        .trimResults()
+        .splitToList(line)
+        .get(1);
   }
 }

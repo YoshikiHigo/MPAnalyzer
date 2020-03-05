@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -18,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-
 import yoshikihigo.cpanalyzer.data.Change.ChangeType;
 import yoshikihigo.cpanalyzer.data.Change.DiffType;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
@@ -295,7 +293,7 @@ public class ThresholdPanel extends JPanel implements Observer {
 
         try {
           final List<ChangePattern> patterns =
-              ReadOnlyDAO.SINGLETON.getChangePatterns(supportMin, confidenceMin);
+              ReadOnlyDAO.SINGLETON.getChangePatterns(supportMin, confidenceMin, false);
           for (final Iterator<ChangePattern> iterator = patterns.iterator(); iterator.hasNext();) {
             final ChangePattern pattern = iterator.next();
             if ((pattern.getNOD() < nodMin) || (pattern.getNOF() < nofMin)

@@ -6,13 +6,12 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.Change;
 import yoshikihigo.cpanalyzer.viewer.ObservedChanges.CLABEL;
 import yoshikihigo.cpanalyzer.viewer.ccode.CCode;
@@ -22,7 +21,7 @@ public class PatternWindow extends JFrame implements Observer {
 
   private final JTextArea logDisplay;
 
-  public PatternWindow() {
+  public PatternWindow(final CPAConfig config) {
     super("");
 
     Dimension d = Toolkit.getDefaultToolkit()
@@ -44,10 +43,10 @@ public class PatternWindow extends JFrame implements Observer {
     topPane.setLeftComponent(list.scrollPane);
     topPane.setRightComponent(this.logDisplay);
 
-    final CCode beforeCode = new CCode(CODE.BEFORE);
+    final CCode beforeCode = new CCode(config, CODE.BEFORE);
     ObservedChanges.getInstance(CLABEL.SELECTED)
         .addObserver(beforeCode);
-    final CCode afterCode = new CCode(CODE.AFTER);
+    final CCode afterCode = new CCode(config, CODE.AFTER);
     ObservedChanges.getInstance(CLABEL.SELECTED)
         .addObserver(afterCode);
     final JSplitPane codePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);

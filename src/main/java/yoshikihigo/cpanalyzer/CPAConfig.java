@@ -1,6 +1,9 @@
 package yoshikihigo.cpanalyzer;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -16,21 +19,12 @@ import org.apache.commons.cli.ParseException;
 
 public class CPAConfig {
 
-  static private CPAConfig SINGLETON = null;
   static final public Options OPTIONS = new Options();
   static {
     {
       final Option option =
           new Option("lang", "language", true, "programming language for analysis");
       option.setArgName("language");
-      option.setArgs(1);
-      option.setRequired(false);
-      OPTIONS.addOption(option);
-    }
-
-    {
-      final Option option = new Option("soft", "software", true, "software name");
-      option.setArgName("software");
       option.setArgs(1);
       option.setRequired(false);
       OPTIONS.addOption(option);
@@ -49,6 +43,15 @@ public class CPAConfig {
       final Option option =
           new Option("gitrepo", "gitrepository", true, "git repository for mining");
       option.setArgName("gitrepository");
+      option.setArgs(1);
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
+
+    {
+      final Option option = new Option("gitrepos", "gitrepositories", true,
+          "a file including a list of git repositories for mining");
+      option.setArgName("file");
       option.setArgs(1);
       option.setRequired(false);
       OPTIONS.addOption(option);
@@ -85,6 +88,24 @@ public class CPAConfig {
       final Option option =
           new Option("enddate", "enddate", true, "end date of repository for mining");
       option.setArgName("date (dd:mm:yyyy)");
+      option.setArgs(1);
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
+
+    {
+      final Option option =
+          new Option("startcommit", "startcommit", true, "start commit of repository for mining");
+      option.setArgName("commit");
+      option.setArgs(1);
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
+
+    {
+      final Option option =
+          new Option("endcommit", "endcommit", true, "end commit of repository for mining");
+      option.setArgName("commit");
       option.setArgs(1);
       option.setRequired(false);
       OPTIONS.addOption(option);
@@ -339,24 +360,28 @@ public class CPAConfig {
       option.setRequired(false);
       OPTIONS.addOption(option);
     }
+
+    {
+      final Option option = new Option("onlybugfix", "onlybugfix", false,
+          "use only bugfix change patterns to detect latent buggy code");
+      option.setRequired(false);
+      OPTIONS.addOption(option);
+    }
   }
 
   static public Collection<Option> getOptions() {
     return OPTIONS.getOptions();
   }
 
-  static public boolean initialize(final String[] args) {
+  static public CPAConfig initialize(final String[] args) {
 
-    if (null != SINGLETON) {
-      return false;
-    }
-
+    CPAConfig config = null;
     try {
       final CommandLineParser parser = new DefaultParser();
       final CommandLine commandLine = parser.parse(OPTIONS, args);
-      SINGLETON = new CPAConfig(commandLine);
+      config = new CPAConfig(commandLine);
 
-      if (SINGLETON.isVERBOSE() && SINGLETON.isQUIET()) {
+      if (config.isVERBOSE() && config.isQUIET()) {
         System.err
             .println("\"-v\" (\"--verbose\") and \"-q\" (\"--quiet\") can not be used together.");
         System.exit(0);
@@ -367,17 +392,7 @@ public class CPAConfig {
       System.exit(0);
     }
 
-    return true;
-  }
-
-  static public CPAConfig getInstance() {
-
-    if (null == SINGLETON) {
-      System.err.println("Config is not initialized.");
-      System.exit(0);
-    }
-
-    return SINGLETON;
+    return config;
   }
 
   private final CommandLine commandLine;
@@ -414,14 +429,6 @@ public class CPAConfig {
     return languages;
   }
 
-  public String getSOFTWARE() {
-    if (!this.commandLine.hasOption("soft")) {
-      System.err.println("option \"soft\" is not specified.");
-      System.exit(0);
-    }
-    return this.commandLine.getOptionValue("soft");
-  }
-
   public String getSVNREPOSITORY_FOR_MINING() {
     if (!this.commandLine.hasOption("svnrepo")) {
       System.err.println("option \"svnrepo\" is not specified.");
@@ -438,6 +445,14 @@ public class CPAConfig {
     return this.commandLine.getOptionValue("gitrepo");
   }
 
+  public String getGITREPOSITIES_FOR_MINING() {
+    if (!this.commandLine.hasOption("gitrepos")) {
+      System.err.println("option \"gitrepos\" is not specified.");
+      System.exit(0);
+    }
+    return this.commandLine.getOptionValue("gitrepos");
+  }
+
   public long getSTART_REVISION_FOR_MINING() {
     if (this.commandLine.hasOption("startrev")) {
       return Long.parseLong(this.commandLine.getOptionValue("startrev"));
@@ -450,6 +465,30 @@ public class CPAConfig {
       return Long.parseLong(this.commandLine.getOptionValue("endrev"));
     }
     return -1;
+  }
+
+  public boolean hasSTART_COMMIT_FOR_MINING() {
+    return this.commandLine.hasOption("startcommit");
+  }
+
+  public String getSTART_COMMIT_FOR_MINING() {
+    if (!this.hasSTART_COMMIT_FOR_MINING()) {
+      System.err.println("option \"startcommit\" is not specified.");
+      System.exit(0);
+    }
+    return this.commandLine.getOptionValue("startcommit");
+  }
+
+  public boolean hasEND_COMMIT_FOR_MINING() {
+    return this.commandLine.hasOption("endcommit");
+  }
+
+  public String getEND_COMMIT_FOR_MINING() {
+    if (!this.hasEND_COMMIT_FOR_MINING()) {
+      System.err.println("option \"endcommit\" is not specified.");
+      System.exit(0);
+    }
+    return this.commandLine.getOptionValue("endcommit");
   }
 
   public Date getSTART_DATE_FOR_MINING() {
@@ -684,12 +723,17 @@ public class CPAConfig {
         : 0.0f;
   }
 
-  public String getBUG() {
+  public Path getBUG() {
     if (!this.commandLine.hasOption("bug")) {
       System.err.println("option \"bug\" is not specified.");
       System.exit(0);
     }
-    return this.commandLine.getOptionValue("bug");
+    final Path bugFilePath = Paths.get(this.commandLine.getOptionValue("bug"));
+    if (!Files.isReadable(bugFilePath)) {
+      System.err.println("\'" + bugFilePath.toString() + "\' is not readable.");
+      System.exit(0);
+    }
+    return bugFilePath;
   }
 
   public boolean hasWARN() {
@@ -702,5 +746,9 @@ public class CPAConfig {
       System.exit(0);
     }
     return this.commandLine.getOptionValue("warn");
+  }
+
+  public boolean isONLYBUGFIX() {
+    return this.commandLine.hasOption("onlybugfix");
   }
 }

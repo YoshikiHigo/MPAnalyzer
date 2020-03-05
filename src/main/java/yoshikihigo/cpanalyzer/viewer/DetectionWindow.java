@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,7 +16,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-
+import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.data.ChangePattern;
 import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Revision;
@@ -33,7 +32,7 @@ import yoshikihigo.cpanalyzer.viewer.rlist.RList;
 
 public class DetectionWindow extends JFrame implements Observer {
 
-  public DetectionWindow() {
+  public DetectionWindow(final CPAConfig config) {
     super("Detection Window - CPAnalyzer");
 
     Dimension d = Toolkit.getDefaultToolkit()
@@ -43,7 +42,7 @@ public class DetectionWindow extends JFrame implements Observer {
     final JPanel topLeftPanel = new JPanel(new BorderLayout());
     final JButton searchButton = new JButton("Search");
     topLeftPanel.add(searchButton, BorderLayout.NORTH);
-    final RList rList = new RList();
+    final RList rList = new RList(config);
     topLeftPanel.add(rList.scrollPane, BorderLayout.CENTER);
 
     final JRadioButton beforeButton = new JRadioButton("Before change", false);
@@ -58,8 +57,8 @@ public class DetectionWindow extends JFrame implements Observer {
 
     final JPanel mCodePane = new JPanel();
     mCodePane.setLayout(new GridLayout(1, 2));
-    final CCode beforeCode = new CCode(CODE.BEFORE);
-    final CCode afterCode = new CCode(CODE.AFTER);
+    final CCode beforeCode = new CCode(config, CODE.BEFORE);
+    final CCode afterCode = new CCode(config, CODE.AFTER);
     mCodePane.add(beforeCode.scrollPane);
     mCodePane.add(afterCode.scrollPane);
     final ChangePattern pattern = ObservedChangePatterns.getInstance(CPLABEL.SELECTED)
@@ -80,8 +79,8 @@ public class DetectionWindow extends JFrame implements Observer {
     topPane.add(topLeftPanel, BorderLayout.WEST);
     topPane.add(topMainPanl, BorderLayout.CENTER);
 
-    final DTree dTree = new DTree();
-    final DCode dCode = new DCode();
+    final DTree dTree = new DTree(config);
+    final DCode dCode = new DCode(config);
     ObservedCodeFragments.getInstance(CFLABEL.DETECTION)
         .addObserver(dCode);
     ObservedFiles.getInstance(FLABEL.SELECTED)

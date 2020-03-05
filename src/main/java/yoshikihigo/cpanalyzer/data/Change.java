@@ -1,7 +1,6 @@
 package yoshikihigo.cpanalyzer.data;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import yoshikihigo.cpanalyzer.lexer.token.IMPORT;
 
 public class Change implements Comparable<Change> {
@@ -123,7 +122,7 @@ public class Change implements Comparable<Change> {
 
   private final static AtomicInteger ID_GENERATOR = new AtomicInteger();
 
-  public final String software;
+  public final String repo;
   public final int id;
   public final String filepath;
   public final Code before;
@@ -132,17 +131,17 @@ public class Change implements Comparable<Change> {
   public final ChangeType changeType;
   public final DiffType diffType;
 
-  public Change(final String software, final String filepath, final Code before, final Code after,
+  public Change(final String repo, final String filepath, final Code before, final Code after,
       final Revision revision, final ChangeType changeType, final DiffType diffType) {
-    this(software, ID_GENERATOR.getAndIncrement(), filepath, before, after, revision, changeType,
+    this(repo, ID_GENERATOR.getAndIncrement(), filepath, before, after, revision, changeType,
         diffType);
   }
 
-  public Change(final String software, final int id, final String filepath, final Code before,
+  public Change(final String repo, final int id, final String filepath, final Code before,
       final Code after, final Revision revision, final ChangeType changeType,
       final DiffType diffType) {
 
-    this.software = software;
+    this.repo = repo;
     this.id = id;
     this.filepath = filepath;
     this.before = before;
@@ -179,31 +178,31 @@ public class Change implements Comparable<Change> {
     }
 
     final Change target = (Change) o;
-    return this.software.equals(target.software) && (this.id == target.id);
+    return 0 == this.compareTo(target);
   }
 
   @Override
   public int hashCode() {
-    return this.software.hashCode() + this.id;
+    return this.repo.hashCode() + this.id;
   }
 
-  public boolean isSamePattern(final Change m) {
-    return this.before.equals(m.before) && this.after.equals(m.after);
+  public boolean isSamePattern(final Change target) {
+    return this.before.equals(target.before) && this.after.equals(target.after);
   }
 
   public boolean isCondition() {
     return this.before.statements.stream()
-        .anyMatch(statement -> statement.nText.startsWith("if ")
-            || statement.nText.startsWith("while ") || statement.nText.startsWith("for "))
+        .anyMatch(s -> s.nText.startsWith("if ")
+            || s.nText.startsWith("while ") || s.nText.startsWith("for "))
         || this.after.statements.stream()
-            .anyMatch(statement -> statement.nText.startsWith("if ")
-                || statement.nText.startsWith("while ") || statement.nText.startsWith("for "));
+            .anyMatch(s -> s.nText.startsWith("if ") || s.nText.startsWith("while ")
+                || s.nText.startsWith("for "));
   }
 
   public boolean isImport() {
     return this.before.statements.stream()
-        .anyMatch(statement -> statement.tokens.get(0) instanceof IMPORT)
+        .anyMatch(s -> s.tokens.get(0) instanceof IMPORT)
         || this.after.statements.stream()
-            .anyMatch(statement -> statement.tokens.get(0) instanceof IMPORT);
+            .anyMatch(s -> s.tokens.get(0) instanceof IMPORT);
   }
 }

@@ -15,7 +15,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
@@ -23,12 +22,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
-
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.FileUtility;
 import yoshikihigo.cpanalyzer.LANGUAGE;
@@ -37,10 +34,10 @@ import yoshikihigo.cpanalyzer.data.Code;
 import yoshikihigo.cpanalyzer.data.Revision;
 import yoshikihigo.cpanalyzer.data.Statement;
 import yoshikihigo.cpanalyzer.viewer.ObservedCodeFragments;
-import yoshikihigo.cpanalyzer.viewer.ObservedFiles;
-import yoshikihigo.cpanalyzer.viewer.ObservedRevisions;
 import yoshikihigo.cpanalyzer.viewer.ObservedCodeFragments.CFLABEL;
+import yoshikihigo.cpanalyzer.viewer.ObservedFiles;
 import yoshikihigo.cpanalyzer.viewer.ObservedFiles.FLABEL;
+import yoshikihigo.cpanalyzer.viewer.ObservedRevisions;
 import yoshikihigo.cpanalyzer.viewer.ObservedRevisions.RLABEL;
 
 public class DCode extends JTextArea implements Observer {
@@ -48,14 +45,17 @@ public class DCode extends JTextArea implements Observer {
   static public final int TAB_SIZE = 4;
 
   public final JScrollPane scrollPane;
+  private final CPAConfig config;
 
   private Revision revision;
   private Code codefragment;
   private List<Statement> statements;
 
-  public DCode() {
+  public DCode(final CPAConfig config) {
 
     this.setTabSize(TAB_SIZE);
+
+    this.config = config;
 
     this.revision = null;
     this.codefragment = null;
@@ -130,8 +130,7 @@ public class DCode extends JTextArea implements Observer {
             final String path = observedFiles.get()
                 .first();
 
-            final String repository = CPAConfig.getInstance()
-                .getREPOSITORY_FOR_TEST();
+            final String repository = config.getREPOSITORY_FOR_TEST();
             final SVNURL fileurl =
                 SVNURL.fromFile(new File(repository + System.getProperty("file.separator") + path));
             final SVNWCClient wcClient = SVNClientManager.newInstance()
@@ -149,7 +148,8 @@ public class DCode extends JTextArea implements Observer {
                 });
 
             final LANGUAGE language = FileUtility.getLANGUAGE(path);
-            DCode.this.statements = StringUtility.splitToStatements(text.toString(), language);
+            final StringUtility stringUtil = new StringUtility(config);
+            DCode.this.statements = stringUtil.splitToStatements(text.toString(), language);
             final SortedSet<Integer> highlightedLines =
                 this.getHighlightedLines(DCode.this.statements, this.codefragment.statements);
 

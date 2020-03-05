@@ -2,28 +2,34 @@ package yoshikihigo.cpanalyzer.data;
 
 public class Revision implements Comparable<Revision> {
 
-  public final String software;
+  public final String repo;
   public final String id;
   public final String date;
   public final String message;
   public final String author;
+  public final boolean bugfix;
 
-  public Revision(final String software, final String id, final String date, final String message,
-      final String author) {
-    this.software = software;
+  public Revision(final String repo, final String id, final String date, final String message,
+      final String author, final boolean bugfix) {
+    this.repo = repo;
     this.id = id;
     this.date = date;
     this.message = message;
     this.author = author;
+    this.bugfix = false;
   }
 
   @Override
   public int compareTo(final Revision revision) {
-    final int softwareOrder = this.software.compareTo(revision.software);
-    if (0 != softwareOrder) {
-      return softwareOrder;
+    final int repoOrder = this.repo.compareTo(revision.repo);
+    if (0 != repoOrder) {
+      return repoOrder;
     }
-    return this.date.compareTo(revision.date);
+    final int dateOrder = this.date.compareTo(revision.date);
+    if (0 != dateOrder) {
+      return dateOrder;
+    }
+    return this.id.compareTo(revision.id);
   }
 
   @Override
@@ -32,7 +38,7 @@ public class Revision implements Comparable<Revision> {
       return false;
     }
     final Revision target = (Revision) o;
-    return this.id == target.id;
+    return 0 == this.compareTo(target);
   }
 
   @Override

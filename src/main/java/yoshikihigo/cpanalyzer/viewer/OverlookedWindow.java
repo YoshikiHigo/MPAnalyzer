@@ -22,7 +22,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -34,7 +33,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
-
 import org.tmatesoft.svn.core.ISVNDirEntryHandler;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNDirEntry;
@@ -46,7 +44,6 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
-
 import yoshikihigo.cpanalyzer.CPAConfig;
 import yoshikihigo.cpanalyzer.FileUtility;
 import yoshikihigo.cpanalyzer.LANGUAGE;
@@ -68,9 +65,10 @@ import yoshikihigo.cpanalyzer.viewer.rlist.RList;
 
 public class OverlookedWindow extends JFrame implements Observer {
 
+  private final CPAConfig config;
   private ProgressDialog progressDialog;
 
-  public OverlookedWindow() {
+  public OverlookedWindow(final CPAConfig config) {
     super("Overlooked Code Window - CPAnalyzer");
 
     Dimension d = Toolkit.getDefaultToolkit()
@@ -90,7 +88,7 @@ public class OverlookedWindow extends JFrame implements Observer {
     configurationPanel.add(searchButton);
     configurationPanel.add(placePanel);
 
-    final RList rList = new RList();
+    final RList rList = new RList(config);
     final JPanel leftPanel = new JPanel(new BorderLayout());
     leftPanel.add(configurationPanel, BorderLayout.NORTH);
     leftPanel.add(rList.scrollPane, BorderLayout.CENTER);
@@ -98,7 +96,7 @@ public class OverlookedWindow extends JFrame implements Observer {
         .add(leftPanel, BorderLayout.WEST);
 
     final JSplitPane listPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-    final OList oList = new OList();
+    final OList oList = new OList(config);
     listPanel.setTopComponent(oList.scrollPane);
     final CLPanel clPanel = new CLPanel();
     ObservedChangePatterns.getInstance(CPLABEL.OVERLOOKED)
@@ -106,7 +104,7 @@ public class OverlookedWindow extends JFrame implements Observer {
     listPanel.setBottomComponent(clPanel.scrollPane);
 
     final JSplitPane codePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-    final OCode oCode = new OCode();
+    final OCode oCode = new OCode(config);
     ObservedCodeFragments.getInstance(CFLABEL.OVERLOOKED)
         .addObserver(oCode);
     ObservedFiles.getInstance(FLABEL.OVERLOOKED)
@@ -136,6 +134,8 @@ public class OverlookedWindow extends JFrame implements Observer {
 
     listPanel.setDividerLocation(d.height - 400);
     codePanel.setDividerLocation(d.height - 300);
+
+    this.config = config;
 
     this.setVisible(true);
 
@@ -245,10 +245,8 @@ public class OverlookedWindow extends JFrame implements Observer {
   private Map<String, List<Statement>> getFiles(final Revision revision) {
 
     try {
-      final Set<LANGUAGE> languages = CPAConfig.getInstance()
-          .getLANGUAGE();
-      final String repository = CPAConfig.getInstance()
-          .getREPOSITORY_FOR_TEST();
+      final Set<LANGUAGE> languages = config.getLANGUAGE();
+      final String repository = config.getREPOSITORY_FOR_TEST();
       final SVNURL url = SVNURL.fromFile(new File(repository));
       FSRepositoryFactory.setup();
       final SVNLogClient logClient = SVNClientManager.newInstance()
@@ -322,8 +320,8 @@ public class OverlookedWindow extends JFrame implements Observer {
             });
 
         final LANGUAGE language = FileUtility.getLANGUAGE(path);
-        final List<Statement> statements =
-            StringUtility.splitToStatements(text.toString(), language);
+        final StringUtility stringUtil = new StringUtility(config);
+        final List<Statement> statements = stringUtil.splitToStatements(text.toString(), language);
         files.put(path, statements);
       }
 
