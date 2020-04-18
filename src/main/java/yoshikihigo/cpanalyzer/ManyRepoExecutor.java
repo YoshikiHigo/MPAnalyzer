@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -47,7 +48,28 @@ public class ManyRepoExecutor {
     }
 
     // patternの生成
-    final String[] newArgs = {"-db", db, "-q"};
+    final String[] newArgs = generateNewArgsForMakingPatterns(db, args);
     ChangePatternMaker.main(newArgs);
+  }
+
+  static private String[] generateNewArgsForMakingPatterns(final String db, final String[] args) {
+    final List<String> newArgs = new ArrayList<>();
+    newArgs.add("-db");
+    newArgs.add(db);
+    newArgs.add("-q");
+    for (int index = 0; index < args.length; index++) {
+      switch (args[index]) {
+        case "-db":
+        case "--database":
+        case "-gitrepo":
+        case "--gitrepository":
+          index++;
+          break;
+        default:
+          newArgs.add(args[index]);
+          break;
+      }
+    }
+    return newArgs.toArray(new String[0]);
   }
 }
