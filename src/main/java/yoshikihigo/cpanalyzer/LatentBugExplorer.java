@@ -148,7 +148,7 @@ public class LatentBugExplorer {
       }
 
       final String patternText = ReadOnlyDAO.SINGLETON.getCode(pattern.beforeHash)
-          .get(0).rText;
+          .get(0).nText;
       final List<byte[]> patternHashs = Arrays.asList(stringUtil.splitToLines(patternText))
           .stream()
           .map(line -> Statement.getMD5(line))
@@ -314,7 +314,7 @@ class MatchingThread extends Thread {
       final ChangePattern pattern) {
 
     final String patternText = ReadOnlyDAO.SINGLETON.getCode(pattern.beforeHash)
-        .get(0).rText;
+        .get(0).nText;
     final StringUtility stringUtil = new StringUtility(config);
     final List<byte[]> patternHashs = Arrays.asList(stringUtil.splitToLines(patternText))
         .stream()
